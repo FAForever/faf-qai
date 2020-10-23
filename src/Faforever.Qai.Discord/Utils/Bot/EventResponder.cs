@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 using DSharpPlus;
@@ -14,7 +11,7 @@ namespace Faforever.Qai.Discord.Utils.Bot
 		private readonly DiscordRestClient Rest;
 		private readonly DiscordShardedClient Client;
 
-		public EventResponder(DiscordShardedClient client,  DiscordRestClient rest)
+		public EventResponder(DiscordShardedClient client, DiscordRestClient rest)
 		{
 			this.Client = client;
 			this.Rest = rest;

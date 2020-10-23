@@ -1,8 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
 using System.Threading.Tasks;
 
 using DSharpPlus.CommandsNext;
@@ -33,7 +29,10 @@ namespace Faforever.Qai.Discord.Commands.Utils
 			if (this.Context is null)
 				throw new NullReferenceException("Command Context is null");
 
-			await this.Context.RespondAsync(message);
+			await this.Context.RespondAsync(
+				embed: SuccessBase()
+					.WithDescription(message)
+				);
 		}
 
 		/// <summary>
@@ -46,7 +45,11 @@ namespace Faforever.Qai.Discord.Commands.Utils
 			if (this.Context is null)
 				throw new NullReferenceException("Command Conntext is null");
 
-			await this.Context.RespondAsync(DiscordEmoji.FromName(this.Context.Client, ":x:") + $" {message}");
+			await this.Context.RespondAsync(
+				embed: ErrorBase()
+					.WithTitle(DiscordEmoji.FromName(this.Context.Client, ":x:"))
+					.WithDescription(message)
+				);
 		}
 		#endregion
 

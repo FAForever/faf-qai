@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
 using DSharpPlus;
@@ -18,8 +15,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Faforever.Qai.Discord
 {
-    public class DiscordBot
-    {
+	public class DiscordBot
+	{
 		#region Event Ids
 		// 127### - designates a Discord Bot event.
 		public static EventId Event_CommandResponder { get; } = new EventId(127001, "Command Responder");
@@ -81,7 +78,7 @@ namespace Faforever.Qai.Discord
 			// create the Commands Next module
 			var commands = await Client.UseCommandsNextAsync(GetCommandsNextConfiguration());
 
-			foreach(CommandsNextExtension c in commands.Values)
+			foreach (CommandsNextExtension c in commands.Values)
 			{
 				// Register the command success and error handlers.
 				c.CommandErrored += CommandResponder.RespondError;
