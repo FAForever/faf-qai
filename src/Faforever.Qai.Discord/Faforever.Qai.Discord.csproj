@@ -2,6 +2,13 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00744" />
+      <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00744" />
+      <PackageReference Include="DSharpPlus.Rest" Version="4.0.0-nightly-00744" />
+    </ItemGroup>
 
 </Project>
