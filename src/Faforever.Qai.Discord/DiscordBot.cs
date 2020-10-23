@@ -10,6 +10,7 @@ using DSharpPlus.CommandsNext;
 
 using Faforever.Qai.Discord.Commands.Utils;
 using Faforever.Qai.Discord.Structures.Configurations;
+using Faforever.Qai.Discord.Utils.Bot;
 using Faforever.Qai.Discord.Utils.Commands;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +23,7 @@ namespace Faforever.Qai.Discord
 		#region Event Ids
 		// 127### - designates a Discord Bot event.
 		public static EventId Event_CommandResponder { get; } = new EventId(127001, "Command Responder");
+		public static EventId Event_EventResponder { get; } = new EventId(127002, "Event Responder");
 		#endregion
 
 		#region Public Variables
@@ -30,12 +32,17 @@ namespace Faforever.Qai.Discord
 		/// </summary>
 		public DiscordShardedClient Client { get; private set; }
 		/// <summary>
+		/// The Rest client for the Discord Bot
+		/// </summary>
+		public DiscordRestClient Rest { get; private set; }
+		/// <summary>
 		/// The list of commands that the Bot will respond to.
 		/// </summary>
 		public IEnumerable<string> CommandList { get; private set; }
 		#endregion
 		#region Private Variables
 		private DiscordBotConfiguration Config { get; set; }
+		private EventResponder eventResponder;
 
 		private readonly LogLevel logLevel;
 		#endregion
@@ -69,6 +76,7 @@ namespace Faforever.Qai.Discord
 
 			// Create the Clients
 			Client = new DiscordShardedClient(GetDiscordConfiguration());
+			Rest = new DiscordRestClient(GetDiscordConfiguration());
 
 			// create the Commands Next module
 			var commands = await Client.UseCommandsNextAsync(GetCommandsNextConfiguration());
@@ -92,9 +100,9 @@ namespace Faforever.Qai.Discord
 				// ex: c.RegisterConverter(new LeaderboardTypeConverter());
 			}
 
-			#region Client Events
-			// Additional client events go here.
-			#endregion
+			// Register any additional Client events
+			eventResponder = new EventResponder(Client, Rest);
+			eventResponder.Initalize();
 		}
 		/// <summary>
 		/// Gets the DiscordConfiguration object for a DiscordBot.
