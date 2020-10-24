@@ -59,7 +59,7 @@ namespace Faforever.Qai.Discord
 		public DiscordBot(LogLevel logLevel = LogLevel.Debug)
 		{
 			this.logLevel = logLevel;
-			CommandsInProgress = new ConcurrentDictionary<CommandHandler, bool>();
+			CommandsInProgress = new ConcurrentDictionary<CommandHandler, Task>();
 		}
 
 		#region Confgiurations
