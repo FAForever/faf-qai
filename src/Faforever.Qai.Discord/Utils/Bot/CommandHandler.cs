@@ -19,10 +19,10 @@ namespace Faforever.Qai.Discord.Utils.Bot
 	{
 		private readonly IReadOnlyDictionary<string, Command> _commands;
 		private readonly DiscordBotConfiguration _config;
-		private readonly DiscordShardedClient _client;
+		private readonly DiscordClient _client;
 		private readonly ILogger<BaseDiscordClient> _logger;
 
-		public CommandHandler(IReadOnlyDictionary<string, Command> commands, DiscordShardedClient client, DiscordBotConfiguration botConfig)
+		public CommandHandler(IReadOnlyDictionary<string, Command> commands, DiscordClient client, DiscordBotConfiguration botConfig)
 		{
 			this._commands = commands;
 			this._config = botConfig;
@@ -33,42 +33,50 @@ namespace Faforever.Qai.Discord.Utils.Bot
 		// TODO: Update to save guild config state. This will run as is, but will not hold any saved data between sessions.
 		public async Task MessageReceivedAsync(CommandsNextExtension cnext, DiscordMessage msg)
 		{
-			//using NSDatabaseModel model = new NSDatabaseModel();
-			// Need to know how we are accessing the database!
-
-			GuildConfig guildConfig = null; //await model.Configs.FindAsync(msg.Channel.GuildId);
-
-			if (guildConfig is null)
+			try
 			{
-				guildConfig = new GuildConfig
+				//using NSDatabaseModel model = new NSDatabaseModel();
+				// Need to know how we are accessing the database!
+
+				GuildConfig guildConfig = null; //await model.Configs.FindAsync(msg.Channel.GuildId);
+
+				if (guildConfig is null)
 				{
-					GuildId = msg.Channel.GuildId,
-					Prefix = _config.Prefix
-				};
+					guildConfig = new GuildConfig
+					{
+						GuildId = msg.Channel.GuildId,
+						Prefix = _config.Prefix
+					};
 
-				//model.Configs.Add(gConfig);
+					//model.Configs.Add(gConfig);
 
-				//await model.SaveChangesAsync();
+					//await model.SaveChangesAsync();
+				}
+
+				int prefixPos = await PrefixResolver(msg, guildConfig);
+
+				if (prefixPos == -1)
+					return; // Prefix is wrong, dont respond to this message.
+
+				var prefix = msg.Content.Substring(0, prefixPos);
+				string commandString = msg.Content.Replace(prefix, string.Empty);
+
+				var command = cnext.FindCommand(commandString, out string args);
+				if (command is null)
+				{ // Looks like that command does not exsist!
+					await CommandResponder.RespondCommandNotFound(msg.Channel, prefix);
+				}
+				else
+				{ // We found a command, lets deal with it.
+					var ctx = cnext.CreateContext(msg, prefix, command, args);
+					// We are done here, its up to CommandsNext now.
+					await cnext.ExecuteCommandAsync(ctx);
+				}
+
 			}
-
-			int prefixPos = await PrefixResolver(msg, guildConfig);
-
-			if (prefixPos == -1)
-				return; // Prefix is wrong, dont respond to this message.
-
-			var prefix = msg.Content.Substring(0, prefixPos);
-			string commandString = msg.Content.Replace(prefix, string.Empty);
-
-			var command = cnext.FindCommand(commandString, out string args);
-			if(command is null)
-			{ // Looks like that command does not exsist!
-				await CommandResponder.RespondCommandNotFound(msg.Channel, prefix);
-			}
-			else
-			{ // We found a command, lets deal with it.
-				var ctx = cnext.CreateContext(msg, prefix, command, args);
-				// We are done here, its up to CommandsNext now.
-				await cnext.ExecuteCommandAsync(ctx);
+			finally
+			{
+				DiscordBot.CommandsInProgress?.TryRemove(this, out _);
 			}
 		}
 

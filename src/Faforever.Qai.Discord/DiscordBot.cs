@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -28,6 +29,10 @@ namespace Faforever.Qai.Discord
 		public static EventId Event_EventHandler { get; } = new EventId(127003, "Event Handler");
 		#endregion
 
+		#region Static Variables
+		public static ConcurrentDictionary<CommandHandler, Task>? CommandsInProgress { get; private set; }
+		#endregion
+
 		#region Public Variables
 		/// <summary>
 		/// The Discord Sharded Client of this Discord Bot.
@@ -44,8 +49,8 @@ namespace Faforever.Qai.Discord
 		#endregion
 		#region Private Variables
 		private DiscordBotConfiguration Config { get; set; }
+
 		private DiscordEventHandler eventHandler;
-		private CommandHandler? commandHandler;
 
 		private readonly LogLevel logLevel;
 		#endregion
@@ -54,6 +59,7 @@ namespace Faforever.Qai.Discord
 		public DiscordBot(LogLevel logLevel = LogLevel.Debug)
 		{
 			this.logLevel = logLevel;
+			CommandsInProgress = new ConcurrentDictionary<CommandHandler, bool>();
 		}
 
 		#region Confgiurations
@@ -109,9 +115,6 @@ namespace Faforever.Qai.Discord
 
 			// Register the event needed to send data to the CommandHandler
 			Client.MessageCreated += Client_MessageCreated;
-
-			// Create the command handler.
-			commandHandler = new CommandHandler(Commands, Client, Config);
 		}
 		/// <summary>
 		/// Gets the DiscordConfiguration object for a DiscordBot.
@@ -157,19 +160,22 @@ namespace Faforever.Qai.Discord
 		#endregion
 
 		#region Command Events
-		private async Task Client_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
+		private Task Client_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
 		{
-			if (commandHandler is null)
-				return; // Looks like we can't handle any commands.
+			if (CommandsInProgress is null)
+				return Task.CompletedTask; // Looks like we can't handle any commands.
 
 			try
 			{
-				await commandHandler.MessageReceivedAsync(sender.GetCommandsNext(), e.Message);
+				var handler = new CommandHandler(Commands, sender, Config);
+				CommandsInProgress[handler] = handler.MessageReceivedAsync(sender.GetCommandsNext(), e.Message);
 			}
 			catch (Exception ex)
 			{
 				Client.Logger.LogError(Event_CommandHandler, ex, "An unkown error occoured.");
 			}
+
+			return Task.CompletedTask;
 		}
 		#endregion
 
