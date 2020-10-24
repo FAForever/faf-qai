@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -5,6 +6,7 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Converters;
+using DSharpPlus.EventArgs;
 
 using Faforever.Qai.Discord.Commands;
 using Faforever.Qai.Discord.Commands.Utils;
@@ -22,7 +24,8 @@ namespace Faforever.Qai.Discord
 		#region Event Ids
 		// 127### - designates a Discord Bot event.
 		public static EventId Event_CommandResponder { get; } = new EventId(127001, "Command Responder");
-		public static EventId Event_EventResponder { get; } = new EventId(127002, "Event Responder");
+		public static EventId Event_CommandHandler { get; } = new EventId(127002, "Command Handler");
+		public static EventId Event_EventHandler { get; } = new EventId(127003, "Event Handler");
 		#endregion
 
 		#region Public Variables
@@ -37,11 +40,12 @@ namespace Faforever.Qai.Discord
 		/// <summary>
 		/// The list of commands that the Bot will respond to.
 		/// </summary>
-		public IEnumerable<string> CommandList { get; private set; }
+		public IReadOnlyDictionary<string, Command> Commands { get; private set; }
 		#endregion
 		#region Private Variables
 		private DiscordBotConfiguration Config { get; set; }
-		private EventResponder eventResponder;
+		private DiscordEventHandler eventHandler;
+		private CommandHandler? commandHandler;
 
 		private readonly LogLevel logLevel;
 		#endregion
@@ -93,15 +97,21 @@ namespace Faforever.Qai.Discord
 				c.SetHelpFormatter<HelpFormatter>();
 
 				// And register the commands
-				CommandList = c.RegisteredCommands.Keys;
+				Commands = c.RegisteredCommands;
 
 				// Then register any converters that are needed
 				c.RegisterConverter(new TimeSpanConverter());
 			}
 
 			// Register any additional Client events
-			eventResponder = new EventResponder(Client, Rest);
-			eventResponder.Initalize();
+			eventHandler = new DiscordEventHandler(Client, Rest);
+			eventHandler.Initalize();
+
+			// Register the event needed to send data to the CommandHandler
+			Client.MessageCreated += Client_MessageCreated;
+
+			// Create the command handler.
+			commandHandler = new CommandHandler(Commands, Client, Config);
 		}
 		/// <summary>
 		/// Gets the DiscordConfiguration object for a DiscordBot.
@@ -143,6 +153,23 @@ namespace Faforever.Qai.Discord
 			};
 
 			return ccfg;
+		}
+		#endregion
+
+		#region Command Events
+		private async Task Client_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
+		{
+			if (commandHandler is null)
+				return; // Looks like we can't handle any commands.
+
+			try
+			{
+				await commandHandler.MessageReceivedAsync(sender.GetCommandsNext(), e.Message);
+			}
+			catch (Exception ex)
+			{
+				Client.Logger.LogError(Event_CommandHandler, ex, "An unkown error occoured.");
+			}
 		}
 		#endregion
 

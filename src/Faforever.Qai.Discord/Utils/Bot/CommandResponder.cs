@@ -1,8 +1,10 @@
 using System;
 using System.Threading.Tasks;
 
+using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Exceptions;
+using DSharpPlus.Entities;
 
 using Faforever.Qai.Discord.Commands;
 using Faforever.Qai.Discord.Commands.Utils;
@@ -39,6 +41,15 @@ namespace Faforever.Qai.Discord.Utils.Commands
 
 				await e.Context.RespondAsync(embed: embed).ConfigureAwait(false);
 			}
+		}
+
+		public static async Task RespondCommandNotFound(DiscordChannel executionChannel, string prefix)
+		{
+			var embed = CommandModule.ErrorBase()
+				.WithTitle("Command not found.")
+				.WithDescription($"Use {prefix}help to see all avalible commands.");
+
+			await executionChannel.SendMessageAsync(embed: embed);
 		}
 
 		private static async Task ChecksFailedResponderAsync(CommandErrorEventArgs args, ChecksFailedException e)

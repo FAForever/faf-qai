@@ -1,17 +1,18 @@
 using System.Threading.Tasks;
 
 using DSharpPlus;
+using DSharpPlus.EventArgs;
 
 using Microsoft.Extensions.Logging;
 
 namespace Faforever.Qai.Discord.Utils.Bot
 {
-	public class EventResponder
+	public class DiscordEventHandler
 	{
 		private readonly DiscordRestClient Rest;
 		private readonly DiscordShardedClient Client;
 
-		public EventResponder(DiscordShardedClient client, DiscordRestClient rest)
+		public DiscordEventHandler(DiscordShardedClient client, DiscordRestClient rest)
 		{
 			this.Client = client;
 			this.Rest = rest;
@@ -23,9 +24,9 @@ namespace Faforever.Qai.Discord.Utils.Bot
 			Client.Ready += Client_Ready;
 		}
 
-		private Task Client_Ready(DiscordClient sender, DSharpPlus.EventArgs.ReadyEventArgs e)
+		private Task Client_Ready(DiscordClient sender, ReadyEventArgs e)
 		{
-			Client.Logger.LogInformation(DiscordBot.Event_EventResponder, "Client Ready!");
+			Client.Logger.LogInformation(DiscordBot.Event_CommandHandler, "Client Ready!");
 
 			return Task.CompletedTask;
 		}
