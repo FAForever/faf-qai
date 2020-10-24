@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Converters;
 
+using Faforever.Qai.Discord.Commands;
 using Faforever.Qai.Discord.Commands.Utils;
 using Faforever.Qai.Discord.Structures.Configurations;
 using Faforever.Qai.Discord.Utils.Bot;
@@ -94,7 +96,7 @@ namespace Faforever.Qai.Discord
 				CommandList = c.RegisteredCommands.Keys;
 
 				// Then register any converters that are needed
-				// ex: c.RegisterConverter(new LeaderboardTypeConverter());
+				c.RegisterConverter(new TimeSpanConverter());
 			}
 
 			// Register any additional Client events

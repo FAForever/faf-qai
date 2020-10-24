@@ -8,7 +8,7 @@ using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.Entities;
 
-namespace Faforever.Qai.Discord.Commands.Utils
+namespace Faforever.Qai.Discord.Commands
 {
 	// TODO: This is a pretty basic help formatter and could do with editing.
 

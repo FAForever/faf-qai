@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 
-namespace Faforever.Qai.Discord.Commands.Utils
+namespace Faforever.Qai.Discord.Commands
 {
 	public class CommandModule : BaseCommandModule
 	{
