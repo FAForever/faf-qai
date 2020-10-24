@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Faforever.Qai.Discord\Faforever.Qai.Discord.csproj" />
+    <ProjectReference Include="..\..\src\Faforever.Qai.Discord\Faforever.Qai.Discord.csproj" />
   </ItemGroup>
 
 </Project>
