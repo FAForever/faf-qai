@@ -16,10 +16,4 @@
     <ProjectReference Include="..\src\Faforever.Qai.Discord\Faforever.Qai.Discord.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Configs\test_configuration.example.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

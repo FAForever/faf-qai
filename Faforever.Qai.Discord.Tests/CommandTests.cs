@@ -13,8 +13,8 @@ using NUnit.Framework;
 
 namespace Faforever.Qai.Tests.Discord
 {
-    public class CommandTests
-    {
+	public class CommandTests
+	{
 		protected DiscordBot Bot { get; set; }
 		protected DiscordShardedClient Client { get; set; }
 		protected int TestingShardId { get; set; } = 1;
@@ -35,5 +35,5 @@ namespace Faforever.Qai.Tests.Discord
 		{
 
 		}
-    }
+	}
 }
