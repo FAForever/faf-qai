@@ -1,24 +1,31 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26124.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30611.23
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B2EBCF82-642E-48F5-8CE8-9F7E960C99EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Faforever.Qai", "src\Faforever.Qai\Faforever.Qai.csproj", "{742CAC96-0643-406A-BE12-11F33E053D08}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faforever.Qai", "src\Faforever.Qai\Faforever.Qai.csproj", "{742CAC96-0643-406A-BE12-11F33E053D08}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. project", "1. project", "{B15D4A56-D9F3-4CE6-8D51-56131F750602}"
-ProjectSection(SolutionItems) = preProject
-	.editorconfig = .editorconfig
-	.gitignore = .gitignore
-	README.md = README.md
-EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		README.md = README.md
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Faforever.Qai.Irc", "src\Faforever.Qai.Irc\Faforever.Qai.Irc.csproj", "{B8863C62-1F84-4DDB-85D9-EE48444DB1EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faforever.Qai.Irc", "src\Faforever.Qai.Irc\Faforever.Qai.Irc.csproj", "{B8863C62-1F84-4DDB-85D9-EE48444DB1EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Faforever.Qai.Discord", "src\Faforever.Qai.Discord\Faforever.Qai.Discord.csproj", "{97873F8E-DEB8-4426-B711-CDAB0AB85DF7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faforever.Qai.Discord", "src\Faforever.Qai.Discord\Faforever.Qai.Discord.csproj", "{97873F8E-DEB8-4426-B711-CDAB0AB85DF7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Faforever.Qai.Core", "src\Faforever.Qai.Core\Faforever.Qai.Core.csproj", "{EC506444-40A0-43D5-BFB4-87AC37F58201}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faforever.Qai.Core", "src\Faforever.Qai.Core\Faforever.Qai.Core.csproj", "{EC506444-40A0-43D5-BFB4-87AC37F58201}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Faforever.Qai.Discord.Tests", "Faforever.Qai.Tests\Faforever.Qai.Discord.Tests.csproj", "{85342635-A7FE-45C3-B321-F458178BF62F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{05A1BB78-C4E7-4831-AAAF-ECF0BE5187C6}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,9 +35,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{742CAC96-0643-406A-BE12-11F33E053D08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -81,11 +85,30 @@ Global
 		{EC506444-40A0-43D5-BFB4-87AC37F58201}.Release|x64.Build.0 = Release|Any CPU
 		{EC506444-40A0-43D5-BFB4-87AC37F58201}.Release|x86.ActiveCfg = Release|Any CPU
 		{EC506444-40A0-43D5-BFB4-87AC37F58201}.Release|x86.Build.0 = Release|Any CPU
+		{85342635-A7FE-45C3-B321-F458178BF62F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85342635-A7FE-45C3-B321-F458178BF62F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85342635-A7FE-45C3-B321-F458178BF62F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{85342635-A7FE-45C3-B321-F458178BF62F}.Debug|x64.Build.0 = Debug|Any CPU
+		{85342635-A7FE-45C3-B321-F458178BF62F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{85342635-A7FE-45C3-B321-F458178BF62F}.Debug|x86.Build.0 = Debug|Any CPU
+		{85342635-A7FE-45C3-B321-F458178BF62F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85342635-A7FE-45C3-B321-F458178BF62F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{85342635-A7FE-45C3-B321-F458178BF62F}.Release|x64.ActiveCfg = Release|Any CPU
+		{85342635-A7FE-45C3-B321-F458178BF62F}.Release|x64.Build.0 = Release|Any CPU
+		{85342635-A7FE-45C3-B321-F458178BF62F}.Release|x86.ActiveCfg = Release|Any CPU
+		{85342635-A7FE-45C3-B321-F458178BF62F}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{742CAC96-0643-406A-BE12-11F33E053D08} = {B2EBCF82-642E-48F5-8CE8-9F7E960C99EF}
 		{B8863C62-1F84-4DDB-85D9-EE48444DB1EE} = {B2EBCF82-642E-48F5-8CE8-9F7E960C99EF}
 		{97873F8E-DEB8-4426-B711-CDAB0AB85DF7} = {B2EBCF82-642E-48F5-8CE8-9F7E960C99EF}
 		{EC506444-40A0-43D5-BFB4-87AC37F58201} = {B2EBCF82-642E-48F5-8CE8-9F7E960C99EF}
+		{85342635-A7FE-45C3-B321-F458178BF62F} = {B2EBCF82-642E-48F5-8CE8-9F7E960C99EF}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D4A2D98B-00C7-496C-98A8-D3E35BE61FFD}
 	EndGlobalSection
 EndGlobal
