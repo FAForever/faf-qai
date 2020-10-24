@@ -15,7 +15,7 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Roles
 		[Aliases("crole", "registerrole")]
 		[RequireUserPermissions(Permissions.ManageRoles)]
 		[Priority(2)]
-		public async Task RegisterRoleAsync(CommandContext ctx
+		public async Task RegisterRoleAsync(CommandContext ctx,
 			[Description("Role to add to Dostya")]
 			DiscordRole role)
 		{
