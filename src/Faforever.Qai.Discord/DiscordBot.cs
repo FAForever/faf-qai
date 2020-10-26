@@ -59,10 +59,12 @@ namespace Faforever.Qai.Discord
 		#endregion
 
 
-		public DiscordBot(LogLevel logLevel = LogLevel.Debug)
+		public DiscordBot(LogLevel logLevel = LogLevel.Debug, DiscordBotConfiguration? configuration = null)
 		{
 			this.logLevel = logLevel;
 			CommandsInProgress = new ConcurrentDictionary<CommandHandler, Tuple<Task, CancellationTokenSource>>();
+
+			Config = configuration ?? new DiscordBotConfiguration();
 		}
 
 		#region Confgiurations
@@ -84,7 +86,8 @@ namespace Faforever.Qai.Discord
 		public async Task InitializeAsync()
 		{
 			// Register necissary configurations
-			await RegisterBotConfigurationAsync();
+			if(Config.Token == "")
+				await RegisterBotConfigurationAsync();
 
 			// Create the Clients
 			Client = new DiscordShardedClient(GetDiscordConfiguration());
@@ -201,8 +204,12 @@ namespace Faforever.Qai.Discord
 			{
 				Client.MessageCreated -= Client_MessageCreated;
 
-				foreach (var cmd in CommandsInProgress.Values)
-					cmd.Item2.Cancel();
+				foreach (var cmd in CommandsInProgress.AsParallel())
+				{
+					cmd.Value.Item2.Cancel();
+					cmd.Value.Item2.Dispose();
+					cmd.Value.Item1.Dispose();
+				}
 
 				// Clear out the dict.
 				CommandsInProgress = null;
@@ -220,8 +227,12 @@ namespace Faforever.Qai.Discord
 
 				await Task.Run(() =>
 				{
-					foreach (var cmd in CommandsInProgress.Values)
-						cmd.Item2.Cancel();
+					foreach (var cmd in CommandsInProgress.AsParallel())
+					{
+						cmd.Value.Item2.Cancel();
+						cmd.Value.Item2.Dispose();
+						cmd.Value.Item1.Dispose();
+					}
 				});
 
 				// Clear out the dict.
