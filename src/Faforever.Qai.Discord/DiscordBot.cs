@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus;
@@ -20,7 +23,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Faforever.Qai.Discord
 {
-	public class DiscordBot
+	public class DiscordBot : IDisposable, IAsyncDisposable
 	{
 		#region Event Ids
 		// 127### - designates a Discord Bot event.
@@ -30,7 +33,7 @@ namespace Faforever.Qai.Discord
 		#endregion
 
 		#region Static Variables
-		public static ConcurrentDictionary<CommandHandler, Task>? CommandsInProgress { get; private set; }
+		public static ConcurrentDictionary<CommandHandler, Tuple<Task, CancellationTokenSource>>? CommandsInProgress { get; private set; }
 		#endregion
 
 		#region Public Variables
@@ -59,7 +62,7 @@ namespace Faforever.Qai.Discord
 		public DiscordBot(LogLevel logLevel = LogLevel.Debug)
 		{
 			this.logLevel = logLevel;
-			CommandsInProgress = new ConcurrentDictionary<CommandHandler, Task>();
+			CommandsInProgress = new ConcurrentDictionary<CommandHandler, Tuple<Task, CancellationTokenSource>>();
 		}
 
 		#region Confgiurations
@@ -167,8 +170,10 @@ namespace Faforever.Qai.Discord
 
 			try
 			{
+				var cancel = new CancellationTokenSource();
 				var handler = new CommandHandler(Commands, sender, Config);
-				CommandsInProgress[handler] = handler.MessageReceivedAsync(sender.GetCommandsNext(), e.Message);
+				var task = handler.MessageReceivedAsync(sender.GetCommandsNext(), e.Message, cancel.Token);
+				CommandsInProgress[handler] = new Tuple<Task, CancellationTokenSource>(task, cancel);
 			}
 			catch (Exception ex)
 			{
@@ -188,6 +193,45 @@ namespace Faforever.Qai.Discord
 		{
 			// Start the Clients!
 			await Client.StartAsync();
+		}
+
+		public void Dispose()
+		{
+			if (!(CommandsInProgress is null))
+			{
+				Client.MessageCreated -= Client_MessageCreated;
+
+				foreach (var cmd in CommandsInProgress.Values)
+					cmd.Item2.Cancel();
+
+				// Clear out the dict.
+				CommandsInProgress = null;
+
+				Client.StopAsync().GetAwaiter().GetResult();
+				Rest.Dispose();
+			}
+		}
+
+		public async ValueTask DisposeAsync()
+		{
+			if (!(CommandsInProgress is null))
+			{
+				Client.MessageCreated -= Client_MessageCreated;
+
+				await Task.Run(() =>
+				{
+					foreach (var cmd in CommandsInProgress.Values)
+						cmd.Item2.Cancel();
+				});
+
+				// Clear out the dict.
+				CommandsInProgress = null;
+
+				var stop = Client.StopAsync();
+				Rest.Dispose();
+
+				await stop;
+			}
 		}
 		#endregion
 	}

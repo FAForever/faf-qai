@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus;
@@ -31,10 +32,12 @@ namespace Faforever.Qai.Discord.Utils.Bot
 		}
 
 		// TODO: Update to save guild config state. This will run as is, but will not hold any saved data between sessions.
-		public async Task MessageReceivedAsync(CommandsNextExtension cnext, DiscordMessage msg)
+		public async Task MessageReceivedAsync(CommandsNextExtension cnext, DiscordMessage msg, CancellationToken cancellationToken = new CancellationToken())
 		{
 			try
 			{
+				cancellationToken.ThrowIfCancellationRequested();
+
 				//using NSDatabaseModel model = new NSDatabaseModel();
 				// Need to know how we are accessing the database!
 
@@ -53,6 +56,8 @@ namespace Faforever.Qai.Discord.Utils.Bot
 					//await model.SaveChangesAsync();
 				}
 
+				cancellationToken.ThrowIfCancellationRequested();
+
 				int prefixPos = await PrefixResolver(msg, guildConfig);
 
 				if (prefixPos == -1)
@@ -62,6 +67,9 @@ namespace Faforever.Qai.Discord.Utils.Bot
 				string commandString = msg.Content.Replace(prefix, string.Empty);
 
 				var command = cnext.FindCommand(commandString, out string args);
+
+				cancellationToken.ThrowIfCancellationRequested();
+
 				if (command is null)
 				{ // Looks like that command does not exsist!
 					await CommandResponder.RespondCommandNotFound(msg.Channel, prefix);
@@ -70,13 +78,22 @@ namespace Faforever.Qai.Discord.Utils.Bot
 				{ // We found a command, lets deal with it.
 					var ctx = cnext.CreateContext(msg, prefix, command, args);
 					// We are done here, its up to CommandsNext now.
+
+					cancellationToken.ThrowIfCancellationRequested();
+
 					await cnext.ExecuteCommandAsync(ctx);
 				}
-
 			}
 			finally
 			{
-				DiscordBot.CommandsInProgress?.TryRemove(this, out _);
+				if (!(DiscordBot.CommandsInProgress is null))
+				{
+					if (DiscordBot.CommandsInProgress.TryRemove(this, out var taskData))
+					{
+						taskData.Item2.Dispose();
+						taskData.Item1.Dispose();
+					}
+				}
 			}
 		}
 
