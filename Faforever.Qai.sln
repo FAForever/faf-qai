@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. project", "1. project", 
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
 		README.md = README.md
+		NuGet.config = NuGet.config
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faforever.Qai.Irc", "src\Faforever.Qai.Irc\Faforever.Qai.Irc.csproj", "{B8863C62-1F84-4DDB-85D9-EE48444DB1EE}"
