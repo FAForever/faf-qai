@@ -134,7 +134,7 @@ namespace Faforever.Qai.Discord
 				TokenType = TokenType.Bot,
 				MinimumLogLevel = logLevel,
 				ShardCount = Config.Shards, // Default to 1 for automatic sharding.
-				Intents = DiscordIntents.GuildMessages,
+				Intents = DiscordIntents.Guilds | DiscordIntents.GuildMessages,
 			};
 
 			return cfg;
@@ -159,6 +159,7 @@ namespace Faforever.Qai.Discord
 				// along with custom checking of messages before they are passed to the command handler.
 				StringPrefixes = new string[] { Config.Prefix },
 				Services = services.BuildServiceProvider(),
+				UseDefaultCommandHandler = false
 			};
 
 			return ccfg;
@@ -176,7 +177,10 @@ namespace Faforever.Qai.Discord
 				var cancel = new CancellationTokenSource();
 				var handler = new CommandHandler(Commands, sender, Config);
 				var task = handler.MessageReceivedAsync(sender.GetCommandsNext(), e.Message, cancel.Token);
-				CommandsInProgress[handler] = new Tuple<Task, CancellationTokenSource>(task, cancel);
+				if (task.Status == TaskStatus.Running)
+				{
+					CommandsInProgress[handler] = new Tuple<Task, CancellationTokenSource>(task, cancel);
+				}
 			}
 			catch (Exception ex)
 			{
