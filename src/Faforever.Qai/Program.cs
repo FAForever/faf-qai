@@ -19,10 +19,11 @@ namespace Faforever.Qai {
 				await using var serviceProvider = services.BuildServiceProvider();
 
 				using QaIrc ircBot = new QaIrc("irc.faforever.com", new IrcUserRegistrationInfo {
-					NickName = "Balleby", RealName = "balleby", Password = "balleby", UserName = "balleby"
+					NickName = "Balleby", RealName = "Balleby", Password = "balleby", UserName = "balleby"
 				}, serviceProvider.GetService<ILogger<QaIrc>>());
 				ircBot.Run();
 
+				//TODO Make sure the Discord bot is started aswell.
 				Console.ReadLine();
 			});
 

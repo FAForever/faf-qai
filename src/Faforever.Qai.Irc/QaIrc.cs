@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using IrcDotNet;
 using Microsoft.Extensions.Logging;
 
@@ -9,26 +10,22 @@ namespace Faforever.Qai.Irc {
 		private readonly ILogger _logger;
 
 		private readonly StandardIrcClient _client;
+		private IrcLocalUser _user;
 
 		public QaIrc(string hostname, IrcRegistrationInfo userInfo, ILogger<QaIrc> logger) {
 			_hostname = hostname;
 			_userInfo = userInfo;
 			_logger = logger;
 			_client = new StandardIrcClient {FloodPreventer = new IrcStandardFloodPreventer(4, 2000)};
-			_client.ErrorMessageReceived += (sender, args) => { _logger.Log(LogLevel.Error, args.Message); };
-			_client.Connected += (sender, args) => { _logger.Log(LogLevel.Information, "client connected"); };
-			_client.ConnectFailed += (sender, args) => {
-				_logger.Log(LogLevel.Critical, args.Error, "connect failed");
-			};
-
+			_client.ErrorMessageReceived += OnClientErrorMessageReceived;
+			_client.Connected += OnClientConnected;
+			_client.ConnectFailed += OnClientConnectFailed;
 			_client.Registered += OnClientRegistered;
 		}
 
-		public bool IsRunning { get; set; }
-
 		public void Run() {
 			_client.Connect(_hostname, false, _userInfo);
-			IsRunning = true;
+			_user = _client.LocalUser;
 		}
 
 		public void Dispose() {
@@ -39,7 +36,7 @@ namespace Faforever.Qai.Irc {
 		private void OnPrivateMessage(object? o, IrcMessageEventArgs eventArgs) {
 			_logger.Log(LogLevel.Information, $"Got private message '{eventArgs.Text}'");
 		}
-		
+
 		private void OnClientRegistered(object? sender, EventArgs args) {
 			IrcClient client = sender as IrcClient;
 			_logger.Log(LogLevel.Information, "Client registered");
@@ -58,8 +55,29 @@ namespace Faforever.Qai.Irc {
 			client.Channels.Join("#aeolus");
 		}
 
-		private void OnChannelMessageReceived(object? sender1, IrcMessageEventArgs messageEventArgs) {
-			_logger.Log(LogLevel.Information, $"Received Message '{messageEventArgs.Text}' from '{messageEventArgs.Source.Name}");
+		private void OnChannelMessageReceived(object sender, IrcMessageEventArgs messageEventArgs) {
+			_logger.Log(LogLevel.Information,
+				$"Received Message '{messageEventArgs.Text}' from '{messageEventArgs.Source.Name}");
+			
+			IrcChannel channel = sender as IrcChannel;
+			
+			if (messageEventArgs.Source.Name == _userInfo.NickName) {
+				return;
+			}
+			
+			//TODO This message should be handled.
+		}
+		
+		private void OnClientConnectFailed(object sender, IrcErrorEventArgs args) {
+			_logger.Log(LogLevel.Critical, args.Error, "connect failed");
+		}
+		
+		private void OnClientConnected(object sender, EventArgs args) {
+			_logger.Log(LogLevel.Information, "client connected");
+		}
+		
+		private void OnClientErrorMessageReceived(object sender, IrcErrorMessageEventArgs args) {
+			_logger.Log(LogLevel.Error, args.Message);
 		}
 	}
 }
