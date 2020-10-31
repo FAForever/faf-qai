@@ -1,4 +1,6 @@
 using System;
+
+using Faforever.Qai.Discord;
 using Faforever.Qai.Irc;
 using IrcDotNet;
 using McMaster.Extensions.CommandLineUtils;
@@ -23,7 +25,17 @@ namespace Faforever.Qai {
 				}, serviceProvider.GetService<ILogger<QaIrc>>());
 				ircBot.Run();
 
-				//TODO Make sure the Discord bot is started aswell.
+				Console.WriteLine("Input Bot Token [FOR DEBUG ONLY - REMOVE IN PROD (or once we have a desicion on how to retrive config values)]: ");
+				using DiscordBot discordBot = new DiscordBot(LogLevel.Debug, new Discord.Structures.Configurations.DiscordBotConfiguration()
+				{
+					Token = Console.ReadLine(),
+					Prefix = "!",
+					Shards = 1
+				});
+
+				discordBot.InitializeAsync().GetAwaiter().GetResult();
+				discordBot.StartAsync().GetAwaiter().GetResult();
+
 				Console.ReadLine();
 			});
 

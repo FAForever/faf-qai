@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus;
@@ -20,7 +23,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Faforever.Qai.Discord
 {
-	public class DiscordBot
+	public class DiscordBot : IDisposable, IAsyncDisposable
 	{
 		#region Event Ids
 		// 127### - designates a Discord Bot event.
@@ -30,7 +33,7 @@ namespace Faforever.Qai.Discord
 		#endregion
 
 		#region Static Variables
-		public static ConcurrentDictionary<CommandHandler, Task>? CommandsInProgress { get; private set; }
+		public static ConcurrentDictionary<CommandHandler, Tuple<Task, CancellationTokenSource>>? CommandsInProgress { get; private set; }
 		#endregion
 
 		#region Public Variables
@@ -56,10 +59,12 @@ namespace Faforever.Qai.Discord
 		#endregion
 
 
-		public DiscordBot(LogLevel logLevel = LogLevel.Debug)
+		public DiscordBot(LogLevel logLevel = LogLevel.Debug, DiscordBotConfiguration? configuration = null)
 		{
 			this.logLevel = logLevel;
-			CommandsInProgress = new ConcurrentDictionary<CommandHandler, Task>();
+			CommandsInProgress = new ConcurrentDictionary<CommandHandler, Tuple<Task, CancellationTokenSource>>();
+
+			Config = configuration ?? new DiscordBotConfiguration();
 		}
 
 		#region Confgiurations
@@ -81,7 +86,8 @@ namespace Faforever.Qai.Discord
 		public async Task InitializeAsync()
 		{
 			// Register necissary configurations
-			await RegisterBotConfigurationAsync();
+			if(Config.Token == "")
+				await RegisterBotConfigurationAsync();
 
 			// Create the Clients
 			Client = new DiscordShardedClient(GetDiscordConfiguration());
@@ -128,7 +134,7 @@ namespace Faforever.Qai.Discord
 				TokenType = TokenType.Bot,
 				MinimumLogLevel = logLevel,
 				ShardCount = Config.Shards, // Default to 1 for automatic sharding.
-				Intents = DiscordIntents.GuildMessages,
+				Intents = DiscordIntents.Guilds | DiscordIntents.GuildMessages,
 			};
 
 			return cfg;
@@ -153,6 +159,7 @@ namespace Faforever.Qai.Discord
 				// along with custom checking of messages before they are passed to the command handler.
 				StringPrefixes = new string[] { Config.Prefix },
 				Services = services.BuildServiceProvider(),
+				UseDefaultCommandHandler = false
 			};
 
 			return ccfg;
@@ -167,8 +174,13 @@ namespace Faforever.Qai.Discord
 
 			try
 			{
+				var cancel = new CancellationTokenSource();
 				var handler = new CommandHandler(Commands, sender, Config);
-				CommandsInProgress[handler] = handler.MessageReceivedAsync(sender.GetCommandsNext(), e.Message);
+				var task = handler.MessageReceivedAsync(sender.GetCommandsNext(), e.Message, cancel.Token);
+				if (task.Status == TaskStatus.Running)
+				{
+					CommandsInProgress[handler] = new Tuple<Task, CancellationTokenSource>(task, cancel);
+				}
 			}
 			catch (Exception ex)
 			{
@@ -188,6 +200,53 @@ namespace Faforever.Qai.Discord
 		{
 			// Start the Clients!
 			await Client.StartAsync();
+		}
+
+		public void Dispose()
+		{
+			if (!(CommandsInProgress is null))
+			{
+				Client.MessageCreated -= Client_MessageCreated;
+
+				foreach (var cmd in CommandsInProgress.AsParallel())
+				{
+					cmd.Value.Item2.Cancel();
+					cmd.Value.Item2.Dispose();
+					cmd.Value.Item1.Dispose();
+				}
+
+				// Clear out the dict.
+				CommandsInProgress = null;
+
+				Client.StopAsync().GetAwaiter().GetResult();
+				Rest.Dispose();
+			}
+		}
+
+		public async ValueTask DisposeAsync()
+		{
+			if (!(CommandsInProgress is null))
+			{
+				Client.MessageCreated -= Client_MessageCreated;
+
+				await Task.Run(() =>
+				{
+					foreach (var cmd in CommandsInProgress.AsParallel())
+					{
+						cmd.Value.Item2.Cancel();
+						cmd.Value.Item2.Dispose();
+						cmd.Value.Item1.Dispose();
+					}
+				});
+
+				// Clear out the dict.
+				CommandsInProgress = null;
+
+				var stop = Client.StopAsync();
+				Rest.Dispose();
+
+				await stop;
+			}
 		}
 		#endregion
 	}
