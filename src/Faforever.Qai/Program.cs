@@ -26,15 +26,15 @@ namespace Faforever.Qai {
 				ircBot.Run();
 
 				Console.WriteLine("Input Bot Token [FOR DEBUG ONLY - REMOVE IN PROD (or once we have a desicion on how to retrive config values)]: ");
-				using DiscordBot discordBot = new DiscordBot(LogLevel.Debug, new Discord.Structures.Configurations.DiscordBotConfiguration()
+				await using DiscordBot discordBot = new DiscordBot(LogLevel.Debug, new Discord.Structures.Configurations.DiscordBotConfiguration()
 				{
 					Token = Console.ReadLine(),
 					Prefix = "!",
 					Shards = 1
 				});
 
-				discordBot.InitializeAsync().GetAwaiter().GetResult();
-				discordBot.StartAsync().GetAwaiter().GetResult();
+				await discordBot.InitializeAsync();
+				await discordBot.StartAsync();
 
 				Console.ReadLine();
 			});
