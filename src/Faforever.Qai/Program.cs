@@ -27,13 +27,12 @@ namespace Faforever.Qai {
 				Console.WriteLine(
 					"Input Bot Token [FOR DEBUG ONLY - REMOVE IN PROD (or once we have a desicion on how to retrive config values)]: ");
 				try {
-					await using DiscordBot discordBot = new DiscordBot(LogLevel.Debug,
+					await using DiscordBot discordBot = new DiscordBot(serviceProvider, LogLevel.Debug,
 						new Discord.Structures.Configurations.DiscordBotConfiguration() {
 							Token = Console.ReadLine(),
 							Prefix = "!",
 							Shards = 1
-						},
-						serviceProvider);
+						});
 
 					await discordBot.InitializeAsync();
 					await discordBot.StartAsync();

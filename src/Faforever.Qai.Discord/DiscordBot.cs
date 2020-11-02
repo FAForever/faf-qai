@@ -60,7 +60,7 @@ namespace Faforever.Qai.Discord
 		#endregion
 
 
-		public DiscordBot(LogLevel logLevel = LogLevel.Debug, DiscordBotConfiguration? configuration = null, IServiceProvider services)
+		public DiscordBot(IServiceProvider services, LogLevel logLevel = LogLevel.Debug, DiscordBotConfiguration? configuration = null)
 		{
 			this.logLevel = logLevel;
 			CommandsInProgress = new ConcurrentDictionary<CommandHandler, Tuple<Task, CancellationTokenSource>>();
