@@ -1,5 +1,4 @@
 using System;
-
 using Faforever.Qai.Discord;
 using Faforever.Qai.Irc;
 using IrcDotNet;
@@ -25,20 +24,27 @@ namespace Faforever.Qai {
 				}, serviceProvider.GetService<ILogger<QaIrc>>());
 				ircBot.Run();
 
-				Console.WriteLine("Input Bot Token [FOR DEBUG ONLY - REMOVE IN PROD (or once we have a desicion on how to retrive config values)]: ");
-				await using DiscordBot discordBot = new DiscordBot(LogLevel.Debug, new Discord.Structures.Configurations.DiscordBotConfiguration()
-				{
-					Token = Console.ReadLine(),
-					Prefix = "!",
-					Shards = 1
-				});
+				Console.WriteLine(
+					"Input Bot Token [FOR DEBUG ONLY - REMOVE IN PROD (or once we have a desicion on how to retrive config values)]: ");
+				try {
+					await using DiscordBot discordBot = new DiscordBot(LogLevel.Debug,
+						new Discord.Structures.Configurations.DiscordBotConfiguration() {
+							Token = Console.ReadLine(),
+							Prefix = "!",
+							Shards = 1
+						});
 
-				await discordBot.InitializeAsync();
-				await discordBot.StartAsync();
+					await discordBot.InitializeAsync();
+					await discordBot.StartAsync();
+				}
+				catch (InvalidOperationException e) {
+					serviceProvider.GetService<ILogger<DiscordBot>>().LogCritical(e.Message);
+				}
 
+				//TODO Exiting on Enter is probably ill advised
 				Console.ReadLine();
 			});
-
+			
 			return app.Execute(args);
 		}
 	}
