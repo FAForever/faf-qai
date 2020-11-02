@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using IrcDotNet;
 using Microsoft.Extensions.Logging;
 
@@ -8,6 +7,7 @@ namespace Faforever.Qai.Irc {
 		private readonly string _hostname;
 		private readonly IrcRegistrationInfo _userInfo;
 		private readonly ILogger _logger;
+		private readonly IServiceProvider _serviceProvider;
 
 		private readonly StandardIrcClient _client;
 		private IrcLocalUser _user;
@@ -34,7 +34,7 @@ namespace Faforever.Qai.Irc {
 		}
 
 		private void OnPrivateMessage(object? o, IrcMessageEventArgs eventArgs) {
-			_logger.Log(LogLevel.Information, $"Got private message '{eventArgs.Text}'");
+			_logger.Log(LogLevel.Information, $"Got private message '{eventArgs.Text}' from '{eventArgs.Source.Name}'");
 		}
 
 		private void OnClientRegistered(object? sender, EventArgs args) {
@@ -65,7 +65,6 @@ namespace Faforever.Qai.Irc {
 				return;
 			}
 			
-			//TODO This message should be handled.
 		}
 		
 		private void OnClientConnectFailed(object sender, IrcErrorEventArgs args) {
