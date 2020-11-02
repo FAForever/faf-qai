@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using IrcDotNet;
 using Microsoft.Extensions.Logging;
 
@@ -7,7 +7,6 @@ namespace Faforever.Qai.Irc {
 		private readonly string _hostname;
 		private readonly IrcRegistrationInfo _userInfo;
 		private readonly ILogger _logger;
-		private readonly IServiceProvider _serviceProvider;
 
 		private readonly StandardIrcClient _client;
 		private IrcLocalUser _user;

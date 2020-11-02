@@ -56,15 +56,17 @@ namespace Faforever.Qai.Discord
 		private DiscordEventHandler eventHandler;
 
 		private readonly LogLevel logLevel;
+		private readonly IServiceProvider services;
 		#endregion
 
 
-		public DiscordBot(LogLevel logLevel = LogLevel.Debug, DiscordBotConfiguration? configuration = null)
+		public DiscordBot(LogLevel logLevel = LogLevel.Debug, DiscordBotConfiguration? configuration = null, IServiceProvider services)
 		{
 			this.logLevel = logLevel;
 			CommandsInProgress = new ConcurrentDictionary<CommandHandler, Tuple<Task, CancellationTokenSource>>();
 
 			Config = configuration ?? new DiscordBotConfiguration();
+			this.services = services;
 		}
 
 		#region Confgiurations
@@ -139,15 +141,13 @@ namespace Faforever.Qai.Discord
 
 			return cfg;
 		}
+
 		/// <summary>
 		/// Gets the CommandsNextConfiguration for the DiscrdBot
 		/// </summary>
 		/// <returns>A CommandsNextConfiguration for this DiscordBot</returns>
 		private CommandsNextConfiguration GetCommandsNextConfiguration()
 		{
-			// Add bot services here!
-			var services = new ServiceCollection();
-
 			var ccfg = new CommandsNextConfiguration
 			{
 				EnableDms = false,
@@ -158,7 +158,7 @@ namespace Faforever.Qai.Discord
 				//PrefixResolver = PrefixResolver, - This can be used for custom prefixes per server, commands to change prefixes
 				// along with custom checking of messages before they are passed to the command handler.
 				StringPrefixes = new string[] { Config.Prefix },
-				Services = services.BuildServiceProvider(),
+				Services = services,
 				UseDefaultCommandHandler = false
 			};
 
