@@ -32,7 +32,8 @@ namespace Faforever.Qai {
 							Token = Console.ReadLine(),
 							Prefix = "!",
 							Shards = 1
-						});
+						},
+						serviceProvider);
 
 					await discordBot.InitializeAsync();
 					await discordBot.StartAsync();

@@ -1,2 +1,2 @@
-# Faforever.Qai
-This is a quick stab at rewriting Dostya and QAI from faforever.com
+# Shatter
+A Rework of the old Nitro Bot!
