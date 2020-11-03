@@ -5,16 +5,19 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
+using Faforever.Qai.Core.Structures.Webhooks;
+
 namespace Faforever.Qai.Core.Structures.Configurations
 {
 	public class RelayConfiguration
 	{
+		// feel free to ingnore my notes -- Soyvolon
 		[Key]
 		public ulong DiscordServer { get; set; }
-		[NotMapped]
-		public ConcurrentDictionary<string, string> IRCToDiscordLinks { get; set; }
-		[NotMapped]
+		// irc chan, discord chan
 		public ConcurrentDictionary<ulong, string> DiscordToIRCLinks { get; set; }
+		// irc chan, webhook(id, token, discord chan)
+		public ConcurrentDictionary<string, DiscordWebhook> Webhooks { get; set; }
 
 		/* Discord ---------> IRC
 		 * MSG R -> Find IRC Channel				-> Send Message from User.
