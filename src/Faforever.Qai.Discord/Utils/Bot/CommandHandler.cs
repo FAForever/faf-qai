@@ -8,6 +8,7 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 
+using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Structures;
 using Faforever.Qai.Discord.Core.Configurations;
 using Faforever.Qai.Discord.Utils.Commands;
@@ -38,10 +39,10 @@ namespace Faforever.Qai.Discord.Utils.Bot
 			{
 				cancellationToken.ThrowIfCancellationRequested();
 
-				//using NSDatabaseModel model = new NSDatabaseModel();
+				using QAIDatabaseModel model = new QAIDatabaseModel();
 				// Need to know how we are accessing the database!
 
-				GuildConfig guildConfig = null; //await model.Configs.FindAsync(msg.Channel.GuildId);
+				GuildConfig guildConfig = await model.FindAsync<GuildConfig>(msg.Channel.GuildId);
 
 				if (guildConfig is null)
 				{
@@ -51,9 +52,9 @@ namespace Faforever.Qai.Discord.Utils.Bot
 						Prefix = _config.Prefix
 					};
 
-					//model.Configs.Add(gConfig);
+					model.Add(guildConfig);
 
-					//await model.SaveChangesAsync();
+					await model.SaveChangesAsync();
 				}
 
 				cancellationToken.ThrowIfCancellationRequested();
