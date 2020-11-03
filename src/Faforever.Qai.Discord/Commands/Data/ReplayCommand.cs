@@ -4,8 +4,6 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
-using Faforever.Qai.Discord.Commands.Utils;
-
 namespace Faforever.Qai.Discord.Commands.Data
 {
 	public class ReplayCommand : CommandModule
@@ -22,7 +20,7 @@ namespace Faforever.Qai.Discord.Commands.Data
 
 		[Command("replay")]
 		[Aliases("lastreplay")]
-		public async Task ReplayCommandAsync(CommandContext ctx, 
+		public async Task ReplayCommandAsync(CommandContext ctx,
 			[Description("The FAF player name to get the last replay for.")]
 			string fafPlayerName)
 		{

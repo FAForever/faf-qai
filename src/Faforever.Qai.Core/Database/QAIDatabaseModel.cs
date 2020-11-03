@@ -1,10 +1,6 @@
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.Json.Serialization;
 
-using Faforever.Qai.Core.Structures;
 using Faforever.Qai.Core.Structures.Configurations;
 using Faforever.Qai.Core.Structures.Webhooks;
 
@@ -22,7 +18,7 @@ namespace Faforever.Qai.Core.Database
 		protected override void OnConfiguring(DbContextOptionsBuilder options)
 		{
 			// TODO: Setup SQLite DB and connection string.
-			
+
 			options.UseSqlite("Data Source=test.db")
 				.EnableDetailedErrors();
 		}

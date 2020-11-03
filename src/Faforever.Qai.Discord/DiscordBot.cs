@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,7 +11,6 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.EventArgs;
 
-using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Services;
 using Faforever.Qai.Discord.Commands;
 using Faforever.Qai.Discord.Core.Structures.Configurations;
@@ -90,7 +88,7 @@ namespace Faforever.Qai.Discord
 		public async Task InitializeAsync()
 		{
 			// Register necissary configurations
-			if(Config.Token == "")
+			if (Config.Token == "")
 				await RegisterBotConfigurationAsync();
 
 			// Create the Clients

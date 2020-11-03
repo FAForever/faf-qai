@@ -17,7 +17,7 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Roles
 		public async Task DeleteRoleCommandAsync(CommandContext ctx,
 			[Description(@"Role to delete. Use `""` to surround the name of a multi word role.")]
 			DiscordRole role,
-			
+
 			[Description("Attempt to delete the Discord Role as well?")]
 			bool deleteDiscord = true) // delete ALL of discord!
 		{

@@ -13,13 +13,13 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Users
 		[Description("If a ueser is specified, it prevents a user to use commands on this guild." +
 			" Otherwise, it DMs a list of blacklisted users for this server")]
 		[RequireUserPermissions(Permissions.ManageGuild)]
-		public async Task BlacklistCommandAsync(CommandContext ctx, 
+		public async Task BlacklistCommandAsync(CommandContext ctx,
 			[Description("User to blacklist")]
-			DiscordUser user) 
+			DiscordUser user)
 			=> await BlacklistCommandAsync(ctx, user.Id);
 
 		[Command("blacklist")]
-		public async Task BlacklistCommandAsync(CommandContext ctx, 
+		public async Task BlacklistCommandAsync(CommandContext ctx,
 			[Description("ID of the user to blacklsit")]
 			ulong userId)
 		{

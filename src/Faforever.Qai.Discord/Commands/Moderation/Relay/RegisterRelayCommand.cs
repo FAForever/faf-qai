@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 using DSharpPlus;
@@ -34,12 +33,12 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Relay
 		public async Task ExampleCommandAsync(CommandContext ctx,
 			[Description("Discord channel to link to.")]
 			DiscordChannel discordChannel,
-			
+
 			[Description("IRC channel to link to.")]
 			string ircChannel)
 		{
 			var cfg = _database.Find<RelayConfiguration>(ctx.Guild.Id);
-			if(cfg is null)
+			if (cfg is null)
 			{
 				cfg = new RelayConfiguration()
 				{
@@ -51,14 +50,14 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Relay
 			}
 
 			// TODO: Some check to see if the IRC channel is avalible.
-			if(cfg.DiscordToIRCLinks.ContainsKey(discordChannel.Id))
+			if (cfg.DiscordToIRCLinks.ContainsKey(discordChannel.Id))
 			{
 				await RespondBasicError("A relay already exsists for this Discord channel.");
 			}
 
 			var activeHooks = await discordChannel.GetWebhooksAsync();
 
-			if(cfg.Webhooks.TryGetValue(ircChannel, out var hook))
+			if (cfg.Webhooks.TryGetValue(ircChannel, out var hook))
 			{
 				if (activeHooks.Any(x => x.Id == hook.Id))
 				{

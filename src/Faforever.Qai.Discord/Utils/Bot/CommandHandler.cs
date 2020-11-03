@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,7 +8,6 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 
 using Faforever.Qai.Core.Database;
-using Faforever.Qai.Core.Structures;
 using Faforever.Qai.Core.Structures.Configurations;
 using Faforever.Qai.Discord.Core.Structures.Configurations;
 using Faforever.Qai.Discord.Utils.Commands;

@@ -1,13 +1,10 @@
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using DSharpPlus;
 using DSharpPlus.EventArgs;
 
-using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Services;
-using Faforever.Qai.Core.Structures.Configurations;
 
 using Microsoft.Extensions.Logging;
 

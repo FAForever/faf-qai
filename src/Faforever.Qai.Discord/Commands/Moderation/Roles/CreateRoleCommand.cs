@@ -26,7 +26,7 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Roles
 		public async Task CreateRoleCommandAsync(CommandContext ctx,
 			[Description("Name of the new role to create")]
 			string roleName,
-			
+
 			[Description("Optional: Color of the new role")]
 			DiscordColor? roleColor = null)
 		{

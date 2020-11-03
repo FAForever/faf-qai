@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace Faforever.Qai.Core.Structures.Configurations
 {
@@ -16,7 +14,7 @@ namespace Faforever.Qai.Core.Structures.Configurations
 		public HashSet<ulong> UserBlacklist { get; set; }
 
 		public ConcurrentDictionary<ulong, string> FafLinks { get; set; }
-		public ConcurrentDictionary<string, string> Records { get; set; }  
+		public ConcurrentDictionary<string, string> Records { get; set; }
 
 		public DiscordGuildConfiguration() : this(0, "") { } // used by EFcore or simillar processes or creating blank templates.
 

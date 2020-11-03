@@ -11,7 +11,7 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Command.Usage
 		[Command("restrict")]
 		[Description("Prevents anyone from firing the command, except Mods")]
 		[RequireUserPermissions(Permissions.ManageGuild)]
-		public async Task RestrictCommandAsync(CommandContext ctx, 
+		public async Task RestrictCommandAsync(CommandContext ctx,
 			[Description("Name of the command to restrict")]
 			string commandName)
 		{

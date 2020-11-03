@@ -9,10 +9,8 @@ using System.Threading.Tasks;
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Structures.Configurations;
 using Faforever.Qai.Core.Structures.Webhooks;
-using Faforever.Qai.Discord.Core.Structures.Configurations;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.Extensions.Logging;
 
 using Newtonsoft.Json;
@@ -52,9 +50,9 @@ namespace Faforever.Qai.Core.Services
 					.AsNoTracking()
 					.ToList();
 
-				foreach(var r in relays)
+				foreach (var r in relays)
 				{
-					foreach(var hook in r.Webhooks)
+					foreach (var hook in r.Webhooks)
 					{
 						AddToWebhookDict(hook.Key, hook.Value.WebhookUrl);
 					}
@@ -125,7 +123,7 @@ namespace Faforever.Qai.Core.Services
 				if (cfg is null)
 					throw new Exception("Failed to get valid relay configuration.");
 				DiscordWebhookData? hook = null;
-				if(cfg.DiscordToIRCLinks.TryRemove(webhookId, out string? ircChannel))
+				if (cfg.DiscordToIRCLinks.TryRemove(webhookId, out string? ircChannel))
 				{
 					// At least one thing changed, so tell the database to save changes.
 					_database.Update(cfg);
@@ -162,7 +160,7 @@ namespace Faforever.Qai.Core.Services
 				if (!Initalize())
 					throw new Exception("Failed to Initalize the RelayService.");
 
-			if(IRCtoWebhookRelations.TryGetValue(ircChannel, out var hooks))
+			if (IRCtoWebhookRelations.TryGetValue(ircChannel, out var hooks))
 			{
 				foreach (var h in hooks)
 				{
@@ -193,7 +191,7 @@ namespace Faforever.Qai.Core.Services
 					catch (Exception ex)
 					{
 						_logger.LogWarning(ex, "Send from IRC errored.");
-						continue; 
+						continue;
 					}
 				}
 			}

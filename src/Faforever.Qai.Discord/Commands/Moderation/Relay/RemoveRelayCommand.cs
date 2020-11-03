@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 
 using DSharpPlus;
@@ -33,7 +31,7 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Relay
 			string ircChannel)
 		{
 			var cfg = await _database.FindAsync<RelayConfiguration>(ctx.Guild.Id);
-			if(cfg is null || !cfg.Webhooks.TryGetValue(ircChannel, out var hook))
+			if (cfg is null || !cfg.Webhooks.TryGetValue(ircChannel, out var hook))
 			{
 				await RespondBasicError("No relays found.");
 				return;
@@ -49,17 +47,17 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Relay
 			DiscordChannel discordChannel)
 		{
 			var cfg = await _database.FindAsync<RelayConfiguration>(ctx.Guild.Id);
-			if(cfg is null)
+			if (cfg is null)
 			{
 				await RespondBasicError("No relays found.");
 				return;
 			}
 
 			var discordHooks = await discordChannel.GetWebhooksAsync();
-			
-			foreach(var hook in discordHooks)
+
+			foreach (var hook in discordHooks)
 			{
-				if(cfg.DiscordToIRCLinks.TryGetValue(hook.Id, out var data))
+				if (cfg.DiscordToIRCLinks.TryGetValue(hook.Id, out var data))
 				{
 					if (cfg.Webhooks.TryGetValue(data, out var hookData))
 					{
