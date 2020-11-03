@@ -12,6 +12,8 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.EventArgs;
 
+using Faforever.Qai.Core.Database;
+using Faforever.Qai.Core.Services;
 using Faforever.Qai.Discord.Commands;
 using Faforever.Qai.Discord.Core.Structures.Configurations;
 using Faforever.Qai.Discord.Utils.Bot;
@@ -118,7 +120,7 @@ namespace Faforever.Qai.Discord
 			}
 
 			// Register any additional Client events
-			eventHandler = new DiscordEventHandler(Client, Rest);
+			eventHandler = new DiscordEventHandler(Client, Rest, services.GetService<RelayService>());
 			eventHandler.Initalize();
 
 			// Register the event needed to send data to the CommandHandler

@@ -27,7 +27,10 @@ namespace Faforever.Qai {
 
 				using QaIrc ircBot = new QaIrc("irc.faforever.com", new IrcUserRegistrationInfo {
 					NickName = "Balleby", RealName = "Balleby", Password = "balleby", UserName = "balleby"
-				}, serviceProvider.GetService<ILogger<QaIrc>>());
+				}, 
+					serviceProvider.GetService<ILogger<QaIrc>>(),
+					serviceProvider.GetService<RelayService>());
+
 				ircBot.Run();
 
 				Console.WriteLine(
