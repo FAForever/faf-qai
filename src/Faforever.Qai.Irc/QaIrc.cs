@@ -1,4 +1,8 @@
 using System;
+using System.Threading.Tasks;
+
+using Faforever.Qai.Core.Services;
+
 using IrcDotNet;
 using Microsoft.Extensions.Logging;
 
@@ -11,7 +15,9 @@ namespace Faforever.Qai.Irc {
 		private readonly StandardIrcClient _client;
 		private IrcLocalUser _user;
 
-		public QaIrc(string hostname, IrcRegistrationInfo userInfo, ILogger<QaIrc> logger) {
+		private RelayService _relay;
+
+		public QaIrc(string hostname, IrcRegistrationInfo userInfo, ILogger<QaIrc> logger, RelayService relay) {
 			_hostname = hostname;
 			_userInfo = userInfo;
 			_logger = logger;
@@ -20,6 +26,8 @@ namespace Faforever.Qai.Irc {
 			_client.Connected += OnClientConnected;
 			_client.ConnectFailed += OnClientConnectFailed;
 			_client.Registered += OnClientRegistered;
+
+			_relay = relay;
 		}
 
 		public void Run() {
@@ -54,18 +62,22 @@ namespace Faforever.Qai.Irc {
 			client.Channels.Join("#aeolus");
 		}
 
-		private void OnChannelMessageReceived(object sender, IrcMessageEventArgs messageEventArgs) {
+		private async void OnChannelMessageReceived(object sender, IrcMessageEventArgs messageEventArgs)
+		{
 			_logger.Log(LogLevel.Information,
 				$"Received Message '{messageEventArgs.Text}' from '{messageEventArgs.Source.Name}");
-			
+
 			IrcChannel channel = sender as IrcChannel;
-			
-			if (messageEventArgs.Source.Name == _userInfo.NickName) {
+
+			if (messageEventArgs.Source.Name == _userInfo.NickName)
+			{
 				return;
 			}
-			
+
+			// For testing. Please improve upon this.
+			await RelayToDiscord(messageEventArgs, channel);
 		}
-		
+
 		private void OnClientConnectFailed(object sender, IrcErrorEventArgs args) {
 			_logger.Log(LogLevel.Critical, args.Error, "connect failed");
 		}
@@ -77,5 +89,12 @@ namespace Faforever.Qai.Irc {
 		private void OnClientErrorMessageReceived(object sender, IrcErrorMessageEventArgs args) {
 			_logger.Log(LogLevel.Error, args.Message);
 		}
+
+		#region Relay Test
+		private async Task RelayToDiscord(IrcMessageEventArgs args, IrcChannel channel)
+		{
+			await _relay.SendFromIRCAsync(channel.Name, args.Source.Name, args.Text);
+		}
+		#endregion
 	}
 }
