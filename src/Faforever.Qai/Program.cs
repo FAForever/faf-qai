@@ -1,6 +1,6 @@
 using System;
 using Faforever.Qai.Discord;
-using Faforever.Qai.Discord.Core.Configurations;
+using Faforever.Qai.Discord.Core.Structures.Configurations;
 using Faforever.Qai.Irc;
 using IrcDotNet;
 using McMaster.Extensions.CommandLineUtils;

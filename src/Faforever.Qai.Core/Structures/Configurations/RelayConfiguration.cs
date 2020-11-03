@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
-namespace Faforever.Qai.Core.Structures
+namespace Faforever.Qai.Core.Structures.Configurations
 {
 	public class RelayConfiguration
 	{

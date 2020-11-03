@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace Faforever.Qai.Core.Structures
+namespace Faforever.Qai.Core.Structures.Configurations
 {
-	public class GuildConfig
+	public class DiscordGuildConfiguration
 	{
 		[Key]
 		public ulong GuildId { get; set; }
@@ -18,9 +18,9 @@ namespace Faforever.Qai.Core.Structures
 		public ConcurrentDictionary<ulong, string> FafLinks { get; set; }
 		public ConcurrentDictionary<string, string> Records { get; set; }  
 
-		public GuildConfig() { } // used by EFcore or simillar processes or creating blank templates.
+		public DiscordGuildConfiguration() { } // used by EFcore or simillar processes or creating blank templates.
 
-		public GuildConfig(ulong guildId, string prefix)
+		public DiscordGuildConfiguration(ulong guildId, string prefix)
 		{
 			this.GuildId = guildId;
 			this.Prefix = prefix;

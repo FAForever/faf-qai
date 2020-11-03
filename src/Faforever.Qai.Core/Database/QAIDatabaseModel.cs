@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 
 using Faforever.Qai.Core.Structures;
+using Faforever.Qai.Core.Structures.Configurations;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -14,7 +15,7 @@ namespace Faforever.Qai.Core.Database
 {
 	public class QAIDatabaseModel : DbContext
 	{
-		public DbSet<GuildConfig> DiscordConfigs { get; set; }
+		public DbSet<DiscordGuildConfiguration> DiscordConfigs { get; set; }
 		public DbSet<RelayConfiguration> RelayConfigurations { get; set; }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder options)
@@ -29,19 +30,19 @@ namespace Faforever.Qai.Core.Database
 		{
 			base.OnModelCreating(modelBuilder);
 
-			modelBuilder.Entity<GuildConfig>()
+			modelBuilder.Entity<DiscordGuildConfiguration>()
 				.Property(b => b.FafLinks)
 				.HasConversion(
 				v => JsonConvert.SerializeObject(v),
 				v => JsonConvert.DeserializeObject<ConcurrentDictionary<ulong, string>>(v) ?? new ConcurrentDictionary<ulong, string>());
 
-			modelBuilder.Entity<GuildConfig>()
+			modelBuilder.Entity<DiscordGuildConfiguration>()
 				.Property(b => b.Records)
 				.HasConversion(
 				v => JsonConvert.SerializeObject(v),
 				v => JsonConvert.DeserializeObject<ConcurrentDictionary<string, string>>(v) ?? new ConcurrentDictionary<string, string>());
 
-			modelBuilder.Entity<GuildConfig>()
+			modelBuilder.Entity<DiscordGuildConfiguration>()
 				.Property(b => b.UserBlacklist)
 				.HasConversion(
 				v => JsonConvert.SerializeObject(v),
