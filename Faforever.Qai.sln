@@ -32,6 +32,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faforever.Qai.Discord.Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Faforever.Qai.Core.Tests", "tests\Faforever.Qai.Core.Tests\Faforever.Qai.Core.Tests.csproj", "{B14BD077-E9A0-4F20-9851-DB9D9E6513F5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. workflows", "2. workflows", "{D2A3737D-FF62-4419-A076-1FD06B4D01D3}"
+ProjectSection(SolutionItems) = preProject
+	.github\workflows\ci.yml = .github\workflows\ci.yml
+EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
