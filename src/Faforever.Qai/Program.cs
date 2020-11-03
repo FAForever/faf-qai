@@ -1,4 +1,7 @@
 using System;
+
+using Faforever.Qai.Core.Database;
+using Faforever.Qai.Core.Services;
 using Faforever.Qai.Discord;
 using Faforever.Qai.Discord.Core.Structures.Configurations;
 using Faforever.Qai.Irc;
@@ -16,7 +19,9 @@ namespace Faforever.Qai {
 
 			app.OnExecuteAsync(async cancellationToken => {
 				ServiceCollection services = new ServiceCollection();
-				services.AddLogging(options => options.AddConsole());
+				services.AddLogging(options => options.AddConsole())
+					.AddDbContext<QAIDatabaseModel>()
+					.AddScoped<RelayService>();
 
 				await using var serviceProvider = services.BuildServiceProvider();
 
