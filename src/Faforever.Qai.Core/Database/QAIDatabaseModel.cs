@@ -59,7 +59,7 @@ namespace Faforever.Qai.Core.Database
 				.Property(b => b.Webhooks)
 				.HasConversion(
 				v => JsonConvert.SerializeObject(v),
-				v => JsonConvert.DeserializeObject<ConcurrentDictionary<string, DiscordWebhook>>(v) ?? new ConcurrentDictionary<string, DiscordWebhook>());
+				v => JsonConvert.DeserializeObject<ConcurrentDictionary<string, DiscordWebhookData>>(v) ?? new ConcurrentDictionary<string, DiscordWebhookData>());
 		}
 	}
 }

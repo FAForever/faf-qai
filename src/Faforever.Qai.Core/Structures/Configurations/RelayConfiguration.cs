@@ -17,7 +17,7 @@ namespace Faforever.Qai.Core.Structures.Configurations
 		// irc chan, discord chan
 		public ConcurrentDictionary<ulong, string> DiscordToIRCLinks { get; set; }
 		// irc chan, webhook(id, token, discord chan)
-		public ConcurrentDictionary<string, DiscordWebhook> Webhooks { get; set; }
+		public ConcurrentDictionary<string, DiscordWebhookData> Webhooks { get; set; }
 
 		/* Discord ---------> IRC
 		 * MSG R -> Find IRC Channel				-> Send Message from User.

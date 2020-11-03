@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Faforever.Qai.Core.Database;
+using Faforever.Qai.Core.Structures.Configurations;
+using Faforever.Qai.Core.Structures.Webhooks;
 using Faforever.Qai.Discord.Core.Structures.Configurations;
 
 using Microsoft.EntityFrameworkCore;
@@ -47,14 +49,7 @@ namespace Faforever.Qai.Core.Services
 				{
 					foreach(var hook in r.Webhooks)
 					{
-						if(IRCtoWebhookRelations.ContainsKey(hook.Key))
-						{
-							IRCtoWebhookRelations[hook.Key].Add(hook.Value.WebhookUrl);
-						}
-						else
-						{
-							IRCtoWebhookRelations[hook.Key] = new HashSet<string>() { hook.Value.WebhookUrl };
-						}
+						AddToWebhookDict(hook.Key, hook.Value.WebhookUrl);
 					}
 				}
 
@@ -69,26 +64,80 @@ namespace Faforever.Qai.Core.Services
 			return this.initalized;
 		}
 
-		public async Task<bool> AddRelayAsync(ulong discordGuild, ulong discordChannel, string ircChannel)
+		private void AddToWebhookDict(string key, string value)
 		{
-			if (!this.initalized)
-				if (!Initalize())
-					throw new Exception("Failed to Initalize the RelayService.");
-
-
-
-			return true;
+			if (IRCtoWebhookRelations.ContainsKey(key))
+			{
+				IRCtoWebhookRelations[key].Add(value);
+			}
+			else
+			{
+				IRCtoWebhookRelations[key] = new HashSet<string>() { value };
+			}
 		}
 
-		public async Task<bool> RemoveRelayAsync(ulong discordGuild, ulong discordChannel)
+		public async Task<bool> AddRelayAsync(ulong discordGuild, DiscordWebhookData hook, string ircChannel)
 		{
-			if (!this.initalized)
-				if (!Initalize())
-					throw new Exception("Failed to Initalize the RelayService.");
+			try
+			{
+				if (!this.initalized)
+					if (!Initalize())
+						throw new Exception("Failed to Initalize the RelayService.");
 
+				AddToWebhookDict(ircChannel, hook.WebhookUrl);
+				// This method should not be passed values that dont have a configuration value created for them.
+				var cfg = await _database.FindAsync<RelayConfiguration>(discordGuild);
+				if (cfg is null)
+					throw new Exception("Failed to get valid relay configuration.");
 
+				_database.Update(cfg);
 
-			return true;
+				cfg.Webhooks[ircChannel] = hook;
+				cfg.DiscordToIRCLinks[hook.ChannelId] = ircChannel;
+
+				await _database.SaveChangesAsync();
+
+				return true;
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Failed to add new Relay.");
+				return false;
+			}
+		}
+
+		public async Task<DiscordWebhookData?> RemoveRelayAsync(ulong discordGuild, ulong discordChannel)
+		{
+			try
+			{
+				if (!this.initalized)
+					if (!Initalize())
+						throw new Exception("Failed to Initalize the RelayService.");
+				// This method should not be passed values that dont have a configuration vlaue created for them.
+				var cfg = await _database.FindAsync<RelayConfiguration>(discordGuild);
+				if (cfg is null)
+					throw new Exception("Failed to get valid relay configuration.");
+				DiscordWebhookData? hook = null;
+				if(cfg.DiscordToIRCLinks.TryRemove(discordChannel, out string? ircChannel))
+				{
+					// At least one thing changed, so tell the database to save changes.
+					_database.Update(cfg);
+
+					if (cfg.Webhooks.TryRemove(ircChannel, out hook))
+					{
+						IRCtoWebhookRelations[ircChannel]?.Remove(hook.WebhookUrl);
+					}
+				}
+
+				await _database.SaveChangesAsync();
+
+				return hook;
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Failed to remove Relay.");
+				return null;
+			}
 		}
 
 		public async Task<bool> SendFromDiscordAsync(ulong discordChannel, string author, string message)

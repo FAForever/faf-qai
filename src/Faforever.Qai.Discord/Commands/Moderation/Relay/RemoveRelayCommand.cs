@@ -49,8 +49,12 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Relay
 
 		private async Task RemoveRelayCommandAsync(CommandContext ctx, ulong channelId)
 		{
-			if(await _relay.RemoveRelayAsync(ctx.Guild.Id, channelId))
+			var res = await _relay.RemoveRelayAsync(ctx.Guild.Id, channelId);
+			if (!(res is null))
 			{
+				var discordHook = await ctx.Client.GetWebhookAsync(res.Id);
+				await discordHook.DeleteAsync();
+
 				await RespondBasicSuccess("Relay removed succesfuly.");
 			}
 			else
