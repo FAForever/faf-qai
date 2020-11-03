@@ -1,3 +1,5 @@
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 using DSharpPlus;
@@ -9,6 +11,8 @@ using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Services;
 using Faforever.Qai.Core.Structures.Configurations;
 using Faforever.Qai.Core.Structures.Webhooks;
+
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Faforever.Qai.Discord.Commands.Moderation.Relay
 {
@@ -52,9 +56,11 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Relay
 				await RespondBasicError("A relay already exsists for this Discord channel.");
 			}
 
+			var activeHooks = await discordChannel.GetWebhooksAsync();
+
 			if(cfg.Webhooks.TryGetValue(ircChannel, out var hook))
 			{
-				if (hook.ChannelId == discordChannel.Id)
+				if (activeHooks.Any(x => x.Id == hook.Id))
 				{
 					await RespondBasicError("A relay for this IRC channel is already in that Discord channel!");
 				}
@@ -65,7 +71,6 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Relay
 					var discordHook = await ctx.Client.GetWebhookAsync(hook.Id);
 					await discordHook.ModifyAsync(channelId: discordChannel.Id);
 
-					hook.ChannelId = discordChannel.Id;
 					await _database.SaveChangesAsync();
 
 					await RespondBasicSuccess($"Moved the relay for IRC channel `{ircChannel}` to {discordChannel.Mention}");
@@ -79,8 +84,7 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Relay
 			var newHookData = new DiscordWebhookData()
 			{
 				Id = newHook.Id,
-				Token = newHook.Token,
-				ChannelId = newHook.ChannelId
+				Token = newHook.Token
 			};
 
 			if (await _relay.AddRelayAsync(ctx.Guild.Id, newHookData, ircChannel))

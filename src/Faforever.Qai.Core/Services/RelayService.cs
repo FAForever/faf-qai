@@ -33,7 +33,7 @@ namespace Faforever.Qai.Core.Services
 
 		private HttpClient Http { get; set; }
 
-		public RelayService(QAIDatabaseModel database, ILogger logger)
+		public RelayService(QAIDatabaseModel database, ILogger<RelayService> logger)
 		{
 			this._database = database;
 			this.initalized = false;
@@ -100,7 +100,7 @@ namespace Faforever.Qai.Core.Services
 				_database.Update(cfg);
 
 				cfg.Webhooks[ircChannel] = hook;
-				cfg.DiscordToIRCLinks[hook.ChannelId] = ircChannel;
+				cfg.DiscordToIRCLinks[hook.Id] = ircChannel;
 
 				await _database.SaveChangesAsync();
 
@@ -113,7 +113,7 @@ namespace Faforever.Qai.Core.Services
 			}
 		}
 
-		public async Task<DiscordWebhookData?> RemoveRelayAsync(ulong discordGuild, ulong discordChannel)
+		public async Task<DiscordWebhookData?> RemoveRelayAsync(ulong discordGuild, ulong webhookId)
 		{
 			try
 			{
@@ -125,7 +125,7 @@ namespace Faforever.Qai.Core.Services
 				if (cfg is null)
 					throw new Exception("Failed to get valid relay configuration.");
 				DiscordWebhookData? hook = null;
-				if(cfg.DiscordToIRCLinks.TryRemove(discordChannel, out string? ircChannel))
+				if(cfg.DiscordToIRCLinks.TryRemove(webhookId, out string? ircChannel))
 				{
 					// At least one thing changed, so tell the database to save changes.
 					_database.Update(cfg);
@@ -174,7 +174,10 @@ namespace Faforever.Qai.Core.Services
 							Username = author,
 						};
 
-						var json = JsonConvert.SerializeObject(data);
+						var json = JsonConvert.SerializeObject(data, settings: new JsonSerializerSettings
+						{
+							NullValueHandling = NullValueHandling.Ignore
+						});
 
 						var request = new HttpRequestMessage()
 						{

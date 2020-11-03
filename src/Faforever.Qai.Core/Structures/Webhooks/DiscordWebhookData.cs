@@ -11,7 +11,6 @@ namespace Faforever.Qai.Core.Structures.Webhooks
 	{
 		public ulong Id { get; set; }
 		public string Token { get; set; }
-		public ulong ChannelId { get; set; }
 
 		public string WebhookUrl
 		{
@@ -22,13 +21,12 @@ namespace Faforever.Qai.Core.Structures.Webhooks
 		}
 
 		public DiscordWebhookData()
-			: this(0, "", 0) { }
+			: this(0, "") { }
 
-		public DiscordWebhookData(ulong id, string token, ulong channelId)
+		public DiscordWebhookData(ulong id, string token)
 		{
 			this.Id = id;
 			this.Token = token;
-			this.ChannelId = channelId;
 		}
 
 		public bool Equals([AllowNull] DiscordWebhookData other)

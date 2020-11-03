@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 
 using DSharpPlus;
@@ -37,7 +39,7 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Relay
 				return;
 			}
 
-			await RemoveRelayCommandAsync(ctx, hook.ChannelId);
+			await RemoveRelayCommandAsync(ctx, hook.Id);
 		}
 
 		[Command("removerelay")]
@@ -45,11 +47,34 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Relay
 		public async Task RemoveRelayCommandAsync(CommandContext ctx,
 			[Description("Discord Channel to remove relay for.")]
 			DiscordChannel discordChannel)
-			=> await RemoveRelayCommandAsync(ctx, discordChannel.Id);
-
-		private async Task RemoveRelayCommandAsync(CommandContext ctx, ulong channelId)
 		{
-			var res = await _relay.RemoveRelayAsync(ctx.Guild.Id, channelId);
+			var cfg = await _database.FindAsync<RelayConfiguration>(ctx.Guild.Id);
+			if(cfg is null)
+			{
+				await RespondBasicError("No relays found.");
+				return;
+			}
+
+			var discordHooks = await discordChannel.GetWebhooksAsync();
+			
+			foreach(var hook in discordHooks)
+			{
+				if(cfg.DiscordToIRCLinks.TryGetValue(hook.Id, out var data))
+				{
+					if (cfg.Webhooks.TryGetValue(data, out var hookData))
+					{
+						await RemoveRelayCommandAsync(ctx, hookData.Id);
+						return;
+					}
+				}
+			}
+
+			await RespondBasicError("No relays found.");
+		}
+
+		private async Task RemoveRelayCommandAsync(CommandContext ctx, ulong webhookId)
+		{
+			var res = await _relay.RemoveRelayAsync(ctx.Guild.Id, webhookId);
 			if (!(res is null))
 			{
 				var discordHook = await ctx.Client.GetWebhookAsync(res.Id);

@@ -8,8 +8,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Faforever.Qai.Core.Migrations
 {
     [DbContext(typeof(QAIDatabaseModel))]
-    [Migration("20201103184838_FirstMigration")]
-    partial class FirstMigration
+    [Migration("20201103212204_InitalMigration")]
+    partial class InitalMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
