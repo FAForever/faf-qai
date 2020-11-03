@@ -15,17 +15,17 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 3.1.401
-#            - name: Install SonarCloud dotnet
-#              run: dotnet tool install --global dotnet-sonarscanner
-#            - name: Start SonarCloud analysis
-#              run: dotnet sonarscanner begin -k:Faforever.Qai -d:sonar.host.url="https://sonarcloud.io" -o:faforever -d:sonar.login=${{secrets.SONAR_KEY}} -d:sonar.branch.name=${GITHUB_REF##*/} -v:${GITHUB_RUN_NUMBER} -d:sonar.cs.opencover.reportsPaths=./testresults/*/coverage.opencover.xml
+      - name: Install SonarCloud dotnet
+        run: dotnet tool install --global dotnet-sonarscanner
+      - name: Start SonarCloud analysis
+        run: dotnet sonarscanner begin -k:faf-qai -d:sonar.host.url="https://sonarcloud.io" -o:FAForever -d:sonar.login=${{secrets.SONAR_TOKEN}} -d:sonar.branch.name=${GITHUB_REF##*/} -v:${GITHUB_RUN_NUMBER} -d:sonar.cs.opencover.reportsPaths=./testresults/*/coverage.opencover.xml
       - name: Install dependencies
         run: dotnet restore
       - name: Build
         run: dotnet build --configuration Release --no-restore
       - name: Test
         run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage" -r ./testresults -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
-#      - name: End SonarCloud analysis
-#        run: dotnet sonarscanner end -d:sonar.login=${{secrets.SONAR_KEY}}
-#        env:
-#          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: End SonarCloud analysis
+        run: dotnet sonarscanner end -d:sonar.login=${{secrets.SONAR_TOKEN}}
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
