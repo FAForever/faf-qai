@@ -2,7 +2,7 @@
 
 namespace Faforever.Qai.Core.Migrations
 {
-    public partial class FirstMigration : Migration
+    public partial class InitalMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
