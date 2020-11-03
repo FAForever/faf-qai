@@ -13,6 +13,6 @@ Just dump the release in a folder and run the "Qai.exe" executable.
 
 ## Configuration
 To Create a new Database file for testing use `Update-Database --project Faforever.Qai.Core` in the Packet Manager Console.
-If you are using the .NET Core CLI, run `dotnet ef database update src/Faforever.Qai.Core` from the Faforever.Qai solution folder.
+If you are using the .NET Core CLI, run `dotnet ef database update --project src/Faforever.Qai.Core` from the Faforever.Qai solution folder.
 
 Once you have a test.db file, move it into the Faforever.Qai project if it is not there already, and make sure to set property `Copy to Output Directory` to Copy if newer. You can use Copy Always, but data will be reset between tests.
