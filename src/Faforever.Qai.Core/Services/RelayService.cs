@@ -140,26 +140,22 @@ namespace Faforever.Qai.Core.Services
 			}
 		}
 
-		public async Task<bool> SendFromDiscordAsync(ulong discordChannel, string author, string message)
+		public async Task SendFromDiscordAsync(ulong discordChannel, string author, string message)
 		{
 			if (!this.initalized)
 				if (!Initalize())
 					throw new Exception("Failed to Initalize the RelayService.");
 
 
-
-			return true;
 		}
 
-		public async Task<bool> SendFromIRCAsync(string ircChannel, string author, string message)
+		public async Task SendFromIRCAsync(string ircChannel, string author, string message)
 		{
 			if (!this.initalized)
 				if (!Initalize())
 					throw new Exception("Failed to Initalize the RelayService.");
 
 
-
-			return true;
 		}
 
 		protected virtual void Dispose(bool disposing)
