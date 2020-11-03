@@ -1,5 +1,6 @@
 using System;
 using Faforever.Qai.Discord;
+using Faforever.Qai.Discord.Core.Configurations;
 using Faforever.Qai.Irc;
 using IrcDotNet;
 using McMaster.Extensions.CommandLineUtils;
@@ -28,7 +29,7 @@ namespace Faforever.Qai {
 					"Input Bot Token [FOR DEBUG ONLY - REMOVE IN PROD (or once we have a desicion on how to retrive config values)]: ");
 				try {
 					await using DiscordBot discordBot = new DiscordBot(serviceProvider, LogLevel.Debug,
-						new Discord.Structures.Configurations.DiscordBotConfiguration() {
+						new DiscordBotConfiguration() {
 							Token = Console.ReadLine(),
 							Prefix = "!",
 							Shards = 1

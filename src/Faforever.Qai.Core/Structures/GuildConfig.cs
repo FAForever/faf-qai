@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Faforever.Qai.Discord.Structures
+namespace Faforever.Qai.Core.Structures
 {
 	public class GuildConfig
 	{

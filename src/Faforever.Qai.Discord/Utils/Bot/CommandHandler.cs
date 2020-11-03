@@ -8,8 +8,8 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 
-using Faforever.Qai.Discord.Structures;
-using Faforever.Qai.Discord.Structures.Configurations;
+using Faforever.Qai.Core.Structures;
+using Faforever.Qai.Discord.Core.Configurations;
 using Faforever.Qai.Discord.Utils.Commands;
 
 using Microsoft.Extensions.Logging;
