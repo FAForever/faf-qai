@@ -18,7 +18,7 @@ namespace Faforever.Qai.Core.Structures.Configurations
 		public ConcurrentDictionary<ulong, string> FafLinks { get; set; }
 		public ConcurrentDictionary<string, string> Records { get; set; }  
 
-		public DiscordGuildConfiguration() { } // used by EFcore or simillar processes or creating blank templates.
+		public DiscordGuildConfiguration() : this(0, "") { } // used by EFcore or simillar processes or creating blank templates.
 
 		public DiscordGuildConfiguration(ulong guildId, string prefix)
 		{

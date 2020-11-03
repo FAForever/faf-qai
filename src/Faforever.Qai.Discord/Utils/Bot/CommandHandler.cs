@@ -86,6 +86,10 @@ namespace Faforever.Qai.Discord.Utils.Bot
 					await cnext.ExecuteCommandAsync(ctx);
 				}
 			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Command Handler failed.");
+			}
 			finally
 			{
 				if (!(DiscordBot.CommandsInProgress is null))
