@@ -13,12 +13,12 @@ using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.EventArgs;
 
 using Faforever.Qai.Discord.Commands;
+using Faforever.Qai.Discord.Core.Structures.Configurations;
 using Faforever.Qai.Discord.Utils.Bot;
 using Faforever.Qai.Discord.Utils.Commands;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Faforever.Qai.Discord.Core.Configurations;
 
 namespace Faforever.Qai.Discord
 {
