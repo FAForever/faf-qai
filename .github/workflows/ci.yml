@@ -15,6 +15,15 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 3.1.401
+      - name: Setup Java JDK
+        uses: actions/setup-java@v1.4.3
+        with:
+          # The Java version to make available on the path. Takes a whole or semver Java version, or 1.x syntax (e.g. 1.8 => Java 8.x). Early access versions can be specified in the form of e.g. 14-ea, 14.0.0-ea, or 14.0.0-ea.28
+          java-version: 11
+          # The package type (jre, jdk, jdk+fx)
+          java-package: jdk # optional, default is jdk
+          # The architecture (x86, x64) of the package.
+          architecture: x64 # optional, default is x64
       - name: Install SonarCloud dotnet
         run: dotnet tool install --global dotnet-sonarscanner
       - name: Start SonarCloud analysis
