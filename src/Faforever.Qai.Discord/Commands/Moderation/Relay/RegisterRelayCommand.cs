@@ -29,7 +29,7 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Relay
 
 		[Command("registerrelay")]
 		[Description("Registers a link between an IRC channel and a Discord channel.")]
-		[Aliases("rrealy")]
+		[Aliases("rrelay")]
 		[RequireUserPermissions(Permissions.ManageChannels)]
 		public async Task ExampleCommandAsync(CommandContext ctx,
 			[Description("Discord channel to link to.")]

@@ -43,7 +43,7 @@ namespace Faforever.Qai.Core.Structures.Webhooks
 		{
 			if (obj is DiscordWebhookData)
 				return Equals(obj as DiscordWebhookData);
-			else return base.Equals(obj);
+			else return false;
 		}
 	}
 }
