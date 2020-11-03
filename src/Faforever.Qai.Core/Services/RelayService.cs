@@ -80,7 +80,7 @@ namespace Faforever.Qai.Core.Services
 			return true;
 		}
 
-		public async Task<bool> RemoveRelatAsync(ulong discordGuild, ulong discordChannel)
+		public async Task<bool> RemoveRelayAsync(ulong discordGuild, ulong discordChannel)
 		{
 			if (!this.initalized)
 				if (!Initalize())
