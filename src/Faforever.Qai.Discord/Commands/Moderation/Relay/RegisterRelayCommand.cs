@@ -5,17 +5,22 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 
+using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Services;
+using Faforever.Qai.Core.Structures.Configurations;
+using Faforever.Qai.Core.Structures.Webhooks;
 
 namespace Faforever.Qai.Discord.Commands.Moderation.Relay
 {
 	public class RegisterRelayCommand : CommandModule
 	{
 		private readonly RelayService _relay;
+		private readonly QAIDatabaseModel _database;
 
-		public RegisterRelayCommand(RelayService relay)
+		public RegisterRelayCommand(RelayService relay, QAIDatabaseModel database)
 		{
 			this._relay = relay;
+			this._database = database;
 		}
 
 		[Command("registerrelay")]
@@ -29,7 +34,56 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Relay
 			[Description("IRC channel to link to.")]
 			string ircChannel)
 		{
-			if (await _relay.AddRelayAsync(ctx.Guild.Id, discordChannel.Id, ircChannel))
+			var cfg = _database.Find<RelayConfiguration>(ctx.Guild.Id);
+			if(cfg is null)
+			{
+				cfg = new RelayConfiguration()
+				{
+					DiscordServer = ctx.Guild.Id
+				};
+
+				await _database.AddAsync(cfg);
+				await _database.SaveChangesAsync();
+			}
+
+			// TODO: Some check to see if the IRC channel is avalible.
+			if(cfg.DiscordToIRCLinks.ContainsKey(discordChannel.Id))
+			{
+				await RespondBasicError("A relay already exsists for this Discord channel.");
+			}
+
+			if(cfg.Webhooks.TryGetValue(ircChannel, out var hook))
+			{
+				if (hook.ChannelId == discordChannel.Id)
+				{
+					await RespondBasicError("A relay for this IRC channel is already in that Discord channel!");
+				}
+				else
+				{
+					_database.Update(cfg);
+
+					var discordHook = await ctx.Client.GetWebhookAsync(hook.Id);
+					await discordHook.ModifyAsync(channelId: discordChannel.Id);
+
+					hook.ChannelId = discordChannel.Id;
+					await _database.SaveChangesAsync();
+
+					await RespondBasicSuccess($"Moved the relay for IRC channel `{ircChannel}` to {discordChannel.Mention}");
+				}
+
+				return;
+			}
+
+			var newHook = await discordChannel.CreateWebhookAsync($"Dostya-{ircChannel}", reason: "Dostya Relay Creation");
+
+			var newHookData = new DiscordWebhookData()
+			{
+				Id = newHook.Id,
+				Token = newHook.Token,
+				ChannelId = newHook.ChannelId
+			};
+
+			if (await _relay.AddRelayAsync(ctx.Guild.Id, newHookData, ircChannel))
 			{
 				await RespondBasicSuccess("Relay added!");
 			}

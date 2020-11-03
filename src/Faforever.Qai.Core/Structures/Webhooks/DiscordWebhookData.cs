@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Faforever.Qai.Core.Structures.Webhooks
 {
-	public class DiscordWebhook : IEquatable<DiscordWebhook>
+	public class DiscordWebhookData : IEquatable<DiscordWebhookData>
 	{
 		public ulong Id { get; set; }
 		public string Token { get; set; }
@@ -21,17 +21,17 @@ namespace Faforever.Qai.Core.Structures.Webhooks
 			}
 		}
 
-		public DiscordWebhook()
+		public DiscordWebhookData()
 			: this(0, "", 0) { }
 
-		public DiscordWebhook(ulong id, string token, ulong channelId)
+		public DiscordWebhookData(ulong id, string token, ulong channelId)
 		{
 			this.Id = id;
 			this.Token = token;
 			this.ChannelId = channelId;
 		}
 
-		public bool Equals([AllowNull] DiscordWebhook other)
+		public bool Equals([AllowNull] DiscordWebhookData other)
 		{
 			return other?.Id.Equals(Id) ?? false;
 		}
@@ -43,8 +43,8 @@ namespace Faforever.Qai.Core.Structures.Webhooks
 
 		public override bool Equals(object? obj)
 		{
-			if (obj is DiscordWebhook)
-				return Equals(obj as DiscordWebhook);
+			if (obj is DiscordWebhookData)
+				return Equals(obj as DiscordWebhookData);
 			else return base.Equals(obj);
 		}
 	}
