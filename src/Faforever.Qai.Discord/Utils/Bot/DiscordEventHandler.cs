@@ -18,18 +18,16 @@ namespace Faforever.Qai.Discord.Utils.Bot
 		private readonly DiscordRestClient Rest;
 		private readonly DiscordShardedClient Client;
 		private readonly RelayService _relay;
-		private readonly QAIDatabaseModel _database;
 		private readonly ILogger _logger;
 
 		private ConcurrentDictionary<MessageCreateEventArgs, Task> Relays { get; set; } = new ConcurrentDictionary<MessageCreateEventArgs, Task>();
 
-		public DiscordEventHandler(DiscordShardedClient client, DiscordRestClient rest, RelayService relay, QAIDatabaseModel database)
+		public DiscordEventHandler(DiscordShardedClient client, DiscordRestClient rest, RelayService relay)
 		{
 			this.Client = client;
 			this.Rest = rest;
 
 			this._relay = relay;
-			this._database = database;
 			this._logger = Client.Logger;
 		}
 

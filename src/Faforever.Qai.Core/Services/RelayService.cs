@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,6 +14,8 @@ using Faforever.Qai.Discord.Core.Structures.Configurations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.Extensions.Logging;
+
+using Newtonsoft.Json;
 
 namespace Faforever.Qai.Core.Services
 {
@@ -28,11 +31,15 @@ namespace Faforever.Qai.Core.Services
 
 		private ConcurrentDictionary<string, HashSet<string>> IRCtoWebhookRelations { get; set; }
 
+		private HttpClient Http { get; set; }
+
 		public RelayService(QAIDatabaseModel database, ILogger logger)
 		{
 			this._database = database;
 			this.initalized = false;
 			this._logger = logger;
+
+			Http = new HttpClient();
 		}
 
 		private bool Initalize()
@@ -155,7 +162,38 @@ namespace Faforever.Qai.Core.Services
 				if (!Initalize())
 					throw new Exception("Failed to Initalize the RelayService.");
 
+			if(IRCtoWebhookRelations.TryGetValue(ircChannel, out var hooks))
+			{
+				foreach (var h in hooks)
+				{
+					try
+					{
+						var data = new DiscordWebhookContent()
+						{
+							Content = message,
+							Username = author,
+						};
 
+						var json = JsonConvert.SerializeObject(data);
+
+						var request = new HttpRequestMessage()
+						{
+							RequestUri = new Uri(h),
+							Method = HttpMethod.Post
+						};
+
+						request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+						// The response should be a 204, so we dont care about reading it.
+						_ = await Http.SendAsync(request);
+					}
+					catch (Exception ex)
+					{
+						_logger.LogWarning(ex, "Send from IRC errored.");
+						continue; 
+					}
+				}
+			}
 		}
 
 		protected virtual void Dispose(bool disposing)
