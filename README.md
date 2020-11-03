@@ -1,3 +1,4 @@
+![Continuous integration](https://github.com/chrsin/Faforever.Qai/workflows/Continuous%20integration/badge.svg?branch=main)
 # Faforever.Qai
 The rewrite and combining of Dostya/Qai into a single application.
 
