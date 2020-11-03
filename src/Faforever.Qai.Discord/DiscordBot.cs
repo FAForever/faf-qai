@@ -49,6 +49,7 @@ namespace Faforever.Qai.Discord
 		/// </summary>
 		public IReadOnlyDictionary<string, Command> Commands { get; private set; }
 		#endregion
+
 		#region Private Variables
 		private DiscordBotConfiguration Config { get; set; }
 
