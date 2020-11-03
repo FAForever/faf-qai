@@ -16,10 +16,10 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Users
 		public async Task BanCommandAsync(CommandContext ctx,
 			[Description("User to ban")]
 			DiscordMember discordMember,
-			
+
 			[Description("Optional message to log and send the user")]
 			string? message = null,
-			
+
 			[Description("Time to ban the user for.")]
 			TimeSpan? banLength = null)
 		{

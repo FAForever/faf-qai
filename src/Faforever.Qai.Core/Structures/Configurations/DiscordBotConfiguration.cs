@@ -1,4 +1,4 @@
-namespace Faforever.Qai.Discord.Core.Configurations
+namespace Faforever.Qai.Discord.Core.Structures.Configurations
 {
 	/// <summary>
 	/// Holds configuration infromation for a Discord Bot

@@ -1,13 +1,11 @@
 using System;
 using System.Threading.Tasks;
 
-using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Entities;
 
 using Faforever.Qai.Discord.Commands;
-using Faforever.Qai.Discord.Commands.Utils;
 
 using Microsoft.Extensions.Logging;
 

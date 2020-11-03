@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 using DSharpPlus.CommandsNext;
@@ -48,7 +46,7 @@ namespace Faforever.Qai.Discord.Commands.Converters
 							}
 							break;
 						case "h":
-							if(int.TryParse(value[c..i], out num))
+							if (int.TryParse(value[c..i], out num))
 							{
 								span = span.Add(TimeSpan.FromHours(num));
 							}

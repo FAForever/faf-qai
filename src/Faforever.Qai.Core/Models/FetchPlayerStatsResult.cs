@@ -1,5 +1,7 @@
-﻿namespace Faforever.Qai.Core.Models {
-	public class FetchPlayerStatsResult {
-		
+﻿namespace Faforever.Qai.Core.Models
+{
+	public class FetchPlayerStatsResult
+	{
+
 	}
 }

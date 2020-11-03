@@ -18,7 +18,7 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Users
 			=> await UnblacklistCommandAsync(ctx, user.Id);
 
 		[Command("unblacklist")]
-		public async Task UnblacklistCommandAsync(CommandContext ctx, 
+		public async Task UnblacklistCommandAsync(CommandContext ctx,
 			[Description("User ID of the user to remove from the blacklist")]
 			ulong userId)
 		{

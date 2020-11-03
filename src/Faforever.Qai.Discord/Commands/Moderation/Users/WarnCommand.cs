@@ -15,7 +15,7 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Users
 		public async Task WarnCommandAsync(CommandContext ctx,
 			[Description("User to warn")]
 			DiscordMember discordMember,
-			
+
 			[Description("Optional message to log and send to the user.")]
 			string? message = null)
 		{

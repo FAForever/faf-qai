@@ -4,8 +4,6 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
-using Faforever.Qai.Discord.Commands.Utils;
-
 namespace Faforever.Qai.Discord.Commands.Players
 {
 	public class PlayerRaitingsCommand : CommandModule

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,8 +7,9 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 
-using Faforever.Qai.Core.Structures;
-using Faforever.Qai.Discord.Core.Configurations;
+using Faforever.Qai.Core.Database;
+using Faforever.Qai.Core.Structures.Configurations;
+using Faforever.Qai.Discord.Core.Structures.Configurations;
 using Faforever.Qai.Discord.Utils.Commands;
 
 using Microsoft.Extensions.Logging;
@@ -38,22 +38,22 @@ namespace Faforever.Qai.Discord.Utils.Bot
 			{
 				cancellationToken.ThrowIfCancellationRequested();
 
-				//using NSDatabaseModel model = new NSDatabaseModel();
+				using QAIDatabaseModel model = new QAIDatabaseModel();
 				// Need to know how we are accessing the database!
 
-				GuildConfig guildConfig = null; //await model.Configs.FindAsync(msg.Channel.GuildId);
+				DiscordGuildConfiguration guildConfig = await model.FindAsync<DiscordGuildConfiguration>(msg.Channel.GuildId);
 
 				if (guildConfig is null)
 				{
-					guildConfig = new GuildConfig
+					guildConfig = new DiscordGuildConfiguration
 					{
 						GuildId = msg.Channel.GuildId,
 						Prefix = _config.Prefix
 					};
 
-					//model.Configs.Add(gConfig);
+					model.Add(guildConfig);
 
-					//await model.SaveChangesAsync();
+					await model.SaveChangesAsync();
 				}
 
 				cancellationToken.ThrowIfCancellationRequested();
@@ -84,6 +84,10 @@ namespace Faforever.Qai.Discord.Utils.Bot
 					await cnext.ExecuteCommandAsync(ctx);
 				}
 			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Command Handler failed.");
+			}
 			finally
 			{
 				if (!(DiscordBot.CommandsInProgress is null))
@@ -97,7 +101,7 @@ namespace Faforever.Qai.Discord.Utils.Bot
 			}
 		}
 
-		public async Task<int> PrefixResolver(DiscordMessage msg, GuildConfig guildConfig)
+		public async Task<int> PrefixResolver(DiscordMessage msg, DiscordGuildConfiguration guildConfig)
 		{
 			if (!msg.Channel.PermissionsFor(await msg.Channel.Guild.GetMemberAsync(_client.CurrentUser.Id).ConfigureAwait(false)).HasPermission(Permissions.SendMessages)) return -1; //Checks if bot can't send messages, if so ignore.
 			else if (msg.Content.StartsWith(_client.CurrentUser.Mention)) return _client.CurrentUser.Mention.Length; // Always respond to a mention.

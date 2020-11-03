@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,13 +11,14 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.EventArgs;
 
+using Faforever.Qai.Core.Services;
 using Faforever.Qai.Discord.Commands;
+using Faforever.Qai.Discord.Core.Structures.Configurations;
 using Faforever.Qai.Discord.Utils.Bot;
 using Faforever.Qai.Discord.Utils.Commands;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Faforever.Qai.Discord.Core.Configurations;
 
 namespace Faforever.Qai.Discord
 {
@@ -49,6 +49,7 @@ namespace Faforever.Qai.Discord
 		/// </summary>
 		public IReadOnlyDictionary<string, Command> Commands { get; private set; }
 		#endregion
+
 		#region Private Variables
 		private DiscordBotConfiguration Config { get; set; }
 
@@ -87,7 +88,7 @@ namespace Faforever.Qai.Discord
 		public async Task InitializeAsync()
 		{
 			// Register necissary configurations
-			if(Config.Token == "")
+			if (Config.Token == "")
 				await RegisterBotConfigurationAsync();
 
 			// Create the Clients
@@ -117,7 +118,7 @@ namespace Faforever.Qai.Discord
 			}
 
 			// Register any additional Client events
-			eventHandler = new DiscordEventHandler(Client, Rest);
+			eventHandler = new DiscordEventHandler(Client, Rest, services.GetService<RelayService>());
 			eventHandler.Initalize();
 
 			// Register the event needed to send data to the CommandHandler

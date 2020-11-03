@@ -1,11 +1,8 @@
-using System;
 using System.Threading.Tasks;
 
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-
-using Faforever.Qai.Discord.Commands.Utils;
 
 namespace Faforever.Qai.Discord.Commands.Data
 {
@@ -14,7 +11,7 @@ namespace Faforever.Qai.Discord.Commands.Data
 		[Command("unit")]
 		[Description("Gets a unit prefivew and a link to the unitDB page.")]
 		[RequireBotPermissions(Permissions.EmbedLinks)]
-		public async Task UnitCommandAsync(CommandContext ctx, 
+		public async Task UnitCommandAsync(CommandContext ctx,
 			[Description("The ID of the unit to lookup.")]
 			string unitId)
 		{

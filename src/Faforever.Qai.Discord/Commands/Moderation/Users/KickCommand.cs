@@ -15,7 +15,7 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Users
 		public async Task KickCommandAsync(CommandContext ctx,
 			[Description("User to kick from the server.")]
 			DiscordMember discordMember,
-			
+
 			[Description("Optional message to send the user.")]
 			string? message = null)
 		{
