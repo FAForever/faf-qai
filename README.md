@@ -18,3 +18,12 @@ If you are using the .NET Core CLI, run `dotnet ef database update --project src
 Once you have a test.db file, move it into the Faforever.Qai project if it is not there already, and make sure to set property `Copy to Output Directory` to Copy if newer. You can use Copy Always, but data will be reset between tests.
 
 See [this reference](https://docs.microsoft.com/en-us/ef/core/miscellaneous/cli/dotnet) for installing the EF Core tools for the .NET Core CLI 
+
+## Commands
+In order to invoke a command you just type it in #aeolus in either the client or discord or you can send a private message to the bot.
+You prefix all commands with an **'!'**. For an example in order to invoke the player command you do.
+`!player coolmcgrrr`
+
+| Command        | Parameters | Description                                                       |
+|----------------|------------|-------------------------------------------------------------------|
+| player/ratings | username   | Displays ratings/rankings for the player with the given username. |
