@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
 using Faforever.Qai.Core;
+using Faforever.Qai.Core.Commands.Context;
+
 using IrcDotNet;
 using Microsoft.Extensions.Logging;
 
@@ -10,15 +12,20 @@ namespace Faforever.Qai.Irc {
 		private readonly IrcRegistrationInfo _userInfo;
 		private readonly ILogger _logger;
 		private readonly ICommandParser _commandParser;
+		private readonly QCommandsHandler _commandHandler;
+		private readonly IServiceProvider _services;
 
 		private readonly StandardIrcClient _client;
 
 		public QaIrc(string hostname, IrcRegistrationInfo userInfo, ILogger<QaIrc> logger,
-			ICommandParser commandParser) {
+			ICommandParser commandParser, QCommandsHandler commandHandler, IServiceProvider services) {
 			_hostname = hostname;
 			_userInfo = userInfo;
 			_logger = logger;
 			_commandParser = commandParser;
+			_commandHandler = commandHandler;
+			_services = services;
+
 			_client = new StandardIrcClient {FloodPreventer = new IrcStandardFloodPreventer(4, 2000)};
 			_client.ErrorMessageReceived += OnClientErrorMessageReceived;
 			_client.Connected += OnClientConnected;
@@ -35,9 +42,12 @@ namespace Faforever.Qai.Irc {
 			_client.Dispose();
 		}
 
-		private void OnPrivateMessage(object? receiver, IrcMessageEventArgs eventArgs) {
-			_commandParser.HandleMessage(new IrcCommandSource(_client.LocalUser, eventArgs.Source.Name),
-				eventArgs.Text).GetAwaiter().GetResult();
+		private async void OnPrivateMessage(object? receiver, IrcMessageEventArgs eventArgs) {
+			//_commandParser.HandleMessage(new IrcCommandSource(_client.LocalUser, eventArgs.Source.Name),
+			//	eventArgs.Text).GetAwaiter().GetResult();
+
+			var ctx = new IRCCommandContext(_client.LocalUser, eventArgs.Source.Name, eventArgs.Text, "!", _services);
+			await _commandHandler.MessageRecivedAsync(ctx, eventArgs.Text);
 		}
 
 		private void OnChannelMessageReceived(object sender, IrcMessageEventArgs messageEventArgs) {

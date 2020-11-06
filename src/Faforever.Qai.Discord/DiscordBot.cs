@@ -11,6 +11,8 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.EventArgs;
 
+using Faforever.Qai.Core;
+using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Services;
 using Faforever.Qai.Discord.Commands;
 using Faforever.Qai.Discord.Core.Structures.Configurations;
@@ -123,6 +125,7 @@ namespace Faforever.Qai.Discord
 
 			// Register the event needed to send data to the CommandHandler
 			Client.MessageCreated += Client_MessageCreated;
+			Client.MessageCreated += QMmands_MessageCreated;
 		}
 		/// <summary>
 		/// Gets the DiscordConfiguration object for a DiscordBot.
@@ -169,6 +172,9 @@ namespace Faforever.Qai.Discord
 		#region Command Events
 		private Task Client_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
 		{
+			//TODO Remove after testing.
+			return Task.CompletedTask;
+
 			if (CommandsInProgress is null)
 				return Task.CompletedTask; // Looks like we can't handle any commands.
 
@@ -188,6 +194,16 @@ namespace Faforever.Qai.Discord
 			}
 
 			return Task.CompletedTask;
+		}
+
+		private async Task QMmands_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
+		{
+			if (e.Author.IsBot) return; // ignore bots.
+
+			var cmdService = services.GetRequiredService<QCommandsHandler>();
+			var ctx = new DiscordCommandContext(e.Message, Config.Prefix, services);
+
+			await cmdService.MessageRecivedAsync(ctx, e.Message.Content);
 		}
 		#endregion
 
