@@ -1,5 +1,8 @@
 using System;
-
+using System.Net.Http;
+using Faforever.Qai.Core;
+using Faforever.Qai.Core.Operations.Player;
+using Faforever.Qai.Core.Services;
 using Faforever.Qai.Discord;
 using Faforever.Qai.Discord.Core.Structures.Configurations;
 using Faforever.Qai.Irc;
@@ -25,6 +28,10 @@ namespace Faforever.Qai
 			{
 				ServiceCollection services = new ServiceCollection();
 				services.AddLogging(options => options.AddConsole());
+				services.AddSingleton<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>();
+				services.AddSingleton<IPlayerService, OperationsPlayerService>();
+				services.AddTransient<ICommandParser>(x => new SimpleCommandParser("!", x.GetService<IPlayerService>()));
+				services.AddTransient<HttpClient>();
 
 				await using var serviceProvider = services.BuildServiceProvider();
 
@@ -34,7 +41,7 @@ namespace Faforever.Qai
 					RealName = "Balleby",
 					Password = "balleby",
 					UserName = "balleby"
-				}, serviceProvider.GetService<ILogger<QaIrc>>());
+				}, serviceProvider.GetService<ILogger<QaIrc>>(), serviceProvider.GetService<ICommandParser>());
 				ircBot.Run();
 
 				Console.WriteLine(
