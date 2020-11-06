@@ -1,19 +1,26 @@
 ﻿using System.Threading.Tasks;
+
 using Faforever.Qai.Core.Models;
 using Faforever.Qai.Core.Services;
+
 using Moq;
+
 using Xunit;
 
-namespace Faforever.Qai.Core.Tests {
-	public class SimpleCommandParserTest {
+namespace Faforever.Qai.Core.Tests
+{
+	public class SimpleCommandParserTest
+	{
 		private readonly SimpleCommandParser _parser;
 		private readonly string _commandPrefix;
 		private readonly Mock<ICommandSource> _commandSource;
 		private readonly Mock<IPlayerService> _playerService;
 		private readonly FetchPlayerStatsResult _validPlayerFetch;
 
-		public SimpleCommandParserTest() {
-			_validPlayerFetch = new FetchPlayerStatsResult {
+		public SimpleCommandParserTest()
+		{
+			_validPlayerFetch = new FetchPlayerStatsResult
+			{
 				Name = "CoolMcGrrr",
 				Ranking1v1 = 6000,
 				Rating1v1 = 500,
@@ -31,7 +38,8 @@ namespace Faforever.Qai.Core.Tests {
 		[Theory]
 		[InlineData("Anyone ready for a game?")]
 		[InlineData("ratings?! how do you find them?")]
-		public async Task ShouldIgnoreMessage(string message) {
+		public async Task ShouldIgnoreMessage(string message)
+		{
 			//Arrange
 			//Act
 			await _parser.HandleMessage(_commandSource.Object, message);
@@ -45,7 +53,8 @@ namespace Faforever.Qai.Core.Tests {
 		[InlineData("ratings")]
 		[InlineData("RATINGS")]
 		[InlineData("PLAYER")]
-		public async Task ShouldRecognizeFetchPlayerAndFailOnNoUsername(string command) {
+		public async Task ShouldRecognizeFetchPlayerAndFailOnNoUsername(string command)
+		{
 			//Arrange
 			//Act
 			await _parser.HandleMessage(_commandSource.Object, $"{_commandPrefix}{command}");
@@ -58,7 +67,8 @@ namespace Faforever.Qai.Core.Tests {
 		[Theory]
 		[InlineData("player")]
 		[InlineData("ratings")]
-		public async Task ShouldFetchPlayerStats(string command) {
+		public async Task ShouldFetchPlayerStats(string command)
+		{
 			//Arrange
 			const string username = "CoolMcGrrr";
 			_playerService.Setup(x => x.FetchPlayerStats(username)).ReturnsAsync(_validPlayerFetch);

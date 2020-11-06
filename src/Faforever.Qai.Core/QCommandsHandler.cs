@@ -1,20 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading.Tasks;
-
-using DSharpPlus.Entities;
 
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Commands.Context.Exceptions;
-using Faforever.Qai.Core.Database;
 
-using IrcDotNet;
-
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.Extensions.Logging;
 
 using Qmmands;
@@ -42,7 +30,7 @@ namespace Faforever.Qai.Core
 			if (!CommandUtilities.HasPrefix(message, baseContext.Prefix, out string output))
 				return;
 
-		
+
 			await _commands.ExecuteAsync(output, baseContext);
 		}
 

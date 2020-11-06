@@ -1,15 +1,14 @@
 using System;
 using System.Net.Http;
+
 using Faforever.Qai.Core;
-using Faforever.Qai.Core.Commands;
+using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Operations.Player;
 using Faforever.Qai.Core.Services;
 using Faforever.Qai.Discord;
-using Faforever.Qai.Discord.Commands;
 using Faforever.Qai.Discord.Core.Structures.Configurations;
 using Faforever.Qai.Irc;
-using Faforever.Qai.Irc.Commands;
 
 using IrcDotNet;
 
@@ -48,9 +47,7 @@ namespace Faforever.Qai
 							// Additional configuration for the command service goes here.
 						};
 						// Command modules go here.
-						service.AddModule<DiscordCommandModule>();
-						service.AddModule<DualCommandModule>();
-						service.AddModule<IrcCommandModule>();
+						service.AddModules(System.Reflection.Assembly.GetAssembly(typeof(CustomCommandContext)));
 						return service;
 					})
 					.AddSingleton<QCommandsHandler>();

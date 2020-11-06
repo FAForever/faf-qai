@@ -1,13 +1,16 @@
 using System;
-using System.Threading.Tasks;
+
 using Faforever.Qai.Core;
 using Faforever.Qai.Core.Commands.Context;
 
 using IrcDotNet;
+
 using Microsoft.Extensions.Logging;
 
-namespace Faforever.Qai.Irc {
-	public class QaIrc : IDisposable {
+namespace Faforever.Qai.Irc
+{
+	public class QaIrc : IDisposable
+	{
 		private readonly string _hostname;
 		private readonly IrcRegistrationInfo _userInfo;
 		private readonly ILogger _logger;
@@ -18,7 +21,8 @@ namespace Faforever.Qai.Irc {
 		private readonly StandardIrcClient _client;
 
 		public QaIrc(string hostname, IrcRegistrationInfo userInfo, ILogger<QaIrc> logger,
-			ICommandParser commandParser, QCommandsHandler commandHandler, IServiceProvider services) {
+			ICommandParser commandParser, QCommandsHandler commandHandler, IServiceProvider services)
+		{
 			_hostname = hostname;
 			_userInfo = userInfo;
 			_logger = logger;
@@ -26,23 +30,26 @@ namespace Faforever.Qai.Irc {
 			_commandHandler = commandHandler;
 			_services = services;
 
-			_client = new StandardIrcClient {FloodPreventer = new IrcStandardFloodPreventer(4, 2000)};
+			_client = new StandardIrcClient { FloodPreventer = new IrcStandardFloodPreventer(4, 2000) };
 			_client.ErrorMessageReceived += OnClientErrorMessageReceived;
 			_client.Connected += OnClientConnected;
 			_client.ConnectFailed += OnClientConnectFailed;
 			_client.Registered += OnClientRegistered;
 		}
 
-		public void Run() {
+		public void Run()
+		{
 			_client.Connect(_hostname, false, _userInfo);
 		}
 
-		public void Dispose() {
+		public void Dispose()
+		{
 			_client.Quit(1000, "I'm outta here");
 			_client.Dispose();
 		}
 
-		private async void OnPrivateMessage(object? receiver, IrcMessageEventArgs eventArgs) {
+		private async void OnPrivateMessage(object? receiver, IrcMessageEventArgs eventArgs)
+		{
 			//_commandParser.HandleMessage(new IrcCommandSource(_client.LocalUser, eventArgs.Source.Name),
 			//	eventArgs.Text).GetAwaiter().GetResult();
 
@@ -50,20 +57,23 @@ namespace Faforever.Qai.Irc {
 			await _commandHandler.MessageRecivedAsync(ctx, eventArgs.Text);
 		}
 
-		private void OnChannelMessageReceived(object sender, IrcMessageEventArgs messageEventArgs) {
+		private void OnChannelMessageReceived(object sender, IrcMessageEventArgs messageEventArgs)
+		{
 			_logger.Log(LogLevel.Information,
 				$"Received Message '{messageEventArgs.Text}' from '{messageEventArgs.Source.Name}");
 
 			IrcChannel channel = sender as IrcChannel;
 
-			if (messageEventArgs.Source.Name == _userInfo.NickName) {
+			if (messageEventArgs.Source.Name == _userInfo.NickName)
+			{
 				return;
 			}
 
 			//TODO Handle this
 		}
 
-		private void OnClientRegistered(object? sender, EventArgs args) {
+		private void OnClientRegistered(object? sender, EventArgs args)
+		{
 			IrcClient client = sender as IrcClient;
 			_logger.Log(LogLevel.Information, "Client registered");
 
@@ -73,7 +83,8 @@ namespace Faforever.Qai.Irc {
 
 			_client.LocalUser.MessageReceived += OnPrivateMessage;
 
-			client.LocalUser.JoinedChannel += (o, eventArgs) => {
+			client.LocalUser.JoinedChannel += (o, eventArgs) =>
+			{
 				_logger.Log(LogLevel.Information, $"Join channel {eventArgs.Channel.Name}");
 				eventArgs.Channel.MessageReceived += OnChannelMessageReceived;
 			};
@@ -81,15 +92,18 @@ namespace Faforever.Qai.Irc {
 			client.Channels.Join("#aeolus");
 		}
 
-		private void OnClientConnectFailed(object sender, IrcErrorEventArgs args) {
+		private void OnClientConnectFailed(object sender, IrcErrorEventArgs args)
+		{
 			_logger.Log(LogLevel.Critical, args.Error, "connect failed");
 		}
 
-		private void OnClientConnected(object sender, EventArgs args) {
+		private void OnClientConnected(object sender, EventArgs args)
+		{
 			_logger.Log(LogLevel.Information, "client connected");
 		}
 
-		private void OnClientErrorMessageReceived(object sender, IrcErrorMessageEventArgs args) {
+		private void OnClientErrorMessageReceived(object sender, IrcErrorMessageEventArgs args)
+		{
 			_logger.Log(LogLevel.Error, args.Message);
 		}
 	}
