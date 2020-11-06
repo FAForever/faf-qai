@@ -11,8 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. project", "1. project", 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
-		README.md = README.md
+		Dockerfile = Dockerfile
 		NuGet.config = NuGet.config
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faforever.Qai.Irc", "src\Faforever.Qai.Irc\Faforever.Qai.Irc.csproj", "{B8863C62-1F84-4DDB-85D9-EE48444DB1EE}"
@@ -30,12 +31,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{30AA2695
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faforever.Qai.Discord.Tests", "tests\Faforever.Qai.Discord.Tests\Faforever.Qai.Discord.Tests.csproj", "{D78D904E-7D9F-4A8D-8307-0910AB66DA0B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Faforever.Qai.Core.Tests", "tests\Faforever.Qai.Core.Tests\Faforever.Qai.Core.Tests.csproj", "{B14BD077-E9A0-4F20-9851-DB9D9E6513F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faforever.Qai.Core.Tests", "tests\Faforever.Qai.Core.Tests\Faforever.Qai.Core.Tests.csproj", "{B14BD077-E9A0-4F20-9851-DB9D9E6513F5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. workflows", "2. workflows", "{D2A3737D-FF62-4419-A076-1FD06B4D01D3}"
-ProjectSection(SolutionItems) = preProject
-	.github\workflows\ci.yml = .github\workflows\ci.yml
-EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\ci.yml = .github\workflows\ci.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
