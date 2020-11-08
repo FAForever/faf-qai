@@ -46,6 +46,7 @@ namespace Faforever.Qai
 						{
 							// Additional configuration for the command service goes here.
 						};
+						
 						// Command modules go here.
 						service.AddModules(System.Reflection.Assembly.GetAssembly(typeof(CustomCommandContext)));
 						return service;
