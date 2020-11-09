@@ -31,13 +31,35 @@ namespace Faforever.Qai.Core
 				return;
 
 
-			await _commands.ExecuteAsync(output, baseContext);
+			var res = await _commands.ExecuteAsync(output, baseContext);
+
+			if (res is null || !res.IsSuccessful)
+			{
+				switch(res)
+				{
+					case DefaultArgumentParserResult argRes:
+						await Commands_ParserFailed(argRes, baseContext);
+						break;
+				}
+			}
+
 		}
 
+		private async Task Commands_ParserFailed(DefaultArgumentParserResult? res, CustomCommandContext baseContext)
+		{
+			await baseContext.ReplyAsync($"Failed to parse an argument for command: {res?.Command.Name ?? "unkown"}\n{res?.Reason ?? ""}");
+		}
 
 		private Task Commands_CommandExecutionFailed(CommandExecutionFailedEventArgs e)
 		{
 			_logger.LogError(e.Result.Exception, $"Failed to execute command:\n{e.Result.Reason}");
+
+			var ctx = e.Context as CustomCommandContext;
+
+			if(!(ctx is null))
+			{
+				ctx.ReplyAsync($"Command execution failed: {e.Result.Reason}");
+			}
 
 			return Task.CompletedTask;
 		}
@@ -45,6 +67,13 @@ namespace Faforever.Qai.Core
 		private Task Commands_CommandExecuted(CommandExecutedEventArgs e)
 		{
 			_logger.LogInformation($"Executed command: {e.Result?.Command.Name ?? e.Context?.Command.Name}");
+
+			return Task.CompletedTask;
+		}
+
+		private Task Respond_ArgumentException()
+		{
+
 
 			return Task.CompletedTask;
 		}

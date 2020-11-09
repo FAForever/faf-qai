@@ -1,17 +1,17 @@
 using System.Threading.Tasks;
 
 using DSharpPlus;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Services;
 using Faforever.Qai.Core.Structures.Configurations;
 
-namespace Faforever.Qai.Discord.Commands.Moderation.Relay
+using Qmmands;
+
+namespace Faforever.Qai.Core.Commands.Moderation.Relay
 {
-	public class RemoveRelayCommand : CommandModule
+	public class RemoveRelayCommand : DiscordCommandModule
 	{
 		private readonly RelayService _relay;
 		private readonly QAIDatabaseModel _database;
@@ -22,31 +22,29 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Relay
 			this._database = database;
 		}
 
-		[Command("removerelay")]
+		[Command("removerelay", "delrelay")]
 		[Description("Removes a registered relay from your server..")]
-		[Aliases("delrelay")]
-		[RequireUserPermissions(Permissions.ManageChannels)]
-		public async Task RemoveRelayCommandAsync(CommandContext ctx,
+		public async Task RemoveRelayCommandAsync(
 			[Description("IRC channel to remove relays for.")]
 			string ircChannel)
 		{
-			var cfg = await _database.FindAsync<RelayConfiguration>(ctx.Guild.Id);
+			var cfg = await _database.FindAsync<RelayConfiguration>(Context.Channel.GuildId);
 			if (cfg is null || !cfg.Webhooks.TryGetValue(ircChannel, out var hook))
 			{
 				await RespondBasicError("No relays found.");
 				return;
 			}
 
-			await RemoveRelayCommandAsync(ctx, hook.Id);
+			await RemoveRelayCommandAsync(hook.Id);
 		}
 
-		[Command("removerelay")]
+		[Command("removerelay", "delrelay")]
 		[Priority(2)]
-		public async Task RemoveRelayCommandAsync(CommandContext ctx,
+		public async Task RemoveRelayCommandAsync(
 			[Description("Discord Channel to remove relay for.")]
 			DiscordChannel discordChannel)
 		{
-			var cfg = await _database.FindAsync<RelayConfiguration>(ctx.Guild.Id);
+			var cfg = await _database.FindAsync<RelayConfiguration>(Context.Channel.GuildId);
 			if (cfg is null)
 			{
 				await RespondBasicError("No relays found.");
@@ -61,7 +59,7 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Relay
 				{
 					if (cfg.Webhooks.TryGetValue(data, out var hookData))
 					{
-						await RemoveRelayCommandAsync(ctx, hookData.Id);
+						await RemoveRelayCommandAsync(hookData.Id);
 						return;
 					}
 				}
@@ -70,12 +68,12 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Relay
 			await RespondBasicError("No relays found.");
 		}
 
-		private async Task RemoveRelayCommandAsync(CommandContext ctx, ulong webhookId)
+		private async Task RemoveRelayCommandAsync(ulong webhookId)
 		{
-			var res = await _relay.RemoveRelayAsync(ctx.Guild.Id, webhookId);
+			var res = await _relay.RemoveRelayAsync(Context.Channel.GuildId, webhookId);
 			if (!(res is null))
 			{
-				var discordHook = await ctx.Client.GetWebhookAsync(res.Id);
+				var discordHook = await Context.Client.GetWebhookAsync(res.Id);
 				await discordHook.DeleteAsync();
 
 				await RespondBasicSuccess("Relay removed succesfuly.");

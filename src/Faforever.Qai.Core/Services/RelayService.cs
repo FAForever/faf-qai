@@ -11,6 +11,7 @@ using Faforever.Qai.Core.Structures.Configurations;
 using Faforever.Qai.Core.Structures.Webhooks;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using Newtonsoft.Json;
@@ -22,7 +23,7 @@ namespace Faforever.Qai.Core.Services
 
 	public class RelayService : IDisposable
 	{
-		private readonly QAIDatabaseModel _database;
+		private readonly IServiceProvider _services;
 		private readonly ILogger _logger;
 		private bool initalized;
 		private bool disposedValue;
@@ -31,9 +32,9 @@ namespace Faforever.Qai.Core.Services
 
 		private HttpClient Http { get; set; }
 
-		public RelayService(QAIDatabaseModel database, ILogger<RelayService> logger)
+		public RelayService(IServiceProvider services, ILogger<RelayService> logger)
 		{
-			this._database = database;
+			this._services = services;
 			this.initalized = false;
 			this._logger = logger;
 
@@ -45,6 +46,8 @@ namespace Faforever.Qai.Core.Services
 			try
 			{
 				IRCtoWebhookRelations = new ConcurrentDictionary<string, HashSet<string>>();
+
+				var _database = _services.GetRequiredService<QAIDatabaseModel>();
 
 				var relays = _database.RelayConfigurations
 					.AsNoTracking()
@@ -89,6 +92,8 @@ namespace Faforever.Qai.Core.Services
 					if (!Initalize())
 						throw new Exception("Failed to Initalize the RelayService.");
 
+				var _database = _services.GetRequiredService<QAIDatabaseModel>();
+
 				AddToWebhookDict(ircChannel, hook.WebhookUrl);
 				// This method should not be passed values that dont have a configuration value created for them.
 				var cfg = await _database.FindAsync<RelayConfiguration>(discordGuild);
@@ -118,6 +123,10 @@ namespace Faforever.Qai.Core.Services
 				if (!this.initalized)
 					if (!Initalize())
 						throw new Exception("Failed to Initalize the RelayService.");
+
+
+				var _database = _services.GetRequiredService<QAIDatabaseModel>();
+
 				// This method should not be passed values that dont have a configuration vlaue created for them.
 				var cfg = await _database.FindAsync<RelayConfiguration>(discordGuild);
 				if (cfg is null)
@@ -150,8 +159,6 @@ namespace Faforever.Qai.Core.Services
 			if (!this.initalized)
 				if (!Initalize())
 					throw new Exception("Failed to Initalize the RelayService.");
-
-
 		}
 
 		public async Task SendFromIRCAsync(string ircChannel, string author, string message)

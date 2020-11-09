@@ -2,8 +2,6 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using DSharpPlus;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 
 using Faforever.Qai.Core.Database;
@@ -13,9 +11,11 @@ using Faforever.Qai.Core.Structures.Webhooks;
 
 using Microsoft.EntityFrameworkCore.Internal;
 
-namespace Faforever.Qai.Discord.Commands.Moderation.Relay
+using Qmmands;
+
+namespace Faforever.Qai.Core.Commands.Moderation.Relay
 {
-	public class RegisterRelayCommand : CommandModule
+	public class RegisterRelayCommand : DiscordCommandModule
 	{
 		private readonly RelayService _relay;
 		private readonly QAIDatabaseModel _database;
@@ -26,23 +26,21 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Relay
 			this._database = database;
 		}
 
-		[Command("registerrelay")]
+		[Command("registerrelay", "rrelay")]
 		[Description("Registers a link between an IRC channel and a Discord channel.")]
-		[Aliases("rrelay")]
-		[RequireUserPermissions(Permissions.ManageChannels)]
-		public async Task ExampleCommandAsync(CommandContext ctx,
+		public async Task RegisterRelayCommandAsync(
 			[Description("Discord channel to link to.")]
 			DiscordChannel discordChannel,
 
 			[Description("IRC channel to link to.")]
 			string ircChannel)
 		{
-			var cfg = _database.Find<RelayConfiguration>(ctx.Guild.Id);
+			var cfg = _database.Find<RelayConfiguration>(Context.Channel.GuildId);
 			if (cfg is null)
 			{
 				cfg = new RelayConfiguration()
 				{
-					DiscordServer = ctx.Guild.Id
+					DiscordServer = Context.Channel.GuildId
 				};
 
 				await _database.AddAsync(cfg);
@@ -67,7 +65,7 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Relay
 				{
 					_database.Update(cfg);
 
-					var discordHook = await ctx.Client.GetWebhookAsync(hook.Id);
+					var discordHook = await Context.Client.GetWebhookAsync(hook.Id);
 					await discordHook.ModifyAsync(channelId: discordChannel.Id);
 
 					await _database.SaveChangesAsync();
@@ -86,7 +84,7 @@ namespace Faforever.Qai.Discord.Commands.Moderation.Relay
 				Token = newHook.Token
 			};
 
-			if (await _relay.AddRelayAsync(ctx.Guild.Id, newHookData, ircChannel))
+			if (await _relay.AddRelayAsync(Context.Channel.GuildId, newHookData, ircChannel))
 			{
 				await RespondBasicSuccess("Relay added!");
 			}

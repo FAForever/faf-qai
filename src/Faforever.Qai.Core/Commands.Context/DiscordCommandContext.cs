@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
+using DSharpPlus;
 using DSharpPlus.Entities;
 
 namespace Faforever.Qai.Core.Commands.Context
@@ -15,10 +16,13 @@ namespace Faforever.Qai.Core.Commands.Context
 			}
 		}
 
+		public DiscordClient Client { get; private set; }
+
 		public DiscordMessage Message { get; private set; }
 
-		public DiscordCommandContext(DiscordMessage msg, string prefix, IServiceProvider services) : base(services)
+		public DiscordCommandContext(DiscordClient client, DiscordMessage msg, string prefix, IServiceProvider services) : base(services)
 		{
+			Client = client;
 			Prefix = prefix;
 			Message = msg;
 		}

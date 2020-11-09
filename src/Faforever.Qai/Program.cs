@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using Faforever.Qai.Core;
+using Faforever.Qai.Core.Commands.Arguments;
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Operations.Player;
@@ -32,13 +33,15 @@ namespace Faforever.Qai {
 					.AddTransient<HttpClient>()
 					.AddTransient<RelayService>()
 					.AddSingleton((x) => {
-						var service = new CommandService(new CommandServiceConfiguration()) {
+						var options = new CommandService(new CommandServiceConfiguration()) {
 							// Additional configuration for the command service goes here.
 						};
 
 						// Command modules go here.
-						service.AddModules(System.Reflection.Assembly.GetAssembly(typeof(CustomCommandContext)));
-						return service;
+						options.AddModules(System.Reflection.Assembly.GetAssembly(typeof(CustomCommandContext)));
+						// Argument converters go here.
+						options.AddTypeParser(new DiscordChannelTypeConverter());
+						return options;
 					})
 					.AddSingleton<QCommandsHandler>();
 
@@ -51,7 +54,8 @@ namespace Faforever.Qai {
 						Password = "balleby",
 						UserName = "balleby"
 					}, serviceProvider.GetService<ILogger<QaIrc>>(),
-					serviceProvider.GetService<QCommandsHandler>(), serviceProvider);
+					serviceProvider.GetService<QCommandsHandler>(),
+					serviceProvider.GetService<RelayService>(), serviceProvider);
 				ircBot.Run();
 
 				Console.WriteLine(

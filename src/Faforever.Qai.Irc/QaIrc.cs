@@ -1,6 +1,8 @@
 using System;
 using Faforever.Qai.Core;
 using Faforever.Qai.Core.Commands.Context;
+using Faforever.Qai.Core.Services;
+
 using IrcDotNet;
 using Microsoft.Extensions.Logging;
 
@@ -10,16 +12,18 @@ namespace Faforever.Qai.Irc {
 		private readonly IrcRegistrationInfo _userInfo;
 		private readonly ILogger _logger;
 		private readonly QCommandsHandler _commandHandler;
+		private readonly RelayService _relay;
 		private readonly IServiceProvider _services;
 
 		private readonly StandardIrcClient _client;
 
 		public QaIrc(string hostname, IrcRegistrationInfo userInfo, ILogger<QaIrc> logger,
-			QCommandsHandler commandHandler, IServiceProvider services) {
+			QCommandsHandler commandHandler, RelayService relay, IServiceProvider services) {
 			_hostname = hostname;
 			_userInfo = userInfo;
 			_logger = logger;
 			_commandHandler = commandHandler;
+			_relay = relay;
 			_services = services;
 
 			_client = new StandardIrcClient {FloodPreventer = new IrcStandardFloodPreventer(4, 2000)};
@@ -43,7 +47,7 @@ namespace Faforever.Qai.Irc {
 			await _commandHandler.MessageRecivedAsync(ctx, eventArgs.Text);
 		}
 
-		private void OnChannelMessageReceived(object sender, IrcMessageEventArgs messageEventArgs) {
+		private async void OnChannelMessageReceived(object sender, IrcMessageEventArgs messageEventArgs) {
 			_logger.Log(LogLevel.Information,
 				$"Received Message '{messageEventArgs.Text}' from '{messageEventArgs.Source.Name}");
 
@@ -52,6 +56,8 @@ namespace Faforever.Qai.Irc {
 			if (messageEventArgs.Source.Name == _userInfo.NickName) {
 				return;
 			}
+
+			await _relay.SendFromIRCAsync(channel.Name, messageEventArgs.Source.Name, messageEventArgs.Text);
 
 			//TODO Handle this
 		}

@@ -201,8 +201,8 @@ namespace Faforever.Qai.Discord
 			if (e.Author.IsBot) return; // ignore bots.
 
 			var cmdService = services.GetRequiredService<QCommandsHandler>();
-			var ctx = new DiscordCommandContext(e.Message, Config.Prefix, services);
-
+			var ctx = new DiscordCommandContext(sender, e.Message, Config.Prefix, services);
+			
 			await cmdService.MessageRecivedAsync(ctx, e.Message.Content);
 		}
 		#endregion
@@ -234,8 +234,16 @@ namespace Faforever.Qai.Discord
 				// Clear out the dict.
 				CommandsInProgress = null;
 
-				Client.StopAsync().GetAwaiter().GetResult();
-				Rest.Dispose();
+				try
+				{
+					Client.StopAsync().GetAwaiter().GetResult();
+				}
+				catch { }
+				try
+				{
+					Rest.Dispose();
+				}
+				catch { }
 			}
 		}
 
@@ -257,11 +265,16 @@ namespace Faforever.Qai.Discord
 
 				// Clear out the dict.
 				CommandsInProgress = null;
-
-				var stop = Client.StopAsync();
-				Rest.Dispose();
-
-				await stop;
+				try
+				{
+					await Client.StopAsync();
+				}
+				catch { }
+				try
+				{
+					Rest.Dispose();
+				}
+				catch { }
 			}
 		}
 		#endregion
