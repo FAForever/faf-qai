@@ -23,7 +23,7 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
 		}
 
 		[Command("removerelay", "delrelay")]
-		[Description("Removes a registered relay from your server..")]
+		[Description("Removes a registered relay from your server.")]
 		public async Task RemoveRelayCommandAsync(
 			[Description("IRC channel to remove relays for.")]
 			string ircChannel)
