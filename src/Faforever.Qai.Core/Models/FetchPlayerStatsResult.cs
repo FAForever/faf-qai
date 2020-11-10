@@ -1,11 +1,28 @@
-﻿namespace Faforever.Qai.Core.Models
+using System.Collections.Generic;
+
+namespace Faforever.Qai.Core.Models
 {
 	public class FetchPlayerStatsResult
 	{
-		public short Ranking1v1 { get; set; }
-		public decimal Rating1v1 { get; set; }
 		public string Name { get; set; }
-		public decimal RatingGlobal { get; set; }
-		public short RankingGlobal { get; set; }
+		public string Id { get; set; }
+		public GameStatistics? LadderStats { get; set; } = null;
+		public GameStatistics? GlobalStats { get; set; } = null;
+		public FAFClan? Clan { get; set; } = null;
+		public List<string> OldNames { get; set; } = new List<string>();
+	}
+
+	public struct GameStatistics
+	{
+		public short Ranking { get; set; }
+		public decimal Rating { get; set; }
+		public short GamesPlayed { get; set; }
+	}
+
+	public struct FAFClan
+	{
+		public string Name { get; set; }
+		public int Size { get; set; }
+		public string URL { get; set; }
 	}
 }

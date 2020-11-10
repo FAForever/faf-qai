@@ -24,27 +24,55 @@ namespace Faforever.Qai.Core.Operations.Player
 		{
 			using Stream? stream =
 				await _client.GetStreamAsync(
-					$"/data/player?include=globalRating,ladder1v1Rating,names&filter=login=={username}");
+					$"/data/player?include=clanMembership.clan,globalRating,ladder1v1Rating,names,avatarAssignments.avatar&filter=login=={username}");
+
 			using JsonDocument json = await JsonDocument.ParseAsync(stream);
 			JsonElement includedElement = json.RootElement.GetProperty("included");
+
 			FetchPlayerStatsResult result = new FetchPlayerStatsResult
 			{
-				Name = username
+				Name = username,
+				Id = json.RootElement.GetProperty("data")[0].GetProperty("id").GetString()
 			};
 			foreach (JsonElement element in includedElement.EnumerateArray())
 			{
+
 				var typeElement = element.GetProperty("type");
 				var attributes = element.GetProperty("attributes");
 				switch (typeElement.GetString())
 				{
 					case "ladder1v1Rating":
-						result.Rating1v1 = attributes.GetProperty("rating").GetDecimal();
-						result.Ranking1v1 = attributes.GetProperty("ranking").GetInt16();
-
+						var ladder = new GameStatistics
+						{
+							Ranking = attributes.GetProperty("ranking").GetInt16(),
+							Rating = attributes.GetProperty("rating").GetDecimal(),
+							GamesPlayed = attributes.GetProperty("numberOfGames").GetInt16()
+						};
+						result.LadderStats = ladder;
 						break;
 					case "globalRating":
-						result.RatingGlobal = attributes.GetProperty("rating").GetDecimal();
-						result.RankingGlobal = attributes.GetProperty("ranking").GetInt16();
+						var global = new GameStatistics
+						{
+							Ranking = attributes.GetProperty("ranking").GetInt16(),
+							Rating = attributes.GetProperty("rating").GetDecimal(),
+							GamesPlayed = attributes.GetProperty("numberOfGames").GetInt16()
+						};
+						result.GlobalStats = global;
+						break;
+					case "clan":
+						var clan = new FAFClan
+						{
+							Name = attributes.GetProperty("name").GetString(),
+							Size = typeElement.GetProperty("relationships")
+								.GetProperty("memberships")
+								.GetProperty("data")
+								.GetArrayLength(),
+							URL = attributes.GetProperty("websiteUrl").GetString()
+						};
+						result.Clan = clan;
+						break;
+					case "nameRecord":
+						result.OldNames.Add(attributes.GetProperty("name").GetString());
 						break;
 				}
 			}
