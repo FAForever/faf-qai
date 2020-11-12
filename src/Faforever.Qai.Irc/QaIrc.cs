@@ -71,7 +71,7 @@ namespace Faforever.Qai.Irc
 				return;
 			}
 
-			await _relay.SendFromIRCAsync(channel.Name, messageEventArgs.Source.Name, messageEventArgs.Text);
+			await _relay.IRC_MessageReceived(channel.Name, messageEventArgs.Source.Name, messageEventArgs.Text);
 
 			//TODO Handle this
 		}

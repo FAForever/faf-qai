@@ -1,7 +1,9 @@
 using System.Threading.Tasks;
 
+using DSharpPlus;
 using DSharpPlus.Entities;
 
+using Faforever.Qai.Core.Commands.Authorization;
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Services;
 using Faforever.Qai.Core.Structures.Configurations;
@@ -23,6 +25,7 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
 
 		[Command("removerelay", "delrelay")]
 		[Description("Removes a registered relay from your server.")]
+		[RequirePermissions(Permissions.ManageChannels)]
 		public async Task RemoveRelayCommandAsync(
 			[Description("IRC channel to remove relays for.")]
 			string ircChannel)

@@ -53,10 +53,14 @@ namespace Faforever.Qai.Core
 
 			if(!await CheckPermissions(baseContext, attributes))
 			{
-
+				await baseContext.ReplyAsync("You do not have permissions to run that command!");
+				return;
 			}
 
-			var res = await command.Command.ExecuteAsync(output, baseContext);
+			var parts = output.Split(" ");
+			var arguments = parts.Length > 0 ? string.Join(" ", parts[1..]) : "";
+
+			var res = await command.Command.ExecuteAsync(arguments, baseContext);
 
 			if (res is null || !res.IsSuccessful)
 			{
@@ -83,8 +87,8 @@ namespace Faforever.Qai.Core
 		{
 			// Create the inital permissions needed to run the command.
 			// Set them to None, or no perms needed.
-			Permissions userPerms = Permissions.None;
-			Permissions botPerms = Permissions.None;
+			uint userPerms = 0x0;
+			uint botPerms = 0x0;
 
 			// For every attribute on the command ...
 			foreach(var a in attributes)
@@ -101,18 +105,18 @@ namespace Faforever.Qai.Core
 							// ... if it is a user permissions ...
 							case RequireUserPermissionsAttribute user:
 								// ... Add the requierment to the userPerms.
-								userPerms = (Permissions)(userPerms & perms.DiscordPermissions);
+								userPerms |= (uint)perms.DiscordPermissions;
 								break;
 							// ... if it is a bet permission ...
 							case RequireBotPermissionsAttribute bot:
 								// ... add the requirement to the botPerms.
-								botPerms = (Permissions)(botPerms & perms.DiscordPermissions);
+								botPerms |= (uint)perms.DiscordPermissions;
 								break;
 							// ... if it is for both ...
 							case RequirePermissionsAttribute both:
 								// ... add the requirement to both.
-								userPerms = (Permissions)(userPerms & perms.DiscordPermissions);
-								botPerms = (Permissions)(botPerms & perms.DiscordPermissions);
+								userPerms |= (uint)perms.DiscordPermissions;
+								botPerms |= (uint)perms.DiscordPermissions;
 								break;
 						}
 					}
@@ -123,20 +127,22 @@ namespace Faforever.Qai.Core
 			bool userResult = true;
 			bool botResult = true;
 			// If there is no requirement for user permissions, skip this.
-			if (userPerms != Permissions.None)
+			if (userPerms != 0x0)
 			{
 				// Get the member object for the Author DiscordUser ...
 				var member = await ctx.Guild.GetMemberAsync(ctx.Message.Author.Id);
 				// ... and check that they have requiered permissions in the channel the command was from ...
-				userResult = ctx.Channel.PermissionsFor(member).HasPermission(userPerms);
+				var perm = (Permissions)userPerms;
+				userResult = ctx.Channel.PermissionsFor(member).HasPermission(perm);
 			}
 			// If there is no requirement for bot permissions, skip this.
-			if(botPerms != Permissions.None)
+			if(botPerms != 0x0)
 			{
 				// Get the bots member object for the server the command was in ....
 				var selfMember = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
 				// ... and check that it has the required permissions in the channel the command was from ...
-				botResult = ctx.Channel.PermissionsFor(selfMember).HasPermission(botPerms);
+				var perm = (Permissions)botPerms;
+				botResult = ctx.Channel.PermissionsFor(selfMember).HasPermission(perm);
 			}
 			// return true if both check pass, otherwise false.
 			return userResult && botResult;
