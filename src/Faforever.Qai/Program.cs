@@ -43,10 +43,11 @@ namespace Faforever.Qai
 					.AddTransient<RelayService>()
 					.AddSingleton((x) =>
 					{
-						var options = new CommandService(new CommandServiceConfiguration())
+						var options = new CommandService(new CommandServiceConfiguration()
 						{
 							// Additional configuration for the command service goes here.
-						};
+							
+						});
 
 						// Command modules go here.
 						options.AddModules(System.Reflection.Assembly.GetAssembly(typeof(CustomCommandContext)));
