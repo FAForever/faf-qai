@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
 
+using Faforever.Qai.Core.Commands.Attributes;
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Services;
 using Faforever.Qai.Core.Structures.Configurations;
@@ -27,6 +28,7 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
 
 		[Command("registerrelay", "rrelay")]
 		[Description("Registers a link between an IRC channel and a Discord channel.")]
+		[RequireUserPermissions(DSharpPlus.Permissions.ManageChannels)]
 		public async Task RegisterRelayCommandAsync(
 			[Description("Discord channel to link to.")]
 			DiscordChannel discordChannel,
