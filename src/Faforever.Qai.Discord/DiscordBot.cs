@@ -217,6 +217,9 @@ namespace Faforever.Qai.Discord
 			// Start the Clients!
 			await Client.StartAsync();
 		}
+		#endregion
+
+
 
 		public void Dispose()
 		{
@@ -238,12 +241,19 @@ namespace Faforever.Qai.Discord
 				{
 					Client.StopAsync().GetAwaiter().GetResult();
 				}
-				catch { }
+				catch (Exception ex)
+				{
+					Client.Logger.LogWarning(ex, "Failed to stop client.");
+				}
+
 				try
 				{
 					Rest.Dispose();
 				}
-				catch { }
+				catch (Exception ex)
+				{
+					Client.Logger.LogWarning(ex, "Failed to displse the rest client.");
+				}
 			}
 		}
 
@@ -269,14 +279,20 @@ namespace Faforever.Qai.Discord
 				{
 					await Client.StopAsync();
 				}
-				catch { }
+				catch (Exception ex)
+				{
+					Client.Logger.LogWarning(ex, "Failed to stop client.");
+				}
+
 				try
 				{
 					Rest.Dispose();
 				}
-				catch { }
+				catch (Exception ex)
+				{
+					Client.Logger.LogWarning(ex, "Failed to displse the rest client.");
+				}
 			}
 		}
-		#endregion
 	}
 }
