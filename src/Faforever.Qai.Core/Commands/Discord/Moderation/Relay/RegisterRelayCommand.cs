@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
 
-using Faforever.Qai.Core.Commands.Attributes;
+using Faforever.Qai.Core.Commands.Authorization;
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Services;
 using Faforever.Qai.Core.Structures.Configurations;

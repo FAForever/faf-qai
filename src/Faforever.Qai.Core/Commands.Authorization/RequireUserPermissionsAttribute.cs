@@ -4,12 +4,12 @@ using System.Text;
 
 using DSharpPlus;
 
-using Faforever.Qai.Core.Commands.Attributes.Exceptions;
+using Faforever.Qai.Core.Commands.Authorization.Exceptions;
 
-namespace Faforever.Qai.Core.Commands.Attributes
+namespace Faforever.Qai.Core.Commands.Authorization
 {
 	[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = true, AllowMultiple = true)]
-	sealed class RequireUserPermissionsAttribute : Attribute
+	sealed class RequireUserPermissionsAttribute : Attribute, IPermissionsAttribute
 	{
 		public Permissions? DiscordPermissions { get; }
 		public string? IRCPermissions { get; }

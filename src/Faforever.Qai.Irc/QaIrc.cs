@@ -51,7 +51,9 @@ namespace Faforever.Qai.Irc
 
 		private async void OnPrivateMessage(object? receiver, IrcMessageEventArgs eventArgs)
 		{
-			var ctx = new IRCCommandContext(_client.LocalUser, eventArgs.Source.Name, eventArgs.Text, "!", _services);
+			IrcUser user = eventArgs.Source as IrcUser;
+
+			var ctx = new IRCCommandContext(_client.LocalUser, eventArgs.Source.Name, user, eventArgs.Text, "!", _services);
 			await _commandHandler.MessageRecivedAsync(ctx, eventArgs.Text);
 		}
 
@@ -61,6 +63,8 @@ namespace Faforever.Qai.Irc
 				$"Received Message '{messageEventArgs.Text}' from '{messageEventArgs.Source.Name}");
 
 			IrcChannel channel = sender as IrcChannel;
+
+			var channeluser = channel.GetChannelUser(messageEventArgs.Source as IrcUser);
 
 			if (messageEventArgs.Source.Name == _userInfo.NickName)
 			{

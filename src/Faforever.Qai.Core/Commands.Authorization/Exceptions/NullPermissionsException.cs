@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Faforever.Qai.Core.Commands.Attributes.Exceptions
+namespace Faforever.Qai.Core.Commands.Authorization.Exceptions
 {
 	[Serializable]
 	public class NullPermissionsException : Exception

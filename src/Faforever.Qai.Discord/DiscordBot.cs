@@ -201,7 +201,7 @@ namespace Faforever.Qai.Discord
 			if (e.Author.IsBot) return; // ignore bots.
 
 			var cmdService = services.GetRequiredService<QCommandsHandler>();
-			var ctx = new DiscordCommandContext(sender, e.Message, Config.Prefix, services);
+			var ctx = new DiscordCommandContext(sender, e, Config.Prefix, services);
 
 			await cmdService.MessageRecivedAsync(ctx, e.Message.Content);
 		}
