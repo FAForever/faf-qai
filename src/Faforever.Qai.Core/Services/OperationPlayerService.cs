@@ -12,7 +12,8 @@ namespace Faforever.Qai.Core.Services
 		private readonly IFetchPlayerStatsOperation _playerStatsOperation;
 		private readonly IFindPlayerOperation _findPlayerOperation;
 
-		public OperationPlayerService(IFetchPlayerStatsOperation playerStatsOperation, IFindPlayerOperation findPlayerOperation) {
+		public OperationPlayerService(IFetchPlayerStatsOperation playerStatsOperation, IFindPlayerOperation findPlayerOperation)
+		{
 			_playerStatsOperation = playerStatsOperation;
 			_findPlayerOperation = findPlayerOperation;
 		}
@@ -22,7 +23,8 @@ namespace Faforever.Qai.Core.Services
 			return _playerStatsOperation.FetchPlayer(username);
 		}
 
-		public Task<FindPlayerResult> FindPlayer(string searchTerm) {
+		public Task<FindPlayerResult> FindPlayer(string searchTerm)
+		{
 			return _findPlayerOperation.FindPlayer(searchTerm);
 		}
 	}

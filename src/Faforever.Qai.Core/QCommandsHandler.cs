@@ -35,7 +35,7 @@ namespace Faforever.Qai.Core
 
 			if (res is null || !res.IsSuccessful)
 			{
-				switch(res)
+				switch (res)
 				{
 					case DefaultArgumentParserResult argRes:
 						await Commands_ParserFailed(argRes, baseContext);
@@ -56,7 +56,7 @@ namespace Faforever.Qai.Core
 
 			var ctx = e.Context as CustomCommandContext;
 
-			if(!(ctx is null))
+			if (!(ctx is null))
 			{
 				ctx.ReplyAsync($"Command execution failed: {e.Result.Reason}");
 			}

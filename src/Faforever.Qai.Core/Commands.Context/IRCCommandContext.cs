@@ -21,8 +21,9 @@ namespace Faforever.Qai.Core.Commands.Context
 
 		public override Task ReplyAsync(string message)
 		{
-			return Task.Run(() => {
-				
+			return Task.Run(() =>
+			{
+
 				//IRC doesn't support newlines. So we replace those with spaces.
 				message = message.Replace("\n", " ");
 				Client.SendMessage(Name, message);

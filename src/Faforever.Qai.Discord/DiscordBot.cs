@@ -202,7 +202,7 @@ namespace Faforever.Qai.Discord
 
 			var cmdService = services.GetRequiredService<QCommandsHandler>();
 			var ctx = new DiscordCommandContext(sender, e.Message, Config.Prefix, services);
-			
+
 			await cmdService.MessageRecivedAsync(ctx, e.Message.Content);
 		}
 		#endregion
