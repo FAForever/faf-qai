@@ -50,7 +50,7 @@ namespace Faforever.Qai.Discord.Utils.Bot
 		{
 			Relays[e] = Task.Run(async () =>
 			{
-				await _relay.SendFromDiscordAsync(e.Channel.Id, e.Author.Username, e.Message.Content);
+				await _relay.Discord_MessageReceived(e.Channel.Id, e.Author.Username, e.Message.Content);
 
 				// Remove this task from the stored list.
 				Relays.TryRemove(e, out _);
