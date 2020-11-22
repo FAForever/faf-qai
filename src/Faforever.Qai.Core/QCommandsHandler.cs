@@ -107,7 +107,7 @@ namespace Faforever.Qai.Core
 								// ... Add the requierment to the userPerms.
 								userPerms |= (uint)perms.DiscordPermissions;
 								break;
-							// ... if it is a bet permission ...
+							// ... if it is a bot permission ...
 							case RequireBotPermissionsAttribute bot:
 								// ... add the requirement to the botPerms.
 								botPerms |= (uint)perms.DiscordPermissions;
