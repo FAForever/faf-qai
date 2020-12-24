@@ -78,11 +78,23 @@ namespace Faforever.Qai.Core
 
 		private async Task<bool> CheckPermissions(IRCCommandContext ctx, IReadOnlyList<Attribute> attributes)
 		{
-			// TODO: Cacluate permissions.
+			// TODO: See if we need more complicated permission checking for the IRC client
+			// If the authro is an operator, then they can run the command ...
 			if (ctx.Author.IsOperator) return true;
-
-
-			return false;
+			// ... otherwise, for every attribute ...
+			foreach(var a in attributes)
+			{// ... if it is a permissions attribute ...
+				if(a is IPermissionsAttribute perms)
+				{ // ... and it has IRC permissions ...
+					if(perms.IRCPermissions is not null)
+					{ // ... if it is requireing an operator ...
+						if (perms.IRCPermissions.Value == IrcPermissions.Operator)
+							return false; // ... then this user cant run the command ...
+					}
+				}
+			}
+			// ... otherwise they can run the command.
+			return true;
 		}
 
 		private async Task<bool> CheckPermissions(DiscordCommandContext ctx, IReadOnlyList<Attribute> attributes)
