@@ -11,7 +11,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Utility
 	public class AliveCommand : DualCommandModule
 	{
 		[Command("alive", "respond")]
-		[Description("Sends a response message to the user. Differes depending on the command context.")]
+		[Description("Sends a response message to the user. Differs depending on the command context.")]
 		public async Task AliveCommandAsync()
 		{
 			string msg = "No valid context found.";

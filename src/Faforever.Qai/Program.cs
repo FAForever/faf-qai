@@ -9,6 +9,7 @@ using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Operations.Player;
 using Faforever.Qai.Core.Services;
+using Faforever.Qai.Core.Services.BotFun;
 using Faforever.Qai.Core.Structures.Configurations;
 using Faforever.Qai.Discord;
 using Faforever.Qai.Discord.Core.Structures.Configurations;
@@ -48,6 +49,14 @@ namespace Faforever.Qai
 					dbConfig = JsonConvert.DeserializeObject<DatabaseConfiguration>(json);
 				}
 
+				BotFunConfiguration botFunConfig;
+				using (FileStream fs = new(Path.Join("Config", "games_config.json"), FileMode.Open))
+				{
+					using StreamReader sr = new(fs);
+					var json = await sr.ReadToEndAsync();
+					botFunConfig = JsonConvert.DeserializeObject<BotFunConfiguration>(json);
+				}
+
 				services.AddLogging(options => options.AddConsole())
 					.AddDbContext<QAIDatabaseModel>(options =>
 					{
@@ -72,8 +81,8 @@ namespace Faforever.Qai
 						options.AddTypeParser(new DiscordChannelTypeConverter());
 						return options;
 					})
-					.AddSingleton<QCommandsHandler>();
-
+					.AddSingleton<QCommandsHandler>()
+					.AddSingleton<IBotFunService>(new BotFunService(botFunConfig));
 
 				await using var serviceProvider = services.BuildServiceProvider();
 
