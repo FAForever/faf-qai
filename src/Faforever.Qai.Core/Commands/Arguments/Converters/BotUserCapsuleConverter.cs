@@ -12,7 +12,7 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Arguments.Converters
 {
-	class BotUserCapsuleConverter : TypeParser<IBotUserCapsule>
+	public class BotUserCapsuleConverter : TypeParser<IBotUserCapsule>
 	{
 		public override async ValueTask<TypeParserResult<IBotUserCapsule>> ParseAsync(Parameter parameter, string value, CommandContext context)
 		{
