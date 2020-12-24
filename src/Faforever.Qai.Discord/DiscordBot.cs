@@ -181,7 +181,7 @@ namespace Faforever.Qai.Discord
 			try
 			{
 				var cancel = new CancellationTokenSource();
-				var handler = new CommandHandler(Commands, sender, Config);
+				var handler = new CommandHandler(Commands, sender, Config, services);
 				var task = handler.MessageReceivedAsync(sender.GetCommandsNext(), e.Message, cancel.Token);
 				if (task.Status == TaskStatus.Running)
 				{

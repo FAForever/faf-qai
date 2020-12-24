@@ -1,5 +1,7 @@
 using System;
+using System.IO;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 using Faforever.Qai.Core;
 using Faforever.Qai.Core.Commands.Arguments;
@@ -7,6 +9,7 @@ using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Operations.Player;
 using Faforever.Qai.Core.Services;
+using Faforever.Qai.Core.Structures.Configurations;
 using Faforever.Qai.Discord;
 using Faforever.Qai.Discord.Core.Structures.Configurations;
 using Faforever.Qai.Irc;
@@ -15,8 +18,11 @@ using IrcDotNet;
 
 using McMaster.Extensions.CommandLineUtils;
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+
+using Newtonsoft.Json;
 
 using Qmmands;
 
@@ -34,8 +40,19 @@ namespace Faforever.Qai
 			{
 				ServiceCollection services = new ServiceCollection();
 
+				DatabaseConfiguration dbConfig;
+				using(FileStream fs = new(Path.Join("Config", "database_config.json"), FileMode.Open))
+				{
+					using StreamReader sr = new(fs);
+					var json = await sr.ReadToEndAsync();
+					dbConfig = JsonConvert.DeserializeObject<DatabaseConfiguration>(json);
+				}
+
 				services.AddLogging(options => options.AddConsole())
-					.AddDbContext<QAIDatabaseModel>()
+					.AddDbContext<QAIDatabaseModel>(options =>
+					{
+						options.UseSqlite(dbConfig.DataSource);
+					})
 					.AddSingleton<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()
 					.AddSingleton<IFindPlayerOperation, ApiFindPlayerOperation>()
 					.AddSingleton<IPlayerService, OperationPlayerService>()
@@ -60,27 +77,34 @@ namespace Faforever.Qai
 
 				await using var serviceProvider = services.BuildServiceProvider();
 
-				using QaIrc ircBot = new QaIrc("irc.faforever.com", new IrcUserRegistrationInfo
+				IrcConfiguration ircConfig;
+				using(FileStream fs = new(Path.Join("Config", "irc_config.json"), FileMode.Open))
 				{
-					NickName = "Ballebyte",
-					RealName = "Ballebyte",
-					Password = "ballebyte",
-					UserName = "ballebyte"
+					using StreamReader sr = new(fs);
+					var json = await sr.ReadToEndAsync();
+					ircConfig = JsonConvert.DeserializeObject<IrcConfiguration>(json);
+				}
+
+				using QaIrc ircBot = new QaIrc(ircConfig.Connection, new IrcUserRegistrationInfo
+				{
+					NickName = ircConfig.NickName,
+					RealName = ircConfig.RealName,
+					Password = ircConfig.Password,
+					UserName = ircConfig.UserName
 				}, serviceProvider.GetService<ILogger<QaIrc>>(),
 					serviceProvider.GetService<QCommandsHandler>(),
 					serviceProvider.GetService<RelayService>(), serviceProvider);
 				ircBot.Run();
 
-				Console.WriteLine(
-					"Input Bot Token [FOR DEBUG ONLY - REMOVE IN PROD (or once we have a desicion on how to retrive config values)]: ");
+				DiscordBotConfiguration discordConfig;
+				using(FileStream fs = new(Path.Join("Config", "discord_config.json"), FileMode.Open))
+				{
+					using StreamReader sr = new(fs);
+					var json = await sr.ReadToEndAsync();
+					discordConfig = JsonConvert.DeserializeObject<DiscordBotConfiguration>(json);
+				}
 
-				await using DiscordBot discordBot = new DiscordBot(serviceProvider, LogLevel.Debug,
-					new DiscordBotConfiguration()
-					{
-						Token = Console.ReadLine(),
-						Prefix = "!",
-						Shards = 1
-					});
+				await using DiscordBot discordBot = new DiscordBot(serviceProvider, LogLevel.Debug, discordConfig);
 
 				try
 				{
@@ -92,8 +116,8 @@ namespace Faforever.Qai
 					serviceProvider.GetService<ILogger<DiscordBot>>().LogCritical(e.Message);
 				}
 
-				//TODO Exiting on Enter is probably ill advised
-				Console.ReadLine();
+				// Dont ever stop running this task.
+				await Task.Delay(-1);
 			});
 
 			return app.Execute(args);

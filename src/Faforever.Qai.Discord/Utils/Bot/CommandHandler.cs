@@ -12,6 +12,7 @@ using Faforever.Qai.Core.Structures.Configurations;
 using Faforever.Qai.Discord.Core.Structures.Configurations;
 using Faforever.Qai.Discord.Utils.Commands;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Faforever.Qai.Discord.Utils.Bot
@@ -22,13 +23,15 @@ namespace Faforever.Qai.Discord.Utils.Bot
 		private readonly DiscordBotConfiguration _config;
 		private readonly DiscordClient _client;
 		private readonly ILogger<BaseDiscordClient> _logger;
+		private readonly IServiceProvider _services;
 
-		public CommandHandler(IReadOnlyDictionary<string, Command> commands, DiscordClient client, DiscordBotConfiguration botConfig)
+		public CommandHandler(IReadOnlyDictionary<string, Command> commands, DiscordClient client, DiscordBotConfiguration botConfig, IServiceProvider services)
 		{
 			this._commands = commands;
 			this._config = botConfig;
 			this._client = client;
 			this._logger = this._client.Logger;
+			_services = services;
 		}
 
 		// TODO: Update to save guild config state. This will run as is, but will not hold any saved data between sessions.
@@ -38,8 +41,7 @@ namespace Faforever.Qai.Discord.Utils.Bot
 			{
 				cancellationToken.ThrowIfCancellationRequested();
 
-				using QAIDatabaseModel model = new QAIDatabaseModel();
-				// Need to know how we are accessing the database!
+				var model = _services.GetRequiredService<QAIDatabaseModel>();
 
 				DiscordGuildConfiguration guildConfig = await model.FindAsync<DiscordGuildConfiguration>(msg.Channel.GuildId);
 
