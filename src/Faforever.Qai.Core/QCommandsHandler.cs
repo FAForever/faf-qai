@@ -18,6 +18,8 @@ namespace Faforever.Qai.Core
 {
 	public class QCommandsHandler
 	{
+		public static readonly Random Rand = new Random(); // for basic random operations
+
 		private readonly CommandService _commands;
 		private readonly ILogger _logger;
 
