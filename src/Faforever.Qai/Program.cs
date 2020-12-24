@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using Faforever.Qai.Core;
 using Faforever.Qai.Core.Commands.Arguments;
+using Faforever.Qai.Core.Commands.Arguments.Converters;
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Operations.Player;
