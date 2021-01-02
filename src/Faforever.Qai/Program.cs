@@ -32,6 +32,8 @@ namespace Faforever.Qai
 {
 	public static class Program
 	{
+		public static readonly Uri ApiUri = new Uri("https://api.faforever.com/");
+
 		public static int Main(string[] args)
 		{
 			CommandLineApplication app = new CommandLineApplication();
@@ -63,11 +65,7 @@ namespace Faforever.Qai
 					{
 						options.UseSqlite(dbConfig.DataSource);
 					})
-					.AddSingleton<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()
-					.AddSingleton<IFindPlayerOperation, ApiFindPlayerOperation>()
-					.AddSingleton<IPlayerService, OperationPlayerService>()
-					.AddTransient<HttpClient>()
-					.AddTransient<RelayService>()
+					.AddSingleton<RelayService>()
 					.AddSingleton((x) =>
 					{
 						var options = new CommandService(new CommandServiceConfiguration()
@@ -85,6 +83,19 @@ namespace Faforever.Qai
 					})
 					.AddSingleton<QCommandsHandler>()
 					.AddSingleton<IBotFunService>(new BotFunService(botFunConfig));
+
+				services.AddHttpClient<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>(client =>
+				{
+					client.BaseAddress = ApiUri;
+				});
+				services.AddHttpClient<IFindPlayerOperation, ApiFindPlayerOperation>(client =>
+				{
+					client.BaseAddress = ApiUri;
+				});
+				services.AddHttpClient<IPlayerService, OperationPlayerService>(client =>
+				{
+					client.BaseAddress = ApiUri;
+				});
 
 				await using var serviceProvider = services.BuildServiceProvider();
 
