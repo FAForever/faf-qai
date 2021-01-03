@@ -12,18 +12,17 @@ namespace Faforever.Qai.Core.Operations.Player
 	[ExcludeFromCodeCoverage]
 	public class ApiFetchPlayerStatsOperation : IFetchPlayerStatsOperation
 	{
-		private readonly HttpClient _client;
+		private readonly ApiClient _api;
 
-		public ApiFetchPlayerStatsOperation(HttpClient client)
+		public ApiFetchPlayerStatsOperation(ApiClient api)
 		{
-			client.BaseAddress = new Uri("https://api.faforever.com/");
-			_client = client;
+			this._api = api;
 		}
 
 		public async Task<FetchPlayerStatsResult> FetchPlayer(string username)
 		{
 			using Stream? stream =
-				await _client.GetStreamAsync(
+				await this._api.Client.GetStreamAsync(
 					$"/data/player?include=clanMembership.clan,globalRating,ladder1v1Rating,names,avatarAssignments.avatar&filter=login=={username}");
 
 			using JsonDocument json = await JsonDocument.ParseAsync(stream);

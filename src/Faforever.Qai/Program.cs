@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -8,6 +9,7 @@ using Faforever.Qai.Core.Commands.Arguments;
 using Faforever.Qai.Core.Commands.Arguments.Converters;
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Database;
+using Faforever.Qai.Core.Operations;
 using Faforever.Qai.Core.Operations.Player;
 using Faforever.Qai.Core.Services;
 using Faforever.Qai.Core.Services.BotFun;
@@ -82,22 +84,19 @@ namespace Faforever.Qai
 						return options;
 					})
 					.AddSingleton<QCommandsHandler>()
-					.AddSingleton<IBotFunService>(new BotFunService(botFunConfig));
+					.AddSingleton<IBotFunService>(new BotFunService(botFunConfig))
+					.AddTransient<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()
+					.AddTransient<IFindPlayerOperation, ApiFindPlayerOperation>()
+					.AddTransient<IPlayerService, OperationPlayerService>();
 
-				services.AddHttpClient<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>(client =>
-				{
-					client.BaseAddress = ApiUri;
-				});
-				services.AddHttpClient<IFindPlayerOperation, ApiFindPlayerOperation>(client =>
-				{
-					client.BaseAddress = ApiUri;
-				});
-				services.AddHttpClient<IPlayerService, OperationPlayerService>(client =>
+				services.AddHttpClient<ApiClient>(client =>
 				{
 					client.BaseAddress = ApiUri;
 				});
 
 				await using var serviceProvider = services.BuildServiceProvider();
+
+				await ApplyDatabaseMigrations(serviceProvider.GetRequiredService<QAIDatabaseModel>());
 
 				IrcConfiguration ircConfig;
 				using(FileStream fs = new(Path.Join("Config", "irc_config.json"), FileMode.Open))
@@ -143,6 +142,17 @@ namespace Faforever.Qai
 			});
 
 			return app.Execute(args);
+		}
+
+		private static async Task ApplyDatabaseMigrations(DbContext database)
+		{
+			if (!(await database.Database.GetPendingMigrationsAsync()).Any())
+			{
+				return;
+			}
+
+			await database.Database.MigrateAsync();
+			await database.SaveChangesAsync();
 		}
 	}
 }
