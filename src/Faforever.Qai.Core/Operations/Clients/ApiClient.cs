@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Faforever.Qai.Core.Operations
+namespace Faforever.Qai.Core.Operations.Clients
 {
 	public class ApiClient
 	{

@@ -10,7 +10,9 @@ using Faforever.Qai.Core.Commands.Arguments.Converters;
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Operations;
+using Faforever.Qai.Core.Operations.Clients;
 using Faforever.Qai.Core.Operations.Player;
+using Faforever.Qai.Core.Operations.Units;
 using Faforever.Qai.Core.Services;
 using Faforever.Qai.Core.Services.BotFun;
 using Faforever.Qai.Core.Structures.Configurations;
@@ -73,7 +75,7 @@ namespace Faforever.Qai
 						var options = new CommandService(new CommandServiceConfiguration()
 						{
 							// Additional configuration for the command service goes here.
-							
+
 						});
 
 						// Command modules go here.
@@ -87,11 +89,17 @@ namespace Faforever.Qai
 					.AddSingleton<IBotFunService>(new BotFunService(botFunConfig))
 					.AddTransient<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()
 					.AddTransient<IFindPlayerOperation, ApiFindPlayerOperation>()
+					.AddTransient<ISearchUnitDatabaseOperation, ApiSearchUnitDatabaseOpeartion>()
 					.AddTransient<IPlayerService, OperationPlayerService>();
 
 				services.AddHttpClient<ApiClient>(client =>
 				{
 					client.BaseAddress = ApiUri;
+				});
+
+				services.AddHttpClient<UnitClient>(client =>
+				{
+					client.BaseAddress = new Uri(UnitDbUtils.UnitApi);
 				});
 
 				await using var serviceProvider = services.BuildServiceProvider();
