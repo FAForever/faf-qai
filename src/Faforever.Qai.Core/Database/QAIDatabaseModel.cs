@@ -15,12 +15,14 @@ namespace Faforever.Qai.Core.Database
 		public DbSet<DiscordGuildConfiguration> DiscordConfigs { get; set; }
 		public DbSet<RelayConfiguration> RelayConfigurations { get; set; }
 
+		public QAIDatabaseModel(DbContextOptions options) : base(options)
+		{
+
+		}
+
 		protected override void OnConfiguring(DbContextOptionsBuilder options)
 		{
-			// TODO: Setup SQLite DB and connection string.
-
-			options.UseSqlite("Data Source=test.db")
-				.EnableDetailedErrors();
+			// Futher configuration goes here.
 		}
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)

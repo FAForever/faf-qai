@@ -12,7 +12,7 @@ namespace Faforever.Qai.Core.Commands.Authorization
 	sealed class RequireUserPermissionsAttribute : Attribute, IPermissionsAttribute
 	{
 		public Permissions? DiscordPermissions { get; }
-		public string? IRCPermissions { get; }
+		public IrcPermissions? IRCPermissions { get; }
 
 		public RequireUserPermissionsAttribute(Permissions discordPermissions)
 		{
@@ -20,13 +20,13 @@ namespace Faforever.Qai.Core.Commands.Authorization
 			IRCPermissions = null;
 		}
 
-		public RequireUserPermissionsAttribute(string ircPermissions)
+		public RequireUserPermissionsAttribute(IrcPermissions ircPermissions)
 		{
 			DiscordPermissions = null;
 			IRCPermissions = ircPermissions;
 		}
 
-		public RequireUserPermissionsAttribute(Permissions discordPermissions, string ircPermissions)
+		public RequireUserPermissionsAttribute(Permissions discordPermissions, IrcPermissions ircPermissions)
 		{
 			DiscordPermissions = discordPermissions;
 			IRCPermissions = ircPermissions;

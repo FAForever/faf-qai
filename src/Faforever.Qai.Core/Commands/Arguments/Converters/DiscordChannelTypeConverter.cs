@@ -6,7 +6,7 @@ using Faforever.Qai.Core.Commands.Context;
 
 using Qmmands;
 
-namespace Faforever.Qai.Core.Commands.Arguments
+namespace Faforever.Qai.Core.Commands.Arguments.Converters
 {
 	public class DiscordChannelTypeConverter : TypeParser<DiscordChannel>
 	{
@@ -17,10 +17,10 @@ namespace Faforever.Qai.Core.Commands.Arguments
 
 			var valToParse = value;
 
-			if (value.StartsWith("<#"))
+			if (valToParse.StartsWith("<#"))
 				valToParse = valToParse.Replace("<#", string.Empty);
 
-			if (value.EndsWith(">"))
+			if (valToParse.EndsWith(">"))
 				valToParse = valToParse.Replace(">", string.Empty);
 
 			if (ulong.TryParse(valToParse, out ulong res))

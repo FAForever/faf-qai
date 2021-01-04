@@ -18,6 +18,8 @@ namespace Faforever.Qai.Core
 {
 	public class QCommandsHandler
 	{
+		public static readonly Random Rand = new Random(); // for basic random operations
+
 		private readonly CommandService _commands;
 		private readonly ILogger _logger;
 
@@ -76,11 +78,23 @@ namespace Faforever.Qai.Core
 
 		private async Task<bool> CheckPermissions(IRCCommandContext ctx, IReadOnlyList<Attribute> attributes)
 		{
-			// TODO: Cacluate permissions.
+			// TODO: See if we need more complicated permission checking for the IRC client
+			// If the authro is an operator, then they can run the command ...
 			if (ctx.Author.IsOperator) return true;
-
-
-			return false;
+			// ... otherwise, for every attribute ...
+			foreach(var a in attributes)
+			{// ... if it is a permissions attribute ...
+				if(a is IPermissionsAttribute perms)
+				{ // ... and it has IRC permissions ...
+					if(perms.IRCPermissions is not null)
+					{ // ... if it is requireing an operator ...
+						if (perms.IRCPermissions.Value == IrcPermissions.Operator)
+							return false; // ... then this user cant run the command ...
+					}
+				}
+			}
+			// ... otherwise they can run the command.
+			return true;
 		}
 
 		private async Task<bool> CheckPermissions(DiscordCommandContext ctx, IReadOnlyList<Attribute> attributes)
@@ -107,7 +121,7 @@ namespace Faforever.Qai.Core
 								// ... Add the requierment to the userPerms.
 								userPerms |= (uint)perms.DiscordPermissions;
 								break;
-							// ... if it is a bet permission ...
+							// ... if it is a bot permission ...
 							case RequireBotPermissionsAttribute bot:
 								// ... add the requirement to the botPerms.
 								botPerms |= (uint)perms.DiscordPermissions;

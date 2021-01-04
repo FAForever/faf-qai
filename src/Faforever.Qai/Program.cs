@@ -1,88 +1,166 @@
 using System;
+using System.IO;
+using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
+
 using Faforever.Qai.Core;
 using Faforever.Qai.Core.Commands.Arguments;
+using Faforever.Qai.Core.Commands.Arguments.Converters;
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Database;
-using Faforever.Qai.Core.Operations.Clan;
+using Faforever.Qai.Core.Operations;
+using Faforever.Qai.Core.Operations.Clients;
 using Faforever.Qai.Core.Operations.Player;
+using Faforever.Qai.Core.Operations.Units;
 using Faforever.Qai.Core.Services;
+using Faforever.Qai.Core.Services.BotFun;
+using Faforever.Qai.Core.Structures.Configurations;
 using Faforever.Qai.Discord;
 using Faforever.Qai.Discord.Core.Structures.Configurations;
 using Faforever.Qai.Irc;
+
 using IrcDotNet;
+
 using McMaster.Extensions.CommandLineUtils;
+
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+
+using Newtonsoft.Json;
+
 using Qmmands;
 
-namespace Faforever.Qai {
-	public static class Program {
-		public static int Main(string[] args) {
+namespace Faforever.Qai
+{
+	public static class Program
+	{
+		public static readonly Uri ApiUri = new Uri("https://api.faforever.com/");
+
+		public static int Main(string[] args)
+		{
 			CommandLineApplication app = new CommandLineApplication();
 
 			app.HelpOption("-h|--help");
 
-			app.OnExecuteAsync(async cancellationToken => {
+			app.OnExecuteAsync(async cancellationToken =>
+			{
 				ServiceCollection services = new ServiceCollection();
 
+				DatabaseConfiguration dbConfig;
+				using(FileStream fs = new(Path.Join("Config", "database_config.json"), FileMode.Open))
+				{
+					using StreamReader sr = new(fs);
+					var json = await sr.ReadToEndAsync();
+					dbConfig = JsonConvert.DeserializeObject<DatabaseConfiguration>(json);
+				}
+
+				BotFunConfiguration botFunConfig;
+				using (FileStream fs = new(Path.Join("Config", "games_config.json"), FileMode.Open))
+				{
+					using StreamReader sr = new(fs);
+					var json = await sr.ReadToEndAsync();
+					botFunConfig = JsonConvert.DeserializeObject<BotFunConfiguration>(json);
+				}
+
 				services.AddLogging(options => options.AddConsole())
-					.AddDbContext<QAIDatabaseModel>()
-					.AddSingleton<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()
-					.AddSingleton<IFindPlayerOperation, ApiFindPlayerOperation>()
-					.AddSingleton<IFetchClanOperation, ApiFetchClanOperation>()
-					.AddSingleton<IPlayerService, OperationPlayerService>()
-					.AddTransient<HttpClient>()
-					.AddTransient<RelayService>()
-					.AddSingleton((x) => {
-						var options = new CommandService(new CommandServiceConfiguration() {
+					.AddDbContext<QAIDatabaseModel>(options =>
+					{
+						options.UseSqlite(dbConfig.DataSource);
+					})
+					.AddSingleton<RelayService>()
+					.AddSingleton((x) =>
+					{
+						var options = new CommandService(new CommandServiceConfiguration()
+						{
 							// Additional configuration for the command service goes here.
+
 						});
 
 						// Command modules go here.
 						options.AddModules(System.Reflection.Assembly.GetAssembly(typeof(CustomCommandContext)));
 						// Argument converters go here.
 						options.AddTypeParser(new DiscordChannelTypeConverter());
+						options.AddTypeParser(new BotUserCapsuleConverter());
 						return options;
 					})
-					.AddSingleton<QCommandsHandler>();
+					.AddSingleton<QCommandsHandler>()
+					.AddSingleton<IBotFunService>(new BotFunService(botFunConfig))
+					.AddTransient<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()
+					.AddTransient<IFindPlayerOperation, ApiFindPlayerOperation>()
+					.AddTransient<ISearchUnitDatabaseOperation, ApiSearchUnitDatabaseOpeartion>()
+					.AddTransient<IPlayerService, OperationPlayerService>();
 
+				services.AddHttpClient<ApiClient>(client =>
+				{
+					client.BaseAddress = ApiUri;
+				});
+
+				services.AddHttpClient<UnitClient>(client =>
+				{
+					client.BaseAddress = new Uri(UnitDbUtils.UnitApi);
+				});
 
 				await using var serviceProvider = services.BuildServiceProvider();
 
-				using QaIrc ircBot = new QaIrc("irc.faforever.com", new IrcUserRegistrationInfo {
-						NickName = "Ballebyte",
-						RealName = "Ballebyte",
-						Password = "ballebyte",
-						UserName = "ballebyte"
-					}, serviceProvider.GetService<ILogger<QaIrc>>(),
+				await ApplyDatabaseMigrations(serviceProvider.GetRequiredService<QAIDatabaseModel>());
+
+				IrcConfiguration ircConfig;
+				using(FileStream fs = new(Path.Join("Config", "irc_config.json"), FileMode.Open))
+				{
+					using StreamReader sr = new(fs);
+					var json = await sr.ReadToEndAsync();
+					ircConfig = JsonConvert.DeserializeObject<IrcConfiguration>(json);
+				}
+
+				using QaIrc ircBot = new QaIrc(ircConfig.Connection, new IrcUserRegistrationInfo
+				{
+					NickName = ircConfig.NickName,
+					RealName = ircConfig.RealName,
+					Password = ircConfig.Password,
+					UserName = ircConfig.UserName
+				}, serviceProvider.GetService<ILogger<QaIrc>>(),
 					serviceProvider.GetService<QCommandsHandler>(),
 					serviceProvider.GetService<RelayService>(), serviceProvider);
 				ircBot.Run();
 
-				Console.WriteLine(
-					"Input Bot Token [FOR DEBUG ONLY - REMOVE IN PROD (or once we have a desicion on how to retrive config values)]: ");
+				DiscordBotConfiguration discordConfig;
+				using(FileStream fs = new(Path.Join("Config", "discord_config.json"), FileMode.Open))
+				{
+					using StreamReader sr = new(fs);
+					var json = await sr.ReadToEndAsync();
+					discordConfig = JsonConvert.DeserializeObject<DiscordBotConfiguration>(json);
+				}
 
-				await using DiscordBot discordBot = new DiscordBot(serviceProvider, LogLevel.Debug,
-					new DiscordBotConfiguration() {
-						Token = Console.ReadLine(),
-						Prefix = "!",
-						Shards = 1
-					});
+				await using DiscordBot discordBot = new DiscordBot(serviceProvider, LogLevel.Debug, discordConfig);
 
-				try {
+				try
+				{
 					await discordBot.InitializeAsync();
 					await discordBot.StartAsync();
 				}
-				catch (InvalidOperationException e) {
+				catch (InvalidOperationException e)
+				{
 					serviceProvider.GetService<ILogger<DiscordBot>>().LogCritical(e.Message);
 				}
 
-				//TODO Exiting on Enter is probably ill advised
-				Console.ReadLine();
+				// Dont ever stop running this task.
+				await Task.Delay(-1);
 			});
 
 			return app.Execute(args);
+		}
+
+		private static async Task ApplyDatabaseMigrations(DbContext database)
+		{
+			if (!(await database.Database.GetPendingMigrationsAsync()).Any())
+			{
+				return;
+			}
+
+			await database.Database.MigrateAsync();
+			await database.SaveChangesAsync();
 		}
 	}
 }
