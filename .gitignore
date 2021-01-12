@@ -5,6 +5,7 @@
 
 # Config Files
 # [Cc]onfig/
+launchSettings.json
 
 # Database Files
 *.db
