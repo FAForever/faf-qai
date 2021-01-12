@@ -11,6 +11,7 @@ using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Operations;
 using Faforever.Qai.Core.Operations.Clients;
+using Faforever.Qai.Core.Operations.Maps;
 using Faforever.Qai.Core.Operations.Player;
 using Faforever.Qai.Core.Operations.Units;
 using Faforever.Qai.Core.Services;
@@ -93,7 +94,8 @@ namespace Faforever.Qai
 					.AddTransient<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()
 					.AddTransient<IFindPlayerOperation, ApiFindPlayerOperation>()
 					.AddTransient<ISearchUnitDatabaseOperation, ApiSearchUnitDatabaseOpeartion>()
-					.AddTransient<IPlayerService, OperationPlayerService>();
+					.AddTransient<IPlayerService, OperationPlayerService>()
+					.AddTransient<ISearchMapOperation, ApiSearchMapOperation>();
 
 				services.AddHttpClient<ApiClient>(client =>
 				{

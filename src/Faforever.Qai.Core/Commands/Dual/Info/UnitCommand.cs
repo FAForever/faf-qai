@@ -21,7 +21,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Info
 
 		[Command("unit", "searchunit")]
 		[Description("Search the Unit Database for a unit.")]
-		public async Task UnitCommandAsync(string search)
+		public async Task UnitCommandAsync([Remainder] string search)
 		{
 			var result = await this._unitSearch.SearchUnitDatabase(search);
 
