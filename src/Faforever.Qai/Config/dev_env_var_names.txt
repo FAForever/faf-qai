@@ -1,0 +1,6 @@
+DISCORD_TOKEN - Discord bot token
+BOT_PREFIX - Bot prefix
+IRC_USER - IRC username/nickname/realname
+IRC_PASS - IRC user password
+IRC_CONN_DEST - Loaction the IRC bot will connect to
+DATA_SOURCE - Location where the .db file will be stored (should be an image when using docker) Ex: Database/qai-dostya.db

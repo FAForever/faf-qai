@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "Faforever.Qai": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DATA_SOURCE": "Database/qai-dostya.db",
+        "IRC_CONN_DEST": "irc.faforever.com",
+        "DISCORD_TOKEN": "NzcwMzIwNzU4NDI5MTg4MTI2.X5b3HA.C6SogVyTbQ-qxqUf9CYZFm7pLHg",
+        "IRC_USER": "Ballebyte",
+        "BOT_PREFIX": "!",
+        "IRC_PASS": "Ballebyte"
+      }
+    }
+  }
+}
