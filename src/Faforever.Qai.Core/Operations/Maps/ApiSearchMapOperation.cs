@@ -9,6 +9,7 @@ using Faforever.Qai.Core.Models;
 using Faforever.Qai.Core.Operations.Clients;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Faforever.Qai.Core.Operations.Maps
 {
@@ -41,41 +42,35 @@ namespace Faforever.Qai.Core.Operations.Maps
 
 		private MapResult? ParseStringData(string data)
 		{
-			var res = MapRequest.FromJson(data);
+			var json = JObject.Parse(data);
 
-			if (res.Data.Length <= 0) return null;
+			JToken? map = json["data"]?.First;
 
-			var map = res.Data[0];
-			var included = res.Included.FirstOrDefault(x => x.Id == map.Relationships.LatestVersion.Data.Dat?.Id);
-			var player = res.Included.FirstOrDefault(x => x.Type == TypeEnum.Player);
+			if (map is null || map["type"]?.ToString() != "map") return null;
+
+			var revision = map["relationships"]?["latestVersion"]?["data"]?["id"]?.ToObject<long>() ?? 0;
+
+			JToken? included = json["included"]?.FirstOrDefault(x => x["id"]?.ToObject<long>() == revision);
 
 			if (included is null) return null;
 
-			var size = GetMapSize(included.Attributes.Width ?? 0);
+			JToken? player = json["included"]?.FirstOrDefault(x => x["type"]?.ToString() == "player");
+
+			var size = included["attributes"]?["height"]?.ToObject<long>().GetMapSize() ?? 0;
 
 			return new()
 			{
-				Title = map.Attributes.DisplayName,
-				CreatedAt = map.Attributes.CreateTime.UtcDateTime,
-				Id = map.Id,
-				Ranked = included.Attributes.Ranked ?? false,
-				DownlaadUrl = included.Attributes.DownloadUrl,
-				PreviewUrl = included.Attributes.ThumbnailUrlLarge,
-				Description = included.Attributes.Description.RemoveBadContent(),
-				MaxPlayers = included.Attributes.MaxPlayers ?? 0,
-				Author = player?.Attributes.Login ?? "Unkown Author",
+				Title = map["attributes"]?["displayName"]?.ToString() ?? "n/a",
+				CreatedAt = map["attributes"]?["createTime"]?.ToObject<DateTime>() ?? new(),
+				Id = map["id"]?.ToObject<long>() ?? 0,
+				Ranked = included["attributes"]?["ranked"]?.ToObject<bool>() ?? false,
+				DownlaadUrl = included["attributes"]?["downloadUrl"]?.ToObject<Uri>(),
+				PreviewUrl = included["attributes"]?["thumbnailUrlLarge"]?.ToObject<Uri>(),
+				Description = included["attributes"]?["description"]?.ToString().RemoveBadContent() ?? "n/a",
+				MaxPlayers = included["attributes"]?["maxPlayers"]?.ToObject<long>() ?? 0,
+				Author = player?["attributes"]?["login"]?.ToString() ?? "Unkown Author",
 				Size = $"{size}x{size} km"
 			};
-		}
-
-		public static long GetMapSize(long i)
-		{
-			var b = (i / 5) / 10;
-
-			var digits = Math.Floor(Math.Log10(b) + 1);
-			var nearest = (int)Math.Pow(10, digits - 1);
-
-			return (b + 5 * nearest / 10) / nearest * nearest;
 		}
 	}
 }
