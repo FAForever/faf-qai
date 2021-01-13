@@ -71,7 +71,6 @@ namespace Faforever.Qai.Core.Commands.Dual.Map
 				.AddField("Author", map.Author)
 				.WithImageUrl(map.PreviewUrl.AbsoluteUri.Replace(" ", "%20"));
 
-
 			await ctx.Channel.SendMessageAsync(embed);
 		}
 

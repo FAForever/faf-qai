@@ -58,10 +58,10 @@ namespace Faforever.Qai.Core.Operations.Maps
 				Title = map.Attributes.DisplayName,
 				CreatedAt = map.Attributes.CreateTime.UtcDateTime,
 				Id = map.Id,
-				Ranked = included?.Attributes.Ranked ?? false,
+				Ranked = included.Attributes.Ranked ?? false,
 				DownlaadUrl = included.Attributes.DownloadUrl,
 				PreviewUrl = included.Attributes.ThumbnailUrlLarge,
-				Description = included.Attributes.Description,
+				Description = included.Attributes.Description.RemoveBadContent(),
 				MaxPlayers = included.Attributes.MaxPlayers ?? 0,
 				Author = player?.Attributes.Login ?? "Unkown Author",
 				Size = $"{size}x{size} km"
