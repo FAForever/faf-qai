@@ -60,15 +60,15 @@ namespace Faforever.Qai.Core.Operations.Maps
 
 			return new()
 			{
-				Title = map["attributes"]?["displayName"]?.ToString() ?? "n/a",
-				CreatedAt = map["attributes"]?["createTime"]?.ToObject<DateTime>() ?? new(),
+				Title = map["attributes"]?["displayName"]?.ToString(),
+				CreatedAt = map["attributes"]?["createTime"]?.ToObject<DateTime>(),
 				Id = map["id"]?.ToObject<long>() ?? 0,
-				Ranked = included["attributes"]?["ranked"]?.ToObject<bool>() ?? false,
+				Ranked = included["attributes"]?["ranked"]?.ToObject<bool>(),
 				DownlaadUrl = included["attributes"]?["downloadUrl"]?.ToObject<Uri>(),
 				PreviewUrl = included["attributes"]?["thumbnailUrlLarge"]?.ToObject<Uri>(),
-				Description = included["attributes"]?["description"]?.ToString().RemoveBadContent() ?? "n/a",
-				MaxPlayers = included["attributes"]?["maxPlayers"]?.ToObject<long>() ?? 0,
-				Author = player?["attributes"]?["login"]?.ToString() ?? "Unkown Author",
+				Description = included["attributes"]?["description"]?.ToString().RemoveBadContent(),
+				MaxPlayers = included["attributes"]?["maxPlayers"]?.ToObject<long>(),
+				Author = player?["attributes"]?["login"]?.ToString(),
 				Size = $"{size}x{size} km"
 			};
 		}

@@ -61,15 +61,15 @@ namespace Faforever.Qai.Core.Commands.Dual.Map
 		{
 			var embed = new DiscordEmbedBuilder();
 			embed.WithTitle("Download map")
-				.WithUrl(map.DownlaadUrl.AbsoluteUri.Replace(" ", "%20"))
+				.WithUrl(map.DownlaadUrl?.AbsoluteUri.Replace(" ", "%20"))
 				.WithAuthor($"{map.Title} (ID #{map.Id})")
 				.WithDescription(map.Description)
 				.AddField("Size", map.Size, true)
 				.AddField("Max Players", map.MaxPlayers.ToString(), true)
 				.AddField("Ranked", map.Ranked.ToString(), true)
-				.AddField("Created At", map.CreatedAt.ToString("u"), true)
+				.AddField("Created At", map.CreatedAt?.ToString("u"), true)
 				.AddField("Author", map.Author)
-				.WithImageUrl(map.PreviewUrl.AbsoluteUri.Replace(" ", "%20"));
+				.WithImageUrl(map.PreviewUrl?.AbsoluteUri.Replace(" ", "%20"));
 
 			await ctx.Channel.SendMessageAsync(embed);
 		}
@@ -77,7 +77,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Map
 		private async Task RespondIrcAsync(IRCCommandContext ctx, MapResult map)
 			=> await ctx.ReplyAsync($"Map: {map.Title}, ID: {map.Id}, Size: {map.Size}," +
 				$" Players: {map.MaxPlayers}, Ranked: {map.Ranked}, Author: {map.Author}," +
-				$" Download: {map.DownlaadUrl.AbsoluteUri.Replace(" ", "%20")}," +
-				$" Preview: {map.PreviewUrl.AbsoluteUri.Replace(" ", "%20")}");
+				$" Download: {map.DownlaadUrl?.AbsoluteUri.Replace(" ", "%20")}," +
+				$" Preview: {map.PreviewUrl?.AbsoluteUri.Replace(" ", "%20")}");
 	}
 }
