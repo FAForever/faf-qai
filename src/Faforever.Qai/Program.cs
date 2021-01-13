@@ -95,7 +95,8 @@ namespace Faforever.Qai
 					.AddTransient<IFindPlayerOperation, ApiFindPlayerOperation>()
 					.AddTransient<ISearchUnitDatabaseOperation, ApiSearchUnitDatabaseOpeartion>()
 					.AddTransient<IPlayerService, OperationPlayerService>()
-					.AddTransient<ISearchMapOperation, ApiSearchMapOperation>();
+					.AddTransient<ISearchMapOperation, ApiSearchMapOperation>()
+					.AddTransient<IFetchLadderPoolOperation, ApiFetchLadderPoolOperation>();
 
 				services.AddHttpClient<ApiClient>(client =>
 				{
