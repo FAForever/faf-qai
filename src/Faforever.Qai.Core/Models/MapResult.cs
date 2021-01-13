@@ -18,6 +18,7 @@ namespace Faforever.Qai.Core.Models
 		public DateTime? CreatedAt { get; set; }
 		public string? Author { get; set; }
 		public Uri? PreviewUrl { get; set; }
+		public int? Version { get; set; }
 
 		public MapResult()
 		{

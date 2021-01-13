@@ -54,7 +54,8 @@ namespace Faforever.Qai.Core.Operations.Maps
 					Description = included["attributes"]?["description"]?.ToString().RemoveBadContent(),
 					MaxPlayers = included["attributes"]?["maxPlayers"]?.ToObject<long>(),
 					Author = null,
-					Size = $"{size}x{size} km"
+					Size = $"{size}x{size} km",
+					Version = map["attributes"]?["version"]?.ToObject<int>()
 				});
 			}
 

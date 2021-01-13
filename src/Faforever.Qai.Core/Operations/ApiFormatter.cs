@@ -31,5 +31,15 @@ namespace Faforever.Qai.Core.Operations
 
 			return (b + 5 * nearest / 10) / nearest * nearest;
 		}
+
+		public static string GetFaction(this int factionId)
+			=> factionId switch
+			{
+				0 => "U",
+				1 => "A",
+				2 => "C",
+				3 => "S",
+				_ => ""
+			};
 	}
 }

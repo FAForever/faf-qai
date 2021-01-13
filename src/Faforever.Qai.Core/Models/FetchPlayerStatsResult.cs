@@ -10,6 +10,7 @@ namespace Faforever.Qai.Core.Models
 		public GameStatistics? GlobalStats { get; set; } = null;
 		public FAFClan? Clan { get; set; } = null;
 		public List<string> OldNames { get; set; } = new List<string>();
+		public ReplayData? ReplayData { get; set; } = null;
 	}
 
 	public struct GameStatistics
@@ -24,5 +25,12 @@ namespace Faforever.Qai.Core.Models
 		public string Name { get; set; }
 		public int Size { get; set; }
 		public string URL { get; set; }
+	}
+
+	public struct ReplayData
+	{
+		public int? Team { get; set; }
+		public int? Score { get; set; }
+		public string? Faction { get; set; }
 	}
 }

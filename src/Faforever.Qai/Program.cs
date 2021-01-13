@@ -13,6 +13,7 @@ using Faforever.Qai.Core.Operations;
 using Faforever.Qai.Core.Operations.Clients;
 using Faforever.Qai.Core.Operations.Maps;
 using Faforever.Qai.Core.Operations.Player;
+using Faforever.Qai.Core.Operations.Replays;
 using Faforever.Qai.Core.Operations.Units;
 using Faforever.Qai.Core.Services;
 using Faforever.Qai.Core.Services.BotFun;
@@ -96,7 +97,8 @@ namespace Faforever.Qai
 					.AddTransient<ISearchUnitDatabaseOperation, ApiSearchUnitDatabaseOpeartion>()
 					.AddTransient<IPlayerService, OperationPlayerService>()
 					.AddTransient<ISearchMapOperation, ApiSearchMapOperation>()
-					.AddTransient<IFetchLadderPoolOperation, ApiFetchLadderPoolOperation>();
+					.AddTransient<IFetchLadderPoolOperation, ApiFetchLadderPoolOperation>()
+					.AddTransient<IFetchReplayOperation, ApiFetchReplayOperation>();
 
 				services.AddHttpClient<ApiClient>(client =>
 				{
