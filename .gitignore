@@ -4,7 +4,8 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # Config Files
-[Cc]onfig/
+# [Cc]onfig/
+launchSettings.json
 
 # Database Files
 *.db

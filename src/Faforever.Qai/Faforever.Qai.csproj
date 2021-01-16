@@ -22,10 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Config\discord_config.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Config\irc_config.json">
+    <None Update="Config\games_config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

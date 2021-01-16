@@ -11,7 +11,9 @@ using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Operations;
 using Faforever.Qai.Core.Operations.Clients;
+using Faforever.Qai.Core.Operations.Maps;
 using Faforever.Qai.Core.Operations.Player;
+using Faforever.Qai.Core.Operations.Replays;
 using Faforever.Qai.Core.Operations.Units;
 using Faforever.Qai.Core.Services;
 using Faforever.Qai.Core.Services.BotFun;
@@ -48,13 +50,16 @@ namespace Faforever.Qai
 			{
 				ServiceCollection services = new ServiceCollection();
 
-				DatabaseConfiguration dbConfig;
-				using(FileStream fs = new(Path.Join("Config", "database_config.json"), FileMode.Open))
+				DatabaseConfiguration dbConfig = new()
 				{
-					using StreamReader sr = new(fs);
-					var json = await sr.ReadToEndAsync();
-					dbConfig = JsonConvert.DeserializeObject<DatabaseConfiguration>(json);
-				}
+					DataSource = $"Data Source={Environment.GetEnvironmentVariable("DATA_SOURCE")}"
+				};
+
+#if DEBUG
+				// For use when the DB is Database/db-name.db
+				if (!Directory.Exists("Database"))
+					Directory.CreateDirectory("Database");
+#endif
 
 				BotFunConfiguration botFunConfig;
 				using (FileStream fs = new(Path.Join("Config", "games_config.json"), FileMode.Open))
@@ -90,7 +95,10 @@ namespace Faforever.Qai
 					.AddTransient<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()
 					.AddTransient<IFindPlayerOperation, ApiFindPlayerOperation>()
 					.AddTransient<ISearchUnitDatabaseOperation, ApiSearchUnitDatabaseOpeartion>()
-					.AddTransient<IPlayerService, OperationPlayerService>();
+					.AddTransient<IPlayerService, OperationPlayerService>()
+					.AddTransient<ISearchMapOperation, ApiSearchMapOperation>()
+					.AddTransient<IFetchLadderPoolOperation, ApiFetchLadderPoolOperation>()
+					.AddTransient<IFetchReplayOperation, ApiFetchReplayOperation>();
 
 				services.AddHttpClient<ApiClient>(client =>
 				{
@@ -106,13 +114,16 @@ namespace Faforever.Qai
 
 				await ApplyDatabaseMigrations(serviceProvider.GetRequiredService<QAIDatabaseModel>());
 
-				IrcConfiguration ircConfig;
-				using(FileStream fs = new(Path.Join("Config", "irc_config.json"), FileMode.Open))
+				var user = Environment.GetEnvironmentVariable("IRC_USER");
+				var pass = Environment.GetEnvironmentVariable("IRC_PASS");
+				IrcConfiguration ircConfig = new()
 				{
-					using StreamReader sr = new(fs);
-					var json = await sr.ReadToEndAsync();
-					ircConfig = JsonConvert.DeserializeObject<IrcConfiguration>(json);
-				}
+					Connection = Environment.GetEnvironmentVariable("IRC_CONN_DEST"),
+					UserName = user,
+					NickName = user,
+					RealName = user,
+					Password = pass
+				};
 
 				using QaIrc ircBot = new QaIrc(ircConfig.Connection, new IrcUserRegistrationInfo
 				{
@@ -125,13 +136,12 @@ namespace Faforever.Qai
 					serviceProvider.GetService<RelayService>(), serviceProvider);
 				ircBot.Run();
 
-				DiscordBotConfiguration discordConfig;
-				using(FileStream fs = new(Path.Join("Config", "discord_config.json"), FileMode.Open))
+				DiscordBotConfiguration discordConfig = new()
 				{
-					using StreamReader sr = new(fs);
-					var json = await sr.ReadToEndAsync();
-					discordConfig = JsonConvert.DeserializeObject<DiscordBotConfiguration>(json);
-				}
+					Prefix = Environment.GetEnvironmentVariable("BOT_PREFIX"),
+					Shards = 1,
+					Token = Environment.GetEnvironmentVariable("DISCORD_TOKEN")
+				};
 
 				await using DiscordBot discordBot = new DiscordBot(serviceProvider, LogLevel.Debug, discordConfig);
 
