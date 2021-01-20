@@ -54,6 +54,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
 
 
 			var embed = new DiscordEmbedBuilder()
+				.WithColor(Context.DostyaRed)
 				.WithTitle(results.Name)
 				.WithDescription($"**ID: {results.Id}**")
 				.WithColor(DiscordColor.Red);

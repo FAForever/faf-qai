@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
 
+using DSharpPlus.Entities;
+
 using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Context
@@ -11,6 +13,8 @@ namespace Faforever.Qai.Core.Commands.Context
 		/// The prefix used to trigger this command.
 		/// </summary>
 		public string Prefix { get; protected set; }
+
+		public readonly DiscordColor DostyaRed = new DiscordColor(0xff0000);
 
 		public CustomCommandContext(IServiceProvider services) : base(services) { }
 

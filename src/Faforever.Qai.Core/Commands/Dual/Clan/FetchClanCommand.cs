@@ -42,6 +42,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Clan
 		{
 			var embed = new DiscordEmbedBuilder();
 			embed.WithAuthor(data.Clan.Name, data.Clan.URL)
+				.WithColor(Context.DostyaRed)
 				.WithTitle($"ID: {data.Clan.Id}")
 				.AddField("Created", data.Clan.CreatedDate?.ToString("u"), true)
 				.AddField("URL", data.Clan.URL, true)

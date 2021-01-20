@@ -54,6 +54,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
 		{
 			var embed = new DiscordEmbedBuilder();
 			embed.WithAuthor(res.Title)
+				.WithColor(Context.DostyaRed)
 				.WithTitle($"Downlaod replay #{res.Id}")
 				.WithUrl(res.ReplayUri?.AbsoluteUri.Replace(" ", "%20"))
 				.WithThumbnail(res.MapInfo?.PreviewUrl?.AbsoluteUri.Replace(" ", "%20"))

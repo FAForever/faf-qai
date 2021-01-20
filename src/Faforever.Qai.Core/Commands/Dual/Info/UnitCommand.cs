@@ -51,6 +51,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Info
 			{
 				var desc = result.GeneralData.UnitName is not null ? $@"""{result.GeneralData.UnitName}"" {result.Description}" : result.Description;
 				embed.WithAuthor(desc, result.GetUnitDatabaseUrl(), result.GetStrategicIconUrl())
+					.WithColor(Context.DostyaRed)
 					.WithFooter($"{result.GeneralData.FactionName} - {result.Id}")
 					.WithThumbnail(result.GetUnitImageUrl())
 					.WithTitle("Click here to open unitDB")

@@ -61,6 +61,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Map
 		{
 			var embed = new DiscordEmbedBuilder();
 			embed.WithTitle("Download map")
+				.WithColor(Context.DostyaRed)
 				.WithUrl(map.DownlaadUrl?.AbsoluteUri.Replace(" ", "%20"))
 				.WithAuthor($"{map.Title} (ID #{map.Id})")
 				.WithDescription(map.Description)
