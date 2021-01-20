@@ -47,13 +47,6 @@ namespace Faforever.Qai.Core.Operations.Replays
 
 			if (potGames is null) return null;
 
-			potGames.OrderBy((x) =>
-			{
-				if (DateTime.TryParse(x["attributes"]?["startTime"]?.ToString(), out var res))
-					return res;
-				else return DateTime.MinValue;
-			});
-
 			JToken? game = potGames.LastOrDefault();
 
 			if (game is null) return null;
