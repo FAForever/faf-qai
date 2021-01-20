@@ -14,23 +14,47 @@ namespace Faforever.Qai.Core.Operations.Replays
 	public class ApiFetchReplayOperation : IFetchReplayOperation
 	{
 		private readonly ApiClient _api;
+		private const string baseurl = "/data/game?include=mapVersion,playerStats,mapVersion.map," +
+				"playerStats.player,featuredMod,playerStats.player.globalRating," +
+				"playerStats.player.ladder1v1Rating,playerStats.player.clanMembership.clan";
 
 		public ApiFetchReplayOperation(ApiClient api)
 		{
 			_api = api;
 		}
 
+		public async Task<ReplayResult?> FetchLastReplayAsync(string username)
+		{
+			string data = await _api.Client
+				.GetStringAsync($"{baseurl}&filter=playerStats.player.login=={username}");
+
+			return ParseRawJson(data);
+		}
+
 		public async Task<ReplayResult?> FetchReplayAsync(string replayId)
 		{
 			string data = await _api.Client
-				.GetStringAsync($"/data/game?include=mapVersion,playerStats,mapVersion.map," +
-				$"playerStats.player,featuredMod,playerStats.player.globalRating," +
-				$"playerStats.player.ladder1v1Rating,playerStats.player.clanMembership.clan" +
-				$"&filter=id=={replayId}");
+				.GetStringAsync($"{baseurl}&filter=id=={replayId}");
 
+			return ParseRawJson(data);
+		}
+
+		private ReplayResult? ParseRawJson(string data)
+		{
 			var json = JObject.Parse(data);
 
-			JToken? game = json["data"]?.First;
+			var potGames = json["data"]?.Where(x => x["type"]?.ToString() == "game");
+
+			if (potGames is null) return null;
+
+			potGames.OrderBy((x) =>
+			{
+				if (DateTime.TryParse(x["attributes"]?["startTime"]?.ToString(), out var res))
+					return res;
+				else return DateTime.MinValue;
+			});
+
+			JToken? game = potGames.LastOrDefault();
 
 			if (game is null) return null;
 
@@ -48,7 +72,9 @@ namespace Faforever.Qai.Core.Operations.Replays
 				};
 			else res = new();
 
-			JToken? map = json["included"]?.FirstOrDefault(x => x["type"]?.ToString() == "map");
+			JToken? map = json["included"]?.FirstOrDefault(x => x["type"]?.ToString() == "map"
+				&& x["relationships"]?["latestVersion"]?["data"]?["id"]?.ToObject<long>() 
+					== game["relationships"]?["mapVersion"]?["data"]?["id"]?.ToObject<long>());
 
 			if (map is not null)
 			{
@@ -75,8 +101,18 @@ namespace Faforever.Qai.Core.Operations.Replays
 
 			res.Ranked1v1 = feature?["attributes"]?["technicalName"]?.ToString() == "ladder1v1";
 
-			List<JToken>? players = json["included"]?.Where(x => x["type"]?.ToString() == "player")?.ToList();
-			List<JToken>? gamePlayerStats = json["included"]?.Where(x => x["type"]?.ToString() == "gamePlayerStats")?.ToList();
+			var playerStatsRaw = game["relationships"]?["playerStats"]?["data"];
+
+			if (playerStatsRaw is null) return res;
+
+			List<JToken>? gamePlayerStats = json["included"]?.Where(x => playerStatsRaw.Any(y => y["id"]?.ToObject<long>() == x["id"]?.ToObject<long>())
+				&& x["type"]?.ToString() == "gamePlayerStats")?.ToList();
+
+			if (gamePlayerStats is null) return res;
+
+			List<JToken>? players = json["included"]?.Where(x => 
+				gamePlayerStats.Any(y => y["relationships"]?["player"]?["data"]?["id"]?.ToObject<long>() == x["id"]?.ToObject<long>())
+				&& x["type"]?.ToString() == "player")?.ToList();
 			List<JToken>? playerRaitings = json["included"]?.Where(x => x["type"]?.ToString() == "globalRating")?.ToList();
 			List<JToken>? playerRankedRaitings = json["included"]?.Where(x => x["type"]?.ToString() == "ladder1v1Rating")?.ToList();
 
@@ -92,11 +128,11 @@ namespace Faforever.Qai.Core.Operations.Replays
 						Id = p["id"]?.ToString() ?? "",
 					};
 
-					if(gamePlayerStats is not null)
+					if (gamePlayerStats is not null)
 					{
 						var gameStats = gamePlayerStats.FirstOrDefault(x => x["relationships"]?["player"]?["data"]?["id"]?.ToString() == pData.Id);
 
-						if(gameStats is not null)
+						if (gameStats is not null)
 						{
 							pData.ReplayData = new()
 							{
@@ -107,7 +143,7 @@ namespace Faforever.Qai.Core.Operations.Replays
 						}
 					}
 
-					if(playerRankedRaitings is not null)
+					if (playerRankedRaitings is not null)
 					{
 						var rankStats = playerRankedRaitings.FirstOrDefault(x => x["relationships"]?["player"]?["data"]?["id"]?.ToString() == pData.Id);
 
@@ -121,7 +157,7 @@ namespace Faforever.Qai.Core.Operations.Replays
 							};
 						}
 					}
-					
+
 					if (playerRaitings is not null)
 					{
 						var rankStats = playerRaitings.FirstOrDefault(x => x["relationships"]?["player"]?["data"]?["id"]?.ToString() == pData.Id);

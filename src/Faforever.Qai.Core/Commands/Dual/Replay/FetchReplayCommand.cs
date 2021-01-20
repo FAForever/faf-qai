@@ -28,6 +28,19 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
 		{
 			var data = await _replay.FetchReplayAsync(replayId);
 
+			await RespondToUser(data);
+		}
+
+		[Command("lastreplay")]
+		public async Task FetchLastReplayCommandAsync(string username)
+		{
+			var data = await _replay.FetchLastReplayAsync(username);
+
+			await RespondToUser(data);
+		}
+
+		private async Task RespondToUser(ReplayResult? data)
+		{
 			if (data is null)
 				await Context.ReplyAsync("Failed to get a replay by that ID");
 			else if (Context is DiscordCommandContext dctx)
