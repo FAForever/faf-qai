@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Faforever.Qai.Core.Models
@@ -20,11 +21,15 @@ namespace Faforever.Qai.Core.Models
 		public short GamesPlayed { get; set; }
 	}
 
-	public struct FAFClan
+	public class FAFClan
 	{
-		public string Name { get; set; }
-		public int Size { get; set; }
-		public string URL { get; set; }
+		public string? Name { get; set; }
+		public int? Size { get; set; }
+		public string? URL { get; set; }
+		public DateTime? CreatedDate { get; set; }
+		public string? Description { get; set; }
+		public string? Tag { get; set; }
+		public long? Id { get; set; }
 	}
 
 	public struct ReplayData
