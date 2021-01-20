@@ -35,10 +35,10 @@ namespace Faforever.Qai.Core.Operations
 		public static string GetFaction(this int factionId)
 			=> factionId switch
 			{
-				0 => "U",
-				1 => "A",
-				2 => "C",
-				3 => "S",
+				1 => "U",
+				2 => "A",
+				3 => "C",
+				4 => "S",
 				_ => ""
 			};
 	}
