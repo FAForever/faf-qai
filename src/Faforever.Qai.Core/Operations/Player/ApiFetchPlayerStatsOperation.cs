@@ -36,7 +36,6 @@ namespace Faforever.Qai.Core.Operations.Player
 			};
 			foreach (JsonElement element in includedElement.EnumerateArray())
 			{
-
 				var typeElement = element.GetProperty("type");
 				var attributes = element.GetProperty("attributes");
 				switch (typeElement.GetString())
@@ -63,7 +62,7 @@ namespace Faforever.Qai.Core.Operations.Player
 						var clan = new FAFClan
 						{
 							Name = attributes.GetProperty("name").GetString(),
-							Size = typeElement.GetProperty("relationships")
+							Size = element.GetProperty("relationships")
 								.GetProperty("memberships")
 								.GetProperty("data")
 								.GetArrayLength(),

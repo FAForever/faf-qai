@@ -57,23 +57,24 @@ namespace Faforever.Qai.Irc
 			await _commandHandler.MessageRecivedAsync(ctx, eventArgs.Text);
 		}
 
-		private async void OnChannelMessageReceived(object sender, IrcMessageEventArgs messageEventArgs)
+		private async void OnChannelMessageReceived(object sender, IrcMessageEventArgs eventArgs)
 		{
 			_logger.Log(LogLevel.Information,
-				$"Received Message '{messageEventArgs.Text}' from '{messageEventArgs.Source.Name}");
+				$"Received Message '{eventArgs.Text}' from '{eventArgs.Source.Name}");
 
 			IrcChannel channel = sender as IrcChannel;
 
-			var channeluser = channel.GetChannelUser(messageEventArgs.Source as IrcUser);
+			var channeluser = channel.GetChannelUser(eventArgs.Source as IrcUser);
 
-			if (messageEventArgs.Source.Name == _userInfo.NickName)
+			if (eventArgs.Source.Name == _userInfo.NickName)
 			{
 				return;
 			}
+			
+			IRCCommandContext ctx = new IRCCommandContext(_client.LocalUser, eventArgs.Source.Name, channeluser.User, eventArgs.Text, "!", _services);
+			await _commandHandler.MessageRecivedAsync(ctx, eventArgs.Text);
 
-			await _relay.IRC_MessageReceived(channel.Name, messageEventArgs.Source.Name, messageEventArgs.Text);
-
-			//TODO Handle this
+			await _relay.IRC_MessageReceived(channel.Name, eventArgs.Source.Name, eventArgs.Text);
 		}
 
 		private void OnClientRegistered(object? sender, EventArgs args)
@@ -93,7 +94,7 @@ namespace Faforever.Qai.Irc
 				eventArgs.Channel.MessageReceived += OnChannelMessageReceived;
 			};
 
-			client.Channels.Join("#aeolus");
+			client.Channels.Join("#qai-test");
 		}
 
 		private void OnClientConnectFailed(object sender, IrcErrorEventArgs args)
