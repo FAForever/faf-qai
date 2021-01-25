@@ -51,9 +51,9 @@ namespace Faforever.Qai.Core.Models
 
 	public static class UnitColors
 	{
-		public static DiscordColor Aeon { get; } = new(0x33ac76);
-		public static DiscordColor EUF { get; } = new(0x6ba0f7);
-		public static DiscordColor Cybran { get; } = new(0xff8080);
-		public static DiscordColor Sera { get; } = new(0xfde3a7);
+		public static DiscordColor Aeon { get; } = new(0x4caf50);
+		public static DiscordColor EUF { get; } = new(0x2196f3);
+		public static DiscordColor Cybran { get; } = new(0xf44336);
+		public static DiscordColor Sera { get; } = new(0xffc107);
 	}
 }
