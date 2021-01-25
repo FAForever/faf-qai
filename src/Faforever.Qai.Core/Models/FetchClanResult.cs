@@ -1,12 +1,20 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Faforever.Qai.Core.Models {
-	public record FetchClanResult {
-		public string Tag { get; init; }
-		public string Name { get; init; }
-		public string Url { get; init; }
-		public string Description { get; init; }
-		public IEnumerable<string> PlayerNames { get; init; }
+namespace Faforever.Qai.Core.Models
+{
+	public class FetchClanResult
+	{
+		public FAFClan Clan { get; set; }
+		public List<ShortPlayerData> Members { get; set; } = new();
+	}
+
+	public struct ShortPlayerData
+	{
+		public string? Username { get; set; }
+		public DateTime? JoinDate { get; set; }
 	}
 }

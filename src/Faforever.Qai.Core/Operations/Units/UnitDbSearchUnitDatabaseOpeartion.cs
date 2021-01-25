@@ -12,10 +12,10 @@ using Newtonsoft.Json;
 
 namespace Faforever.Qai.Core.Operations.Units
 {
-	public class ApiSearchUnitDatabaseOpeartion : ISearchUnitDatabaseOperation
+	public class UnitDbSearchUnitDatabaseOpeartion : ISearchUnitDatabaseOperation
 	{
 		private readonly UnitClient _units;
-		public ApiSearchUnitDatabaseOpeartion(UnitClient units)
+		public UnitDbSearchUnitDatabaseOpeartion(UnitClient units)
 		{
 			this._units = units;
 		}

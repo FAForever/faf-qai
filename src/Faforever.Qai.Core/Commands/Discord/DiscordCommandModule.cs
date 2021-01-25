@@ -29,6 +29,7 @@ namespace Faforever.Qai.Core.Commands
 
 			await this.Context.Channel.SendMessageAsync(
 				embed: SuccessBase()
+					.WithColor(Context.DostyaRed)
 					.WithDescription(message)
 				);
 		}
@@ -57,13 +58,13 @@ namespace Faforever.Qai.Core.Commands
 		public static DiscordEmbedBuilder SuccessBase()
 		{
 			return new DiscordEmbedBuilder()
-				.WithColor(DiscordColor.Blue);
+				.WithColor(DiscordColor.Red);
 		}
 
 		public static DiscordEmbedBuilder ErrorBase()
 		{
 			return new DiscordEmbedBuilder()
-				.WithColor(DiscordColor.Red);
+				.WithColor(DiscordColor.Black);
 		}
 		#endregion
 	}

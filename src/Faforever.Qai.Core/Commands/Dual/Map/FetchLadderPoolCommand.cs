@@ -42,6 +42,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Map
 		{
 			var embed = new DiscordEmbedBuilder();
 			embed.WithTitle("Showing Current Ladder Pool (First 25 Results)")
+				.WithColor(Context.DostyaRed)
 				.WithThumbnail(maps[0].PreviewUrl?.AbsoluteUri.Replace(" ", "%20") ?? "");
 
 			int i = 0;

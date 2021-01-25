@@ -10,6 +10,7 @@ using Faforever.Qai.Core.Commands.Arguments.Converters;
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Operations;
+using Faforever.Qai.Core.Operations.Clan;
 using Faforever.Qai.Core.Operations.Clients;
 using Faforever.Qai.Core.Operations.Maps;
 using Faforever.Qai.Core.Operations.Player;
@@ -94,11 +95,12 @@ namespace Faforever.Qai
 					.AddSingleton<IBotFunService>(new BotFunService(botFunConfig))
 					.AddTransient<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()
 					.AddTransient<IFindPlayerOperation, ApiFindPlayerOperation>()
-					.AddTransient<ISearchUnitDatabaseOperation, ApiSearchUnitDatabaseOpeartion>()
+					.AddTransient<ISearchUnitDatabaseOperation, UnitDbSearchUnitDatabaseOpeartion>()
 					.AddTransient<IPlayerService, OperationPlayerService>()
 					.AddTransient<ISearchMapOperation, ApiSearchMapOperation>()
 					.AddTransient<IFetchLadderPoolOperation, ApiFetchLadderPoolOperation>()
-					.AddTransient<IFetchReplayOperation, ApiFetchReplayOperation>();
+					.AddTransient<IFetchReplayOperation, ApiFetchReplayOperation>()
+					.AddTransient<IFetchClanOperation, ApiFetchClanOperation>();
 
 				services.AddHttpClient<ApiClient>(client =>
 				{
