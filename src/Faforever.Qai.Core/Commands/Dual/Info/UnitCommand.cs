@@ -10,7 +10,7 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Info
 {
-	public class UnitCommand : DualCommandModule
+	public class UnitCommand : DualCommandModule<UnitDatabaseSerachResult>
 	{
 		private readonly ISearchUnitDatabaseOperation _unitSearch;
 
@@ -25,43 +25,27 @@ namespace Faforever.Qai.Core.Commands.Dual.Info
 		{
 			var result = await this._unitSearch.SearchUnitDatabase(search);
 
-			if (Context is DiscordCommandContext disCtx)
-				await RespondDiscord(disCtx, result);
-			else if (Context is IRCCommandContext ircCtx)
-				await RespondIRC(ircCtx, result);
+			if (result is null)
+				await Context.ReplyAsync("No unit found.");
+			else await ReplyAsync(result);
 		}
 
-		private async Task RespondIRC(IRCCommandContext ctx, UnitDatabaseSerachResult? result)
+		public override async Task ReplyAsync(IRCCommandContext ctx, UnitDatabaseSerachResult data)
 		{
-			if (result is not null)
-			{
-				var desc = result.GeneralData.UnitName is not null ? $@"""{result.GeneralData.UnitName}"" {result.Description}" : result.Description;
-				await ctx.ReplyAsync($"[{result.GeneralData.FactionName} - {result.Id}] {desc}: {result.GetUnitDatabaseUrl()}");
-			}
-			else
-			{
-				await ctx.ReplyAsync("No unit found.");
-			}
+			var desc = data.GeneralData.UnitName is not null ? $@"""{data.GeneralData.UnitName}"" {data.Description}" : data.Description;
+			await ctx.ReplyAsync($"[{data.GeneralData.FactionName} - {data.Id}] {desc}: {data.GetUnitDatabaseUrl()}");
 		}
 
-		private async Task RespondDiscord(DiscordCommandContext ctx, UnitDatabaseSerachResult? result)
+		public override async Task ReplyAsync(DiscordCommandContext ctx, UnitDatabaseSerachResult data)
 		{
 			var embed = new DiscordEmbedBuilder();
-			if (result is not null)
-			{
-				var desc = result.GeneralData.UnitName is not null ? $@"""{result.GeneralData.UnitName}"" {result.Description}" : result.Description;
-				embed.WithAuthor(desc, result.GetUnitDatabaseUrl(), result.GetStrategicIconUrl())
-					.WithFooter($"{result.GeneralData.FactionName} - {result.Id}")
-					.WithThumbnail(result.GetUnitImageUrl())
-					.WithTitle("Click here to open unitDB")
-					.WithUrl(result.GetUnitDatabaseUrl())
-					.WithColor(result.GetFactionColor());
-			}
-			else
-			{
-				embed.WithColor(DiscordColor.Gray)
-					.WithDescription("Failed to find a unit.");
-			}
+			var desc = data.GeneralData.UnitName is not null ? $@"""{data.GeneralData.UnitName}"" {data.Description}" : data.Description;
+			embed.WithAuthor(desc, data.GetUnitDatabaseUrl(), data.GetStrategicIconUrl())
+				.WithFooter($"{data.GeneralData.FactionName} - {data.Id}")
+				.WithThumbnail(data.GetUnitImageUrl())
+				.WithTitle("Click here to open unitDB")
+				.WithUrl(data.GetUnitDatabaseUrl())
+				.WithColor(data.GetFactionColor());
 
 			await ctx.Channel.SendMessageAsync(embed: embed);
 		}

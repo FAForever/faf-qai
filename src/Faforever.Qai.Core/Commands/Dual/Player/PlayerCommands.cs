@@ -11,7 +11,7 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Player
 {
-	public class PlayerCommands : DualCommandModule
+	public class PlayerCommands : DualCommandModule<FetchPlayerStatsResult>
 	{
 		private readonly IPlayerService _playerService;
 
@@ -24,66 +24,64 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
 		public async Task GetRatingsAsync(string username)
 		{
 			FetchPlayerStatsResult? playerStats = await _playerService.FetchPlayerStats(username);
-			if (!await GetRatingsAsync_RespondDiscord(Context as DiscordCommandContext, playerStats))
-				await Context.ReplyAsync($"found player '{playerStats.Name}' with the following information:\n" +
-					$"1v1: rating '{playerStats.LadderStats?.Rating.ToString("F0") ?? "0"}', ranked '{playerStats.LadderStats?.Ranking ?? 0}'\n" +
-					$"Global: rating '{playerStats.GlobalStats?.Rating.ToString("F0") ?? "0"}', ranked '{playerStats.GlobalStats?.Ranking ?? 0}'");
+
+			if (playerStats is null)
+				await Context.ReplyAsync("No player found.");
+			else await ReplyAsync(playerStats);
+				
 		}
 
-		private async Task<bool> GetRatingsAsync_RespondDiscord(DiscordCommandContext? ctx, FetchPlayerStatsResult? results)
+		public override async Task ReplyAsync(IRCCommandContext ctx, FetchPlayerStatsResult data)
 		{
-			if (ctx is null)
-				return false; // cant do a thing if the context is null.
+			await Context.ReplyAsync($"found player '{data.Name}' with the following information:\n" +
+					$"1v1: rating '{data.LadderStats?.Rating.ToString("F0") ?? "0"}', ranked '{data.LadderStats?.Ranking ?? 0}'\n" +
+					$"Global: rating '{data.GlobalStats?.Rating.ToString("F0") ?? "0"}', ranked '{data.GlobalStats?.Ranking ?? 0}'");
+		}
 
-			if (results is null)
-			{
-				await ctx.ReplyAsync("Failed to find a player.");
-				return true;
-			}
-
+		public override async Task ReplyAsync(DiscordCommandContext ctx, FetchPlayerStatsResult data)
+		{
 			List<string> toJoin;
-			if (results.OldNames.Count > 5)
+			if (data.OldNames.Count > 5)
 			{
-				toJoin = results.OldNames.GetRange(0, 5);
+				toJoin = data.OldNames.GetRange(0, 5);
 				toJoin.Add("...");
 			}
 			else
 			{
-				toJoin = results.OldNames;
+				toJoin = data.OldNames;
 			}
 
 
 			var embed = new DiscordEmbedBuilder()
 				.WithColor(Context.DostyaRed)
-				.WithTitle(results.Name)
-				.WithDescription($"**ID: {results.Id}**")
+				.WithTitle(data.Name)
+				.WithDescription($"**ID: {data.Id}**")
 				.WithColor(DiscordColor.Red);
 
 			if (toJoin.Count != 0)
 				embed.AddField("Aliases", string.Join("\n", toJoin));
 
-			if (!(results.LadderStats is null))
+			if (!(data.LadderStats is null))
 				embed.AddField("Ladder:", "```http\n" +
-					$"Rating  :: {results.LadderStats?.Rating.ToString("F0") ?? "0"}\n" +
-					$"Ranking :: {results.LadderStats?.Ranking ?? 0}\n" +
-					$"Games   :: {results.LadderStats?.GamesPlayed ?? 0}\n" +
+					$"Rating  :: {data.LadderStats?.Rating.ToString("F0") ?? "0"}\n" +
+					$"Ranking :: {data.LadderStats?.Ranking ?? 0}\n" +
+					$"Games   :: {data.LadderStats?.GamesPlayed ?? 0}\n" +
 					"```");
 
-			if (!(results.GlobalStats is null))
+			if (!(data.GlobalStats is null))
 				embed.AddField("Global:", "```http\n" +
-					$"Rating  :: {results.GlobalStats?.Rating.ToString("F0") ?? "0"}\n" +
-					$"Ranking :: {results.GlobalStats?.Ranking ?? 0}\n" +
-					$"Games   :: {results.GlobalStats?.GamesPlayed ?? 0}\n" +
+					$"Rating  :: {data.GlobalStats?.Rating.ToString("F0") ?? "0"}\n" +
+					$"Ranking :: {data.GlobalStats?.Ranking ?? 0}\n" +
+					$"Games   :: {data.GlobalStats?.GamesPlayed ?? 0}\n" +
 					"```");
 
-			if (!(results.Clan is null))
-				embed.AddField($"Clan: {results.Clan?.Name}", "```http\n" +
-					$"Clan Size :: {results.Clan?.Size ?? 0}\n" +
-					$"URL       :: {results.Clan?.URL ?? "n/a"}\n" +
+			if (!(data.Clan is null))
+				embed.AddField($"Clan: {data.Clan?.Name}", "```http\n" +
+					$"Clan Size :: {data.Clan?.Size ?? 0}\n" +
+					$"URL       :: {data.Clan?.URL ?? "n/a"}\n" +
 					"```");
 
 			await ctx.Channel.SendMessageAsync(embed: embed);
-			return true;
 		}
 
 		[Command("searchplayer")]

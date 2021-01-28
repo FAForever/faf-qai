@@ -14,7 +14,7 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Clan
 {
-	public class FetchClanCommand : DualCommandModule
+	public class FetchClanCommand : DualCommandModule<FetchClanResult>
 	{
 		private readonly IFetchClanOperation _clan;
 
@@ -31,14 +31,10 @@ namespace Faforever.Qai.Core.Commands.Dual.Clan
 
 			if (data is null)
 				await Context.ReplyAsync("Failed to get a clan by that tag or name.");
-			else if (Context is DiscordCommandContext dctx)
-				await Reply(dctx, data);
-			else if (Context is IRCCommandContext ictx)
-				await Reply(ictx, data);
-			else await Context.ReplyAsync("Failed to parse a command context");
+			else await ReplyAsync(data);
 		}
 
-		private async Task Reply(DiscordCommandContext ctx, FetchClanResult data)
+		public override async Task ReplyAsync(DiscordCommandContext ctx, FetchClanResult data)
 		{
 			var embed = new DiscordEmbedBuilder();
 			embed.WithAuthor(data.Clan.Name, data.Clan.URL)
@@ -64,7 +60,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Clan
 			await ctx.Channel.SendMessageAsync(embed);
 		}
 
-		private async Task Reply(IRCCommandContext ctx, FetchClanResult data)
+		public override async Task ReplyAsync(IRCCommandContext ctx, FetchClanResult data)
 		{
 			string res = $"Clan: {data.Clan.Name} ({data.Clan.URL}), Size: {data.Clan.Size}, Description: {data.Clan.Description?.Replace("\n", " ")}";
 

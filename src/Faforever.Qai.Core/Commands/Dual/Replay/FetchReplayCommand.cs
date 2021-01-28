@@ -14,7 +14,7 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Replay
 {
-	public class FetchReplayCommand : DualCommandModule
+	public class FetchReplayCommand : DualCommandModule<ReplayResult>
 	{
 		private readonly IFetchReplayOperation _replay;
 
@@ -43,14 +43,10 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
 		{
 			if (data is null)
 				await Context.ReplyAsync("Failed to get a replay by that ID");
-			else if (Context is DiscordCommandContext dctx)
-				await Reply(dctx, data);
-			else if (Context is IRCCommandContext ictx)
-				await Reply(ictx, data);
-			else await Context.ReplyAsync("Failed to parse a command context");
+			else await ReplyAsync(data);
 		}
 
-		private async Task Reply(DiscordCommandContext ctx, ReplayResult res)
+		public override async Task ReplyAsync(DiscordCommandContext ctx, ReplayResult res)
 		{
 			var embed = new DiscordEmbedBuilder();
 			embed.WithAuthor(res.Title)
@@ -72,7 +68,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
 			await ctx.Channel.SendMessageAsync(embed);
 		}
 
-		private async Task Reply(IRCCommandContext ctx, ReplayResult res)
+		public override async Task ReplyAsync(IRCCommandContext ctx, ReplayResult res)
 		{
 			var output = $"Replay #{res.Id}: {res.Title} ({res.ReplayUri}) on " +
 				$"{res.MapInfo?.Title} [{res.MapInfo?.Version}] ({res.MapInfo?.Size}). Players: ";

@@ -14,7 +14,7 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Map
 {
-	public class GetMapCommand : DualCommandModule
+	public class GetMapCommand : DualCommandModule<MapResult>
 	{
 		private readonly ISearchMapOperation _map;
 
@@ -32,7 +32,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Map
 				var res = await _map.GetMapAsync(val);
 
 				if (res is not null)
-					await RespondAsync(res);
+					await ReplyAsync(res);
 				else await Context.ReplyAsync("Failed to find a map by that ID.");
 			}
 			else
@@ -40,45 +40,33 @@ namespace Faforever.Qai.Core.Commands.Dual.Map
 				var res = await _map.GetMapAsync(map);
 
 				if (res is not null)
-					await RespondAsync(res);
+					await ReplyAsync(res);
 				else await Context.ReplyAsync("Failed to find a map by that name.");
 			}
 		}
 
-		private async Task RespondAsync(MapResult map)
-		{
-			var action = Context switch
-			{
-				DiscordCommandContext dctx => RespondDiscordAsync(dctx, map),
-				IRCCommandContext irctx => RespondIrcAsync(irctx, map),
-				_ => Context.ReplyAsync("Failed to get a proper context.")
-			};
-
-			await action;
-		}
-
-		private async Task RespondDiscordAsync(DiscordCommandContext ctx, MapResult map)
+		public override async Task ReplyAsync(DiscordCommandContext ctx, MapResult data)
 		{
 			var embed = new DiscordEmbedBuilder();
 			embed.WithTitle("Download map")
 				.WithColor(Context.DostyaRed)
-				.WithUrl(map.DownlaadUrl?.AbsoluteUri.Replace(" ", "%20"))
-				.WithAuthor($"{map.Title} (ID #{map.Id})")
-				.WithDescription(map.Description)
-				.AddField("Size", map.Size, true)
-				.AddField("Max Players", map.MaxPlayers.ToString(), true)
-				.AddField("Ranked", map.Ranked.ToString(), true)
-				.AddField("Created At", map.CreatedAt?.ToString("u"), true)
-				.AddField("Author", map.Author)
-				.WithImageUrl(map.PreviewUrl?.AbsoluteUri.Replace(" ", "%20"));
+				.WithUrl(data.DownlaadUrl?.AbsoluteUri.Replace(" ", "%20"))
+				.WithAuthor($"{data.Title} (ID #{data.Id})")
+				.WithDescription(data.Description)
+				.AddField("Size", data.Size, true)
+				.AddField("Max Players", data.MaxPlayers.ToString(), true)
+				.AddField("Ranked", data.Ranked.ToString(), true)
+				.AddField("Created At", data.CreatedAt?.ToString("u"), true)
+				.AddField("Author", data.Author)
+				.WithImageUrl(data.PreviewUrl?.AbsoluteUri.Replace(" ", "%20"));
 
 			await ctx.Channel.SendMessageAsync(embed);
 		}
 
-		private async Task RespondIrcAsync(IRCCommandContext ctx, MapResult map)
-			=> await ctx.ReplyAsync($"Map: {map.Title}, ID: {map.Id}, Size: {map.Size}," +
-				$" Players: {map.MaxPlayers}, Ranked: {map.Ranked}, Author: {map.Author}," +
-				$" Download: {map.DownlaadUrl?.AbsoluteUri.Replace(" ", "%20")}," +
-				$" Preview: {map.PreviewUrl?.AbsoluteUri.Replace(" ", "%20")}");
+		public override async Task ReplyAsync(IRCCommandContext ctx, MapResult data)
+			=> await ctx.ReplyAsync($"Map: {data.Title}, ID: {data.Id}, Size: {data.Size}," +
+				$" Players: {data.MaxPlayers}, Ranked: {data.Ranked}, Author: {data.Author}," +
+				$" Download: {data.DownlaadUrl?.AbsoluteUri.Replace(" ", "%20")}," +
+				$" Preview: {data.PreviewUrl?.AbsoluteUri.Replace(" ", "%20")}");
 	}
 }
