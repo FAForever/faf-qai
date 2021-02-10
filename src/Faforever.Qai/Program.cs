@@ -12,6 +12,7 @@ using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Operations;
 using Faforever.Qai.Core.Operations.Clan;
 using Faforever.Qai.Core.Operations.Clients;
+using Faforever.Qai.Core.Operations.Content;
 using Faforever.Qai.Core.Operations.Maps;
 using Faforever.Qai.Core.Operations.Player;
 using Faforever.Qai.Core.Operations.Replays;
@@ -70,6 +71,12 @@ namespace Faforever.Qai
 					botFunConfig = JsonConvert.DeserializeObject<BotFunConfiguration>(json);
 				}
 
+				TwitchClientConfig twitchCfg = new()
+				{
+					ClientId = Environment.GetEnvironmentVariable("TWITCH_CLIENT_ID"),
+					ClientSecret = Environment.GetEnvironmentVariable("TWITCH_CLIENT_SECRET")
+				};
+
 				services.AddLogging(options => options.AddConsole())
 					.AddDbContext<QAIDatabaseModel>(options =>
 					{
@@ -92,6 +99,7 @@ namespace Faforever.Qai
 						return options;
 					})
 					.AddSingleton<QCommandsHandler>()
+					.AddSingleton(typeof(TwitchClientConfig), twitchCfg)
 					.AddSingleton<IBotFunService>(new BotFunService(botFunConfig))
 					.AddTransient<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()
 					.AddTransient<IFindPlayerOperation, ApiFindPlayerOperation>()
@@ -100,7 +108,8 @@ namespace Faforever.Qai
 					.AddTransient<ISearchMapOperation, ApiSearchMapOperation>()
 					.AddTransient<IFetchLadderPoolOperation, ApiFetchLadderPoolOperation>()
 					.AddTransient<IFetchReplayOperation, ApiFetchReplayOperation>()
-					.AddTransient<IFetchClanOperation, ApiFetchClanOperation>();
+					.AddTransient<IFetchClanOperation, ApiFetchClanOperation>()
+					.AddTransient<IFetchTwitchStreamsOperation, FetchTwitchStreamsOperation>();
 
 				services.AddHttpClient<ApiClient>(client =>
 				{
@@ -111,6 +120,8 @@ namespace Faforever.Qai
 				{
 					client.BaseAddress = new Uri(UnitDbUtils.UnitApi);
 				});
+
+				services.AddHttpClient<TwitchClient>();
 
 				await using var serviceProvider = services.BuildServiceProvider();
 
