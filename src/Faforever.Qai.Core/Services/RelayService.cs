@@ -23,12 +23,16 @@ namespace Faforever.Qai.Core.Services
 
 	public class RelayService : IDisposable
 	{
+		public delegate Task RelayDiscordMessage(string ircChannel, string author, string message);
+		public event RelayDiscordMessage DiscordMessageReceived;
+
 		private readonly IServiceProvider _services;
 		private readonly ILogger _logger;
 		private bool initalized;
 		private bool disposedValue;
 
-		private ConcurrentDictionary<string, HashSet<string>> IRCtoWebhookRelations { get; set; }
+		private ConcurrentDictionary<string, HashSet<string>> IRCToWebhookRelations { get; set; }
+		private ConcurrentDictionary<ulong, string> DiscordToIRCWebhookRelations { get; set; }
 
 		private HttpClient Http { get; set; }
 
@@ -45,7 +49,7 @@ namespace Faforever.Qai.Core.Services
 		{
 			try
 			{
-				IRCtoWebhookRelations = new ConcurrentDictionary<string, HashSet<string>>();
+				IRCToWebhookRelations = new ConcurrentDictionary<string, HashSet<string>>();
 
 				var _database = _services.GetRequiredService<QAIDatabaseModel>();
 
@@ -58,6 +62,11 @@ namespace Faforever.Qai.Core.Services
 					foreach (var hook in r.Webhooks)
 					{
 						AddToWebhookDict(hook.Key, hook.Value.WebhookUrl);
+					}
+
+					foreach(var links in r.DiscordToIRCLinks)
+					{
+						DiscordToIRCWebhookRelations[links.Key] = links.Value;
 					}
 				}
 
@@ -74,13 +83,13 @@ namespace Faforever.Qai.Core.Services
 
 		private void AddToWebhookDict(string key, string value)
 		{
-			if (IRCtoWebhookRelations.ContainsKey(key))
+			if (IRCToWebhookRelations.ContainsKey(key))
 			{
-				IRCtoWebhookRelations[key].Add(value);
+				IRCToWebhookRelations[key].Add(value);
 			}
 			else
 			{
-				IRCtoWebhookRelations[key] = new HashSet<string>() { value };
+				IRCToWebhookRelations[key] = new HashSet<string>() { value };
 			}
 		}
 
@@ -139,7 +148,7 @@ namespace Faforever.Qai.Core.Services
 
 					if (cfg.Webhooks.TryRemove(ircChannel, out hook))
 					{
-						IRCtoWebhookRelations[ircChannel]?.Remove(hook.WebhookUrl);
+						IRCToWebhookRelations[ircChannel]?.Remove(hook.WebhookUrl);
 					}
 				}
 
@@ -158,17 +167,32 @@ namespace Faforever.Qai.Core.Services
 		{
 			if (!this.initalized)
 				if (!Initalize()) return; // ignore
+
+			if(DiscordToIRCWebhookRelations.TryGetValue(discordChannel, out var ircChannel))
+			{
+				try
+				{
+					await DiscordMessageReceived(ircChannel, author, message);
+
+				}
+				catch
+				{
+					_logger.LogWarning("No IRC receivers registered.");
+				}
+			}
 		}
 
-		public async Task IRC_MessageReceived(string ircChannel, string author, string message)
+		public async Task IRC_MessageReceived(string ircChannel, string author, string message, string hookToIgnore = "")
 		{
 			if (!this.initalized)
 				if (!Initalize()) return; // ignore
 
-			if (IRCtoWebhookRelations.TryGetValue(ircChannel, out var hooks))
+			if (IRCToWebhookRelations.TryGetValue(ircChannel, out var hooks))
 			{
 				foreach (var h in hooks)
 				{
+					if (h.Equals(hookToIgnore)) continue;
+
 					try
 					{
 						var data = new DiscordWebhookContent()
@@ -213,7 +237,7 @@ namespace Faforever.Qai.Core.Services
 
 				// TODO: free unmanaged resources (unmanaged objects) and override finalizer
 				// TODO: set large fields to null
-				IRCtoWebhookRelations = null;
+				IRCToWebhookRelations = null;
 				disposedValue = true;
 			}
 		}

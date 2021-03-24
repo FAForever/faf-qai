@@ -4,6 +4,8 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
+using DSharpPlus;
+
 using Faforever.Qai.Core;
 using Faforever.Qai.Core.Commands.Arguments;
 using Faforever.Qai.Core.Commands.Arguments.Converters;
@@ -123,6 +125,33 @@ namespace Faforever.Qai
 
 				services.AddHttpClient<TwitchClient>();
 
+				DiscordBotConfiguration discordConfig;
+				discordConfig = new()
+				{
+					Prefix = Environment.GetEnvironmentVariable("BOT_PREFIX"),
+					Shards = 1,
+					Token = Environment.GetEnvironmentVariable("DISCORD_TOKEN")
+				};
+
+				var dcfg = new DiscordConfiguration
+				{
+					Token = discordConfig.Token,
+					TokenType = TokenType.Bot,
+					MinimumLogLevel = LogLevel.Debug,
+					ShardCount = discordConfig.Shards, // Default to 1 for automatic sharding.
+					Intents = DiscordIntents.Guilds | DiscordIntents.GuildMessages,
+				};
+
+				services.AddSingleton(discordConfig)
+					.AddSingleton<DiscordShardedClient>(x =>
+					{
+						return new(dcfg);
+					})
+					.AddSingleton<DiscordRestClient>(x =>
+					{
+						return new(dcfg);
+					});
+
 				await using var serviceProvider = services.BuildServiceProvider();
 
 				await ApplyDatabaseMigrations(serviceProvider.GetRequiredService<QAIDatabaseModel>());
@@ -148,25 +177,6 @@ namespace Faforever.Qai
 					serviceProvider.GetService<QCommandsHandler>(),
 					serviceProvider.GetService<RelayService>(), serviceProvider);
 				ircBot.Run();
-
-				DiscordBotConfiguration discordConfig = new()
-				{
-					Prefix = Environment.GetEnvironmentVariable("BOT_PREFIX"),
-					Shards = 1,
-					Token = Environment.GetEnvironmentVariable("DISCORD_TOKEN")
-				};
-
-				await using DiscordBot discordBot = new DiscordBot(serviceProvider, LogLevel.Debug, discordConfig);
-
-				try
-				{
-					await discordBot.InitializeAsync();
-					await discordBot.StartAsync();
-				}
-				catch (InvalidOperationException e)
-				{
-					serviceProvider.GetService<ILogger<DiscordBot>>().LogCritical(e.Message);
-				}
 
 				// Dont ever stop running this task.
 				await Task.Delay(-1);

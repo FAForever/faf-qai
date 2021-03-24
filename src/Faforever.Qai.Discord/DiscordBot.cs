@@ -62,12 +62,15 @@ namespace Faforever.Qai.Discord
 		#endregion
 
 
-		public DiscordBot(IServiceProvider services, LogLevel logLevel = LogLevel.Debug, DiscordBotConfiguration? configuration = null)
+		public DiscordBot(IServiceProvider services, DiscordBotConfiguration configuration,
+			DiscordShardedClient client, DiscordRestClient rest)
 		{
 			this.logLevel = logLevel;
 			CommandsInProgress = new ConcurrentDictionary<CommandHandler, Tuple<Task, CancellationTokenSource>>();
 
-			Config = configuration ?? new DiscordBotConfiguration();
+			Config = configuration;
+			Client = client;
+			Rest = rest;
 			this.services = services;
 		}
 
@@ -94,8 +97,6 @@ namespace Faforever.Qai.Discord
 				await RegisterBotConfigurationAsync();
 
 			// Create the Clients
-			Client = new DiscordShardedClient(GetDiscordConfiguration());
-			Rest = new DiscordRestClient(GetDiscordConfiguration());
 
 			// create the Commands Next module
 			var commands = await Client.UseCommandsNextAsync(GetCommandsNextConfiguration());
@@ -126,23 +127,6 @@ namespace Faforever.Qai.Discord
 			// Register the event needed to send data to the CommandHandler
 			Client.MessageCreated += Client_MessageCreated;
 			Client.MessageCreated += QMmands_MessageCreated;
-		}
-		/// <summary>
-		/// Gets the DiscordConfiguration object for a DiscordBot.
-		/// </summary>
-		/// <returns>The DiscordConfiguration for a DiscordBot</returns>
-		private DiscordConfiguration GetDiscordConfiguration()
-		{
-			var cfg = new DiscordConfiguration
-			{
-				Token = Config.Token,
-				TokenType = TokenType.Bot,
-				MinimumLogLevel = logLevel,
-				ShardCount = Config.Shards, // Default to 1 for automatic sharding.
-				Intents = DiscordIntents.Guilds | DiscordIntents.GuildMessages,
-			};
-
-			return cfg;
 		}
 
 		/// <summary>

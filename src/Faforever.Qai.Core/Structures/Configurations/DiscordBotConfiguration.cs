@@ -5,7 +5,7 @@ namespace Faforever.Qai.Discord.Core.Structures.Configurations
 	/// <summary>
 	/// Holds configuration infromation for a Discord Bot
 	/// </summary>
-	public struct DiscordBotConfiguration
+	public class DiscordBotConfiguration
 	{
 		/// <summary>
 		/// The Bot Token used to connect to Discord.
