@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 
 using Faforever.Qai.Core;
 using Faforever.Qai.Core.Commands.Context;
@@ -29,6 +30,7 @@ namespace Faforever.Qai.Irc
 			_logger = logger;
 			_commandHandler = commandHandler;
 			_relay = relay;
+			_relay.DiscordMessageReceived += BounceToIRC;
 			_services = services;
 
 			_client = new StandardIrcClient { FloodPreventer = new IrcStandardFloodPreventer(4, 2000) };
@@ -95,6 +97,8 @@ namespace Faforever.Qai.Irc
 			};
 
 			client.Channels.Join("#qai-test");
+			client.Channels.Join("#aeolus");
+			client.Channels.Join("#newbie");
 		}
 
 		private void OnClientConnectFailed(object sender, IrcErrorEventArgs args)
@@ -110,6 +114,13 @@ namespace Faforever.Qai.Irc
 		private void OnClientErrorMessageReceived(object sender, IrcErrorMessageEventArgs args)
 		{
 			_logger.Log(LogLevel.Error, args.Message);
+		}
+
+		private Task BounceToIRC(string channel, string author, string message)
+		{
+			_client.LocalUser.SendMessage(channel, $"{author}: {message}");
+
+			return Task.CompletedTask;
 		}
 	}
 }

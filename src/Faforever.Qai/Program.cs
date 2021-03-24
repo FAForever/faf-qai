@@ -150,7 +150,8 @@ namespace Faforever.Qai
 					.AddSingleton<DiscordRestClient>(x =>
 					{
 						return new(dcfg);
-					});
+					})
+					.AddSingleton<DiscordBot>();
 
 				await using var serviceProvider = services.BuildServiceProvider();
 
@@ -177,6 +178,11 @@ namespace Faforever.Qai
 					serviceProvider.GetService<QCommandsHandler>(),
 					serviceProvider.GetService<RelayService>(), serviceProvider);
 				ircBot.Run();
+
+				var bot = serviceProvider.GetRequiredService<DiscordBot>();
+
+				await bot.InitializeAsync();
+				await bot.StartAsync();
 
 				// Dont ever stop running this task.
 				await Task.Delay(-1);

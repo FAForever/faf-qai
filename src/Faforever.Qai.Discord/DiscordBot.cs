@@ -59,11 +59,13 @@ namespace Faforever.Qai.Discord
 
 		private readonly LogLevel logLevel;
 		private readonly IServiceProvider services;
+		private readonly QCommandsHandler _commands;
 		#endregion
 
 
 		public DiscordBot(IServiceProvider services, DiscordBotConfiguration configuration,
-			DiscordShardedClient client, DiscordRestClient rest)
+			DiscordShardedClient client, DiscordRestClient rest,
+			QCommandsHandler commands)
 		{
 			this.logLevel = logLevel;
 			CommandsInProgress = new ConcurrentDictionary<CommandHandler, Tuple<Task, CancellationTokenSource>>();
@@ -72,6 +74,7 @@ namespace Faforever.Qai.Discord
 			Client = client;
 			Rest = rest;
 			this.services = services;
+			this._commands = commands;
 		}
 
 		#region Confgiurations
@@ -180,14 +183,18 @@ namespace Faforever.Qai.Discord
 			return Task.CompletedTask;
 		}
 
-		private async Task QMmands_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
+		private Task QMmands_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
 		{
-			if (e.Author.IsBot) return; // ignore bots.
+			if (e.Author.IsBot) return Task.CompletedTask; // ignore bots.
 
-			var cmdService = services.GetRequiredService<QCommandsHandler>();
-			var ctx = new DiscordCommandContext(sender, e, Config.Prefix, services);
+			_ = Task.Run(async () =>
+			{
+				var ctx = new DiscordCommandContext(sender, e, Config.Prefix, services);
 
-			await cmdService.MessageRecivedAsync(ctx, e.Message.Content);
+				await _commands.MessageRecivedAsync(ctx, e.Message.Content);
+			});
+
+			return Task.CompletedTask;
 		}
 		#endregion
 

@@ -6,6 +6,9 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
+using DSharpPlus;
+using DSharpPlus.Entities;
+
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Structures.Configurations;
 using Faforever.Qai.Core.Structures.Webhooks;
@@ -28,28 +31,32 @@ namespace Faforever.Qai.Core.Services
 
 		private readonly IServiceProvider _services;
 		private readonly ILogger _logger;
+		private readonly DiscordRestClient _rest;
 		private bool initalized;
 		private bool disposedValue;
 
-		private ConcurrentDictionary<string, HashSet<string>> IRCToWebhookRelations { get; set; }
+		private ConcurrentDictionary<string, HashSet<(ulong, string)>> IRCToWebhookRelations { get; set; }
 		private ConcurrentDictionary<ulong, string> DiscordToIRCWebhookRelations { get; set; }
 
 		private HttpClient Http { get; set; }
 
-		public RelayService(IServiceProvider services, ILogger<RelayService> logger)
+		public RelayService(IServiceProvider services, ILogger<RelayService> logger,
+			DiscordRestClient rest)
 		{
 			this._services = services;
 			this.initalized = false;
 			this._logger = logger;
+			this._rest = rest;
 
 			Http = new HttpClient();
 		}
 
-		private bool Initalize()
+		private async Task<bool> InitalizeAsync()
 		{
 			try
 			{
-				IRCToWebhookRelations = new ConcurrentDictionary<string, HashSet<string>>();
+				IRCToWebhookRelations = new();
+				DiscordToIRCWebhookRelations = new();
 
 				var _database = _services.GetRequiredService<QAIDatabaseModel>();
 
@@ -61,12 +68,13 @@ namespace Faforever.Qai.Core.Services
 				{
 					foreach (var hook in r.Webhooks)
 					{
-						AddToWebhookDict(hook.Key, hook.Value.WebhookUrl);
+						AddToWebhookDict(hook.Key, hook.Value.Id, hook.Value.Token);
 					}
 
 					foreach(var links in r.DiscordToIRCLinks)
 					{
-						DiscordToIRCWebhookRelations[links.Key] = links.Value;
+						var live = await _rest.GetWebhookAsync(links.Key);
+						DiscordToIRCWebhookRelations[live.ChannelId] = links.Value;
 					}
 				}
 
@@ -81,29 +89,32 @@ namespace Faforever.Qai.Core.Services
 			return this.initalized;
 		}
 
-		private void AddToWebhookDict(string key, string value)
+		private void AddToWebhookDict(string key, ulong id, string token)
 		{
 			if (IRCToWebhookRelations.ContainsKey(key))
 			{
-				IRCToWebhookRelations[key].Add(value);
+				IRCToWebhookRelations[key].Add((id, token));
 			}
 			else
 			{
-				IRCToWebhookRelations[key] = new HashSet<string>() { value };
+				IRCToWebhookRelations[key] = new HashSet<(ulong, string)>() { (id, token) };
 			}
 		}
 
-		public async Task<bool> AddRelayAsync(ulong discordGuild, DiscordWebhookData hook, string ircChannel)
+		public async Task<bool> AddRelayAsync(ulong discordGuild, DiscordWebhook hook, string ircChannel)
 		{
 			try
 			{
 				if (!this.initalized)
-					if (!Initalize())
+					if (!await InitalizeAsync())
 						throw new Exception("Failed to Initalize the RelayService.");
 
 				var _database = _services.GetRequiredService<QAIDatabaseModel>();
 
-				AddToWebhookDict(ircChannel, hook.WebhookUrl);
+				AddToWebhookDict(ircChannel, hook.Id, hook.Token);
+
+				DiscordToIRCWebhookRelations[hook.ChannelId] = ircChannel;
+
 				// This method should not be passed values that dont have a configuration value created for them.
 				var cfg = await _database.FindAsync<RelayConfiguration>(discordGuild);
 				if (cfg is null)
@@ -111,7 +122,13 @@ namespace Faforever.Qai.Core.Services
 
 				_database.Update(cfg);
 
-				cfg.Webhooks[ircChannel] = hook;
+				var hookData = new DiscordWebhookData()
+				{
+					Id = hook.Id,
+					Token = hook.Token
+				};
+
+				cfg.Webhooks[ircChannel] = hookData;
 				cfg.DiscordToIRCLinks[hook.Id] = ircChannel;
 
 				await _database.SaveChangesAsync();
@@ -125,12 +142,12 @@ namespace Faforever.Qai.Core.Services
 			}
 		}
 
-		public async Task<DiscordWebhookData?> RemoveRelayAsync(ulong discordGuild, ulong webhookId)
+		public async Task<bool> RemoveRelayAsync(ulong discordGuild, ulong webhookId)
 		{
 			try
 			{
 				if (!this.initalized)
-					if (!Initalize())
+					if (!await InitalizeAsync())
 						throw new Exception("Failed to Initalize the RelayService.");
 
 
@@ -148,32 +165,40 @@ namespace Faforever.Qai.Core.Services
 
 					if (cfg.Webhooks.TryRemove(ircChannel, out hook))
 					{
-						IRCToWebhookRelations[ircChannel]?.Remove(hook.WebhookUrl);
+						IRCToWebhookRelations[ircChannel]?.Remove((hook.Id, hook.Token));
+
+						var realHook = await _rest.GetWebhookWithTokenAsync(hook.Id, hook.Token);
+
+						_ = DiscordToIRCWebhookRelations.TryRemove(realHook.ChannelId, out _);
+
+						await realHook.DeleteAsync();
 					}
 				}
 
 				await _database.SaveChangesAsync();
 
-				return hook;
+				return true;
 			}
 			catch (Exception ex)
 			{
 				_logger.LogError(ex, "Failed to remove Relay.");
-				return null;
+				return false;
 			}
 		}
 
 		public async Task Discord_MessageReceived(ulong discordChannel, string author, string message)
 		{
 			if (!this.initalized)
-				if (!Initalize()) return; // ignore
+				if (!await InitalizeAsync()) return; // ignore
 
 			if(DiscordToIRCWebhookRelations.TryGetValue(discordChannel, out var ircChannel))
 			{
 				try
 				{
+					// send to IRC
 					await DiscordMessageReceived(ircChannel, author, message);
-
+					// bounce to other discord channels listening
+					await IRC_MessageReceived(ircChannel, author, message, discordChannel);
 				}
 				catch
 				{
@@ -182,45 +207,31 @@ namespace Faforever.Qai.Core.Services
 			}
 		}
 
-		public async Task IRC_MessageReceived(string ircChannel, string author, string message, string hookToIgnore = "")
+		public async Task IRC_MessageReceived(string ircChannel, string author, string message, ulong channelToIgnore = 0)
 		{
 			if (!this.initalized)
-				if (!Initalize()) return; // ignore
+				if (!await InitalizeAsync()) return; // ignore
 
 			if (IRCToWebhookRelations.TryGetValue(ircChannel, out var hooks))
 			{
 				foreach (var h in hooks)
 				{
-					if (h.Equals(hookToIgnore)) continue;
+					var msg = new DiscordWebhookBuilder()
+							.WithUsername(author)
+							.WithContent(message);
 
-					try
+					if (channelToIgnore != 0)
 					{
-						var data = new DiscordWebhookContent()
-						{
-							Content = message,
-							Username = author,
-						};
+						var hook = await _rest.GetWebhookWithTokenAsync(h.Item1, h.Item2);
 
-						var json = JsonConvert.SerializeObject(data, settings: new JsonSerializerSettings
-						{
-							NullValueHandling = NullValueHandling.Ignore
-						});
+						if (hook.ChannelId == channelToIgnore)
+							continue;
 
-						var request = new HttpRequestMessage()
-						{
-							RequestUri = new Uri(h),
-							Method = HttpMethod.Post
-						};
-
-						request.Content = new StringContent(json, Encoding.UTF8, "application/json");
-
-						// The response should be a 204, so we dont care about reading it.
-						_ = await Http.SendAsync(request);
+						await hook.ExecuteAsync(msg);
 					}
-					catch (Exception ex)
+					else
 					{
-						_logger.LogWarning(ex, "Send from IRC errored.");
-						continue;
+						await _rest.ExecuteWebhookAsync(h.Item1, h.Item2, msg);
 					}
 				}
 			}

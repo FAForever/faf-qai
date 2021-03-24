@@ -17,8 +17,6 @@ namespace Faforever.Qai.Discord.Utils.Bot
 		private readonly RelayService _relay;
 		private readonly ILogger _logger;
 
-		private ConcurrentDictionary<MessageCreateEventArgs, Task> Relays { get; set; } = new ConcurrentDictionary<MessageCreateEventArgs, Task>();
-
 		public DiscordEventHandler(DiscordShardedClient client, DiscordRestClient rest, RelayService relay)
 		{
 			this.Client = client;
@@ -48,13 +46,9 @@ namespace Faforever.Qai.Discord.Utils.Bot
 		#region Relay
 		private Task Relay_MessageReceived(DiscordClient sender, MessageCreateEventArgs e)
 		{
-			Relays[e] = Task.Run(async () =>
-			{
-				await _relay.Discord_MessageReceived(e.Channel.Id, e.Author.Username, e.Message.Content);
+			if (e.Author.IsBot) return Task.CompletedTask;
 
-				// Remove this task from the stored list.
-				Relays.TryRemove(e, out _);
-			});
+			_ = Task.Run(async () => await _relay.Discord_MessageReceived(e.Channel.Id, e.Author.Username, e.Message.Content));
 
 			return Task.CompletedTask;
 		}
