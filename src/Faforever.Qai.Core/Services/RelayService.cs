@@ -51,7 +51,7 @@ namespace Faforever.Qai.Core.Services
 			Http = new HttpClient();
 		}
 
-		private async Task<bool> InitalizeAsync()
+		public async Task<bool> InitalizeAsync()
 		{
 			try
 			{

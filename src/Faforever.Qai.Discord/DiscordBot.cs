@@ -57,8 +57,7 @@ namespace Faforever.Qai.Discord
 
 		private DiscordEventHandler eventHandler;
 
-		private readonly LogLevel logLevel;
-		private readonly IServiceProvider services;
+		private readonly IServiceProvider _services;
 		private readonly QCommandsHandler _commands;
 		#endregion
 
@@ -67,13 +66,12 @@ namespace Faforever.Qai.Discord
 			DiscordShardedClient client, DiscordRestClient rest,
 			QCommandsHandler commands)
 		{
-			this.logLevel = logLevel;
 			CommandsInProgress = new ConcurrentDictionary<CommandHandler, Tuple<Task, CancellationTokenSource>>();
 
 			Config = configuration;
 			Client = client;
 			Rest = rest;
-			this.services = services;
+			this._services = services;
 			this._commands = commands;
 		}
 
@@ -124,7 +122,7 @@ namespace Faforever.Qai.Discord
 			}
 
 			// Register any additional Client events
-			eventHandler = new DiscordEventHandler(Client, Rest, services.GetService<RelayService>());
+			eventHandler = new DiscordEventHandler(Client, Rest, _services.GetService<RelayService>());
 			eventHandler.Initalize();
 
 			// Register the event needed to send data to the CommandHandler
@@ -148,7 +146,7 @@ namespace Faforever.Qai.Discord
 				//PrefixResolver = PrefixResolver, - This can be used for custom prefixes per server, commands to change prefixes
 				// along with custom checking of messages before they are passed to the command handler.
 				StringPrefixes = new string[] { Config.Prefix },
-				Services = services,
+				Services = _services,
 				UseDefaultCommandHandler = false
 			};
 
@@ -168,7 +166,7 @@ namespace Faforever.Qai.Discord
 			try
 			{
 				var cancel = new CancellationTokenSource();
-				var handler = new CommandHandler(Commands, sender, Config, services);
+				var handler = new CommandHandler(Commands, sender, Config, _services);
 				var task = handler.MessageReceivedAsync(sender.GetCommandsNext(), e.Message, cancel.Token);
 				if (task.Status == TaskStatus.Running)
 				{
@@ -189,7 +187,7 @@ namespace Faforever.Qai.Discord
 
 			_ = Task.Run(async () =>
 			{
-				var ctx = new DiscordCommandContext(sender, e, Config.Prefix, services);
+				var ctx = new DiscordCommandContext(sender, e, Config.Prefix, _services);
 
 				await _commands.MessageRecivedAsync(ctx, e.Message.Content);
 			});
@@ -207,6 +205,8 @@ namespace Faforever.Qai.Discord
 		{
 			// Start the Clients!
 			await Client.StartAsync();
+			var relay = _services.GetRequiredService<RelayService>();
+			await relay.InitalizeAsync();
 		}
 		#endregion
 
