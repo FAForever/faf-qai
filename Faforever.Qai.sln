@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. project", "1. project", 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
+		account_link_logic.png = account_link_logic.png
 		Dockerfile = Dockerfile
 		NuGet.config = NuGet.config
 		README.md = README.md
