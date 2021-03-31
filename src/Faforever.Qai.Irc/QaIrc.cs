@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Faforever.Qai.Core;
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Services;
+using Faforever.Qai.Core.Structures.Configurations;
 
 using IrcDotNet;
 
@@ -22,10 +23,10 @@ namespace Faforever.Qai.Irc
 
 		private readonly StandardIrcClient _client;
 
-		public QaIrc(string hostname, IrcRegistrationInfo userInfo, ILogger<QaIrc> logger,
+		public QaIrc(IrcConfiguration config, IrcRegistrationInfo userInfo, ILogger<QaIrc> logger,
 			QCommandsHandler commandHandler, RelayService relay, IServiceProvider services)
 		{
-			_hostname = hostname;
+			_hostname = config.Connection;
 			_userInfo = userInfo;
 			_logger = logger;
 			_commandHandler = commandHandler;

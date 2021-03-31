@@ -7,7 +7,7 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY ["nuget.config", "."]
+COPY ["NuGet.config", "."]
 COPY ["Faforever.Qai/Faforever.Qai.csproj", "Faforever.Qai/"]
 RUN dotnet restore "Faforever.Qai/Faforever.Qai.csproj"
 COPY . .

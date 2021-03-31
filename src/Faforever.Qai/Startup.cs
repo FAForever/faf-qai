@@ -1,0 +1,261 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+
+using DSharpPlus;
+
+using Faforever.Qai.Core;
+using Faforever.Qai.Core.Commands.Arguments.Converters;
+using Faforever.Qai.Core.Commands.Context;
+using Faforever.Qai.Core.Database;
+using Faforever.Qai.Core.Operations.Clan;
+using Faforever.Qai.Core.Operations.Clients;
+using Faforever.Qai.Core.Operations.Content;
+using Faforever.Qai.Core.Operations.Maps;
+using Faforever.Qai.Core.Operations.Player;
+using Faforever.Qai.Core.Operations.Replays;
+using Faforever.Qai.Core.Operations.Units;
+using Faforever.Qai.Core.Services;
+using Faforever.Qai.Core.Services.BotFun;
+using Faforever.Qai.Core.Structures.Configurations;
+using Faforever.Qai.Discord;
+using Faforever.Qai.Discord.Core.Structures.Configurations;
+using Faforever.Qai.Irc;
+
+using IrcDotNet;
+
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
+
+using Newtonsoft.Json;
+
+using Qmmands;
+
+namespace Faforever.Qai
+{
+    public class Startup
+    {
+		/// <summary>
+		/// Base FAF API Url
+		/// </summary>
+		public static readonly Uri ApiUri = new Uri("https://api.faforever.com/");
+
+		public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IConfiguration Configuration { get; }
+
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+			// API/Website Config
+            services.AddControllers();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo 
+				{
+					Title = "Faforever.Qai", 
+					Version = "v1",
+					Description = "The API for the Faforever.Qai and Dostya bots."
+				});
+            });
+
+			// Bot Services Config
+			DatabaseConfiguration dbConfig = new()
+			{
+				DataSource = $"Data Source={Environment.GetEnvironmentVariable("DATA_SOURCE")}"
+			};
+
+#if DEBUG
+			// For use when the DB is Database/db-name.db
+			if (!Directory.Exists("Database"))
+				Directory.CreateDirectory("Database");
+#endif
+
+			BotFunConfiguration botFunConfig;
+			using (FileStream fs = new(Path.Join("Config", "games_config.json"), FileMode.Open))
+			{
+				using StreamReader sr = new(fs);
+				var json = sr.ReadToEnd();
+				botFunConfig = JsonConvert.DeserializeObject<BotFunConfiguration>(json);
+			}
+
+			TwitchClientConfig twitchCfg = new()
+			{
+				ClientId = Environment.GetEnvironmentVariable("TWITCH_CLIENT_ID"),
+				ClientSecret = Environment.GetEnvironmentVariable("TWITCH_CLIENT_SECRET")
+			};
+
+			services.AddLogging(options => options.AddConsole())
+				.AddDbContext<QAIDatabaseModel>(options =>
+				{
+					options.UseSqlite(dbConfig.DataSource);
+				}, ServiceLifetime.Singleton, ServiceLifetime.Singleton)
+				.AddSingleton<RelayService>()
+				// Command Service Registration
+				.AddSingleton((x) =>
+				{
+					var options = new CommandService(new CommandServiceConfiguration()
+					{
+						// Additional configuration for the command service goes here.
+
+					});
+
+					// Command modules go here.
+					options.AddModules(System.Reflection.Assembly.GetAssembly(typeof(CustomCommandContext)));
+					// Argument converters go here.
+					options.AddTypeParser(new DiscordChannelTypeConverter());
+					options.AddTypeParser(new BotUserCapsuleConverter());
+					return options;
+				})
+				.AddSingleton<QCommandsHandler>()
+				.AddSingleton(typeof(TwitchClientConfig), twitchCfg)
+				// Operation Service Registration
+				.AddSingleton<IBotFunService>(new BotFunService(botFunConfig))
+				.AddTransient<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()
+				.AddTransient<IFindPlayerOperation, ApiFindPlayerOperation>()
+				.AddTransient<ISearchUnitDatabaseOperation, UnitDbSearchUnitDatabaseOpeartion>()
+				.AddTransient<IPlayerService, OperationPlayerService>()
+				.AddTransient<ISearchMapOperation, ApiSearchMapOperation>()
+				.AddTransient<IFetchLadderPoolOperation, ApiFetchLadderPoolOperation>()
+				.AddTransient<IFetchReplayOperation, ApiFetchReplayOperation>()
+				.AddTransient<IFetchClanOperation, ApiFetchClanOperation>()
+				.AddTransient<IFetchTwitchStreamsOperation, FetchTwitchStreamsOperation>();
+			// HTTP Client Mapping
+			services.AddHttpClient<ApiClient>(client =>
+			{
+				client.BaseAddress = ApiUri;
+			});
+
+			services.AddHttpClient<UnitClient>(client =>
+			{
+				client.BaseAddress = new Uri(UnitDbUtils.UnitApi);
+			});
+
+			services.AddHttpClient<TwitchClient>();
+			// Discord Information Setup
+			DiscordBotConfiguration discordConfig;
+			discordConfig = new()
+			{
+				Prefix = Environment.GetEnvironmentVariable("BOT_PREFIX"),
+				Shards = 1,
+				Token = Environment.GetEnvironmentVariable("DISCORD_TOKEN")
+			};
+
+			var dcfg = new DiscordConfiguration
+			{
+				Token = discordConfig.Token,
+				TokenType = TokenType.Bot,
+				MinimumLogLevel = LogLevel.Debug,
+				ShardCount = discordConfig.Shards, // Default to 1 for automatic sharding.
+				Intents = DiscordIntents.Guilds | DiscordIntents.GuildMessages,
+			};
+
+			services.AddSingleton(discordConfig)
+				.AddSingleton<DiscordShardedClient>(x =>
+				{
+					return new(dcfg);
+				})
+				.AddSingleton<DiscordRestClient>(x =>
+				{
+					return new(dcfg);
+				})
+				.AddSingleton<DiscordBot>();
+			// IRC Information Setup
+			var user = Environment.GetEnvironmentVariable("IRC_USER");
+			var pass = Environment.GetEnvironmentVariable("IRC_PASS");
+			IrcConfiguration ircConfig = new()
+			{
+				Connection = Environment.GetEnvironmentVariable("IRC_CONN_DEST"),
+				UserName = user,
+				NickName = user,
+				RealName = user,
+				Password = pass
+			};
+
+			var ircConnInfo = new IrcUserRegistrationInfo
+			{
+				NickName = ircConfig.NickName,
+				RealName = ircConfig.RealName,
+				Password = ircConfig.Password,
+				UserName = ircConfig.UserName
+			};
+
+			services.AddSingleton(ircConfig)
+				.AddSingleton(ircConnInfo as IrcRegistrationInfo)
+				.AddSingleton<QaIrc>();
+		}
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+			var db = app.ApplicationServices.GetRequiredService<QAIDatabaseModel>();
+			ApplyDatabaseMigrations(db);
+
+			if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+			// Register Swagger API Documentation
+			app.UseSwagger();
+			app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Faforever.Qai v1"));
+
+			app.UseHttpsRedirection();
+
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+
+			StartClients(app).GetAwaiter().GetResult();
+        }
+
+		/// <summary>
+		/// Applies any pending database migrations.
+		/// </summary>
+		/// <param name="database">Database Context to apply migrations for.</param>
+		private static void ApplyDatabaseMigrations(DbContext database)
+		{
+			if (!(database.Database.GetPendingMigrations()).Any())
+			{
+				return;
+			}
+
+			database.Database.Migrate();
+			database.SaveChanges();
+		}
+
+		/// <summary>
+		/// Starts the IRC and Discord Bot clients using the IAppliactionBuilders service provider.
+		/// </summary>
+		/// <param name="app">An instance of IAppliactionBuilder with regiserted services.</param>
+		/// <returns>The task for this operation.</returns>
+		private static async Task StartClients(IApplicationBuilder app)
+		{
+			var ircBot = app.ApplicationServices.GetRequiredService<QaIrc>();
+			
+			ircBot.Run();
+
+			var discordBot = app.ApplicationServices.GetRequiredService<DiscordBot>();
+
+			await discordBot.InitializeAsync();
+			await discordBot.StartAsync();
+		}
+	}
+}

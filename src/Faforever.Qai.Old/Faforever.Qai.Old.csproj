@@ -21,10 +21,4 @@
     <ProjectReference Include="..\Faforever.Qai.Irc\Faforever.Qai.Irc.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Config\games_config.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>
