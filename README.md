@@ -24,4 +24,4 @@ In order to invoke a command you just type it in #aeolus in either the client or
 You prefix all commands with an **'!'**. For an example in order to invoke the player command you do.
 `!player coolmcgrrr`
 
-See [Issiue #9](https://github.com/FAForever/faf-qai/issues/9) for a full list of commands.
+See [Issue #9](https://github.com/FAForever/faf-qai/issues/9) for a full list of commands.
