@@ -75,7 +75,7 @@ namespace Faforever.Qai
 			// Bot Services Config
 			DatabaseConfiguration dbConfig = new()
 			{
-				DataSource = $"Data Source={Environment.GetEnvironmentVariable("DATA_SOURCE")}"
+				DataSource = $"Data Source={Configuration["Config:DataSource"]}"
 			};
 
 #if DEBUG
@@ -94,7 +94,7 @@ namespace Faforever.Qai
 
 			TwitchClientConfig twitchCfg = new()
 			{
-				ClientId = Environment.GetEnvironmentVariable("TWITCH_CLIENT_ID"),
+				ClientId = Configuration["Config:TwitchClientId"],
 				ClientSecret = Environment.GetEnvironmentVariable("TWITCH_CLIENT_SECRET")
 			};
 
@@ -149,7 +149,7 @@ namespace Faforever.Qai
 			DiscordBotConfiguration discordConfig;
 			discordConfig = new()
 			{
-				Prefix = Environment.GetEnvironmentVariable("BOT_PREFIX"),
+				Prefix = Configuration["Config:BotPrefix"],
 				Shards = 1,
 				Token = Environment.GetEnvironmentVariable("DISCORD_TOKEN")
 			};
@@ -174,11 +174,11 @@ namespace Faforever.Qai
 				})
 				.AddSingleton<DiscordBot>();
 			// IRC Information Setup
-			var user = Environment.GetEnvironmentVariable("IRC_USER");
+			var user = Configuration["Config:Irc:User"];
 			var pass = Environment.GetEnvironmentVariable("IRC_PASS");
 			IrcConfiguration ircConfig = new()
 			{
-				Connection = Environment.GetEnvironmentVariable("IRC_CONN_DEST"),
+				Connection = Configuration["Config:Irc:Connection"],
 				UserName = user,
 				NickName = user,
 				RealName = user,
