@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 using DSharpPlus;
@@ -26,10 +27,10 @@ using Faforever.Qai.Irc;
 
 using IrcDotNet;
 
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -146,8 +147,7 @@ namespace Faforever.Qai
 
 			services.AddHttpClient<TwitchClient>();
 			// Discord Information Setup
-			DiscordBotConfiguration discordConfig;
-			discordConfig = new()
+			DiscordBotConfiguration discordConfig = new()
 			{
 				Prefix = Configuration["Config:BotPrefix"],
 				Shards = 1,
@@ -196,6 +196,27 @@ namespace Faforever.Qai
 			services.AddSingleton(ircConfig)
 				.AddSingleton(ircConnInfo as IrcRegistrationInfo)
 				.AddSingleton<QaIrc>();
+
+			// Setup the OAuth2 settings
+			services.AddAuthentication(options =>
+			{
+				options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+				options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+
+				options.DefaultChallengeScheme = "FAF";
+			})
+				.AddCookie()
+				.AddOAuth("FAF", options =>
+				{
+					options.AuthorizationEndpoint = $"{ApiUri}/oauth/authorize"; // FAF API Endpoint.
+
+					options.CallbackPath = new PathString("/api/auth"); // local auth endpoint
+
+					// Other FAF OAtuh configuration settings
+					options.ClientId = Configuration["Config:FafClientId"];
+					options.ClientSecret = Environment.GetEnvironmentVariable("FAF_CLIENT_SECRET");
+					options.TokenEndpoint = $"{ApiUri}/oauth/token";
+				});
 		}
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -208,6 +229,9 @@ namespace Faforever.Qai
             {
                 app.UseDeveloperExceptionPage();
             }
+
+			app.UseAuthentication();
+
 			// Register Swagger API Documentation
 			app.UseSwagger();
 			app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Faforever.Qai v1"));
@@ -216,9 +240,9 @@ namespace Faforever.Qai
 
             app.UseRouting();
 
-            app.UseAuthorization();
+			app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
+			app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });

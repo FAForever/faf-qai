@@ -12,8 +12,6 @@ namespace Faforever.Qai.Api
 	[ApiController]
 	public class DiscordFafLinkApiController : ControllerBase
 	{
-
-
 		[HttpGet("token/{token}")]
 		public async Task<IActionResult> GetTokenEndpointAsync(string token)
 		{
