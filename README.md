@@ -24,9 +24,4 @@ In order to invoke a command you just type it in #aeolus in either the client or
 You prefix all commands with an **'!'**. For an example in order to invoke the player command you do.
 `!player coolmcgrrr`
 
-| Command        | Parameters | Description                                                       | Scope        |
-|----------------|------------|-------------------------------------------------------------------|--------------|
-| player/ratings | username   | Displays ratings/rankings for the player with the given username. | Discord, IRC |
-| searchplayer | searchTerm   | Shows playernames that match the searchTerm | Discord, IRC |
-| registerrelay/rrelay | Discord Channel, IRC Channel | Registers a Discord channel to be a relay to an IRC channel | Discord |
-| removerelay/delrealy | IRC Channel OR Discord Channel | Removes a relay from your Discord server | Discord |
+See [Issue #9](https://github.com/FAForever/faf-qai/issues/9) for a full list of commands.
