@@ -28,6 +28,7 @@ using Faforever.Qai.Irc;
 using IrcDotNet;
 
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -44,16 +45,17 @@ using Qmmands;
 
 namespace Faforever.Qai
 {
-    public class Startup
-    {
+	public class Startup
+	{
 		/// <summary>
 		/// Base FAF API Url
 		/// </summary>
-		public static readonly Uri ApiUri = new Uri("https://api.faforever.com/");
+		public static Uri ApiUri { get; private set; }
 
 		public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+			ApiUri = new($"{Configuration["Config:Faf:Api"]}");
         }
 
         public IConfiguration Configuration { get; }
@@ -208,14 +210,74 @@ namespace Faforever.Qai
 				.AddCookie()
 				.AddOAuth("FAF", options =>
 				{
-					options.AuthorizationEndpoint = $"{ApiUri}/oauth/authorize"; // FAF API Endpoint.
+					options.AuthorizationEndpoint = $"{ApiUri}oauth/authorize"; // FAF API Endpoint.
 
-					options.CallbackPath = new PathString("/api/auth"); // local auth endpoint
+					options.CallbackPath = new PathString("/authorization-code/callback"); // local auth endpoint
+					options.AccessDeniedPath = new PathString("/api/link/denied");
 
 					// Other FAF OAtuh configuration settings
-					options.ClientId = Configuration["Config:FafClientId"];
+					options.ClientId = Configuration["Config:Faf:ClientId"];
 					options.ClientSecret = Environment.GetEnvironmentVariable("FAF_CLIENT_SECRET");
-					options.TokenEndpoint = $"{ApiUri}/oauth/token";
+					options.TokenEndpoint = $"{ApiUri}oauth/token";
+
+					options.Scope.Add("public_profile");
+
+					options.Events = new OAuthEvents
+					{
+						OnCreatingTicket = async context =>
+						{
+							if (context.Request.Cookies.TryGetValue("token", out var token))
+							{
+								// TODO save FAF user information.
+
+								context.HttpContext.User.Claims.Append(new System.Security.Claims.Claim("linked", "true"));
+							}
+						},
+						OnRemoteFailure = async context =>
+						{
+							// TODO remove token from cookies and delete server token cache.
+							Console.WriteLine(context.Failure.Message);
+						}
+					};
+				})
+				.AddOAuth("DISCORD", options =>
+				{
+					options.AuthorizationEndpoint = $"{Configuration["Config:Discord:Api"]}/oauth2/authorize";
+
+					options.CallbackPath = new PathString("/authorization-code/discord-callback"); // local auth endpoint
+					options.AccessDeniedPath = new PathString("/api/link/denied");
+
+					options.ClientId = Configuration["Config:Discord:ClientId"];
+					options.ClientSecret = Environment.GetEnvironmentVariable("DISCORD_CLIENT_SECRET");
+					options.TokenEndpoint = $"{Configuration["Config:Discord:TokenEndpoint"]}";
+
+					options.Scope.Add("identify");
+
+					options.Events = new OAuthEvents
+					{
+						OnCreatingTicket = async context =>
+						{
+							// get user data
+							var client = new DiscordRestClient(new()
+							{
+								Token = context.AccessToken,
+								TokenType = TokenType.Bearer
+							});
+
+							var user = await client.GetCurrentUserAsync();
+							
+							// Save user information.
+
+							if(context.Request.Cookies.TryGetValue("token", out var token))
+							{
+								// TODO use token to get the saved user data and verify user IDs match.
+							}
+						},
+						OnRemoteFailure = async context =>
+						{
+							// TODO remove token from cookies and delete server token cache.
+						}
+					};
 				});
 		}
 
@@ -230,8 +292,6 @@ namespace Faforever.Qai
                 app.UseDeveloperExceptionPage();
             }
 
-			app.UseAuthentication();
-
 			// Register Swagger API Documentation
 			app.UseSwagger();
 			app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Faforever.Qai v1"));
@@ -240,6 +300,7 @@ namespace Faforever.Qai
 
             app.UseRouting();
 
+			app.UseAuthentication();
 			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints =>
