@@ -21,6 +21,7 @@ using Faforever.Qai.Core.Operations.Units;
 using Faforever.Qai.Core.Services;
 using Faforever.Qai.Core.Services.BotFun;
 using Faforever.Qai.Core.Structures.Configurations;
+using Faforever.Qai.Core.Structures.Link;
 using Faforever.Qai.Discord;
 using Faforever.Qai.Discord.Core.Structures.Configurations;
 using Faforever.Qai.Irc;
@@ -127,6 +128,7 @@ namespace Faforever.Qai
 				.AddSingleton(typeof(TwitchClientConfig), twitchCfg)
 				// Operation Service Registration
 				.AddSingleton<IBotFunService>(new BotFunService(botFunConfig))
+				.AddSingleton<AccountLinkService>()
 				.AddTransient<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()
 				.AddTransient<IFindPlayerOperation, ApiFindPlayerOperation>()
 				.AddTransient<ISearchUnitDatabaseOperation, UnitDbSearchUnitDatabaseOpeartion>()
@@ -226,11 +228,43 @@ namespace Faforever.Qai
 					{
 						OnCreatingTicket = async context =>
 						{
-							if (context.Request.Cookies.TryGetValue("token", out var token))
-							{
-								// TODO save FAF user information.
+							var req = new HttpRequestMessage(HttpMethod.Get, $"{ApiUri}me");
 
-								context.HttpContext.User.Claims.Append(new System.Security.Claims.Claim("linked", "true"));
+							req.Headers.Authorization = new("Bearer", context.AccessToken);
+
+							var res = await context.Backchannel.SendAsync(req);
+
+							if (res.IsSuccessStatusCode)
+							{
+								var rawJson = await res.Content.ReadAsStreamAsync();
+
+								var faf = await System.Text.Json.JsonSerializer.DeserializeAsync<FafUser>(rawJson);
+
+								if (context.Request.Cookies.TryGetValue("token", out var token))
+								{
+									// TODO save FAF user information.
+
+									var link = context.HttpContext.RequestServices.GetRequiredService<AccountLinkService>();
+
+									try
+									{
+										link.BindFafUser(token, faf.Data.Attributes.UserId, faf.Data.Attributes.UserName);
+									}
+									catch (Exception ex)
+									{
+										context.Fail(ex);
+									}
+
+									context.Success();
+								}
+								else
+								{
+									context.Fail("No token found.");
+								}
+							}
+							else
+							{
+								context.Fail("Failed to get user information from access token");
 							}
 						},
 						OnRemoteFailure = async context =>
@@ -240,6 +274,7 @@ namespace Faforever.Qai
 						}
 					};
 				})
+				// OAuth2 setup for authenticating with Discord.
 				.AddOAuth("DISCORD", options =>
 				{
 					options.AuthorizationEndpoint = $"{Configuration["Config:Discord:Api"]}/oauth2/authorize";
@@ -265,17 +300,37 @@ namespace Faforever.Qai
 							});
 
 							var user = await client.GetCurrentUserAsync();
-							
+
 							// Save user information.
 
-							if(context.Request.Cookies.TryGetValue("token", out var token))
+							if (context.Request.Cookies.TryGetValue("token", out var token))
 							{
-								// TODO use token to get the saved user data and verify user IDs match.
+								var link = context.HttpContext.RequestServices.GetRequiredService<AccountLinkService>();
+
+								try
+								{
+									if (!link.VerifyDiscord(token, user.Id))
+									{
+										context.Fail("Discord IDs did not match.");
+									}
+								}
+								catch (Exception ex)
+								{
+									context.Fail(ex);
+								}
+
+								context.Success();
+							}
+							else
+							{
+								context.Fail("No token found.");
 							}
 						},
 						OnRemoteFailure = async context =>
 						{
 							// TODO remove token from cookies and delete server token cache.
+
+
 						}
 					};
 				});

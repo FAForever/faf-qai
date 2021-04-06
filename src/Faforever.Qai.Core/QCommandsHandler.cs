@@ -38,7 +38,7 @@ namespace Faforever.Qai.Core
 
 			if (!CommandUtilities.HasPrefix(message, baseContext.Prefix, out string output))
 				return;
-
+			
 			//var res = await _commands.ExecuteAsync(output, baseContext);
 
 			var cmds = _commands.FindCommands(output);

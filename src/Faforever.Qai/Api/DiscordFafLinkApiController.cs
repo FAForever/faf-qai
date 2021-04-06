@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 
 using DSharpPlus;
+
+using Faforever.Qai.Core.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -15,19 +18,34 @@ namespace Faforever.Qai.Api
 	[ApiController]
 	public class DiscordFafLinkApiController : ControllerBase
 	{
+		private readonly AccountLinkService _linkService;
+
+		public DiscordFafLinkApiController(AccountLinkService linkService)
+		{
+			_linkService = linkService;
+		}
+
 		[HttpGet("token/{token}")]
 		public IActionResult GetTokenEndpoint(string token)
 		{
-			if(User.HasClaim("linked", "true"))
+			var t = HttpUtility.HtmlDecode(token);
+			switch(_linkService.GetLinkStatus(t))
 			{
-				// do validation stuff
+				case AccountLinkService.LinkStatus.Ready:
 
-				return Ok();
-			}
-			else
-			{
-				Response.Cookies.Append("token", token);
-				return Redirect("/api/link/login");
+					_ = Task.Run(async () => await _linkService.FinalizeLink(token));
+
+					return Ok("Accounts linked successfully.");
+
+				case AccountLinkService.LinkStatus.Waiting:
+					Response.Cookies.Append("token", token);
+					return Redirect("/api/link/login");
+
+				case AccountLinkService.LinkStatus.Invalid:
+					return BadRequest("Token is invalid or not found.");
+
+				default:
+					return BadRequest("Token is invalid, not found, or an unkown error occoured.");
 			}
 		}
 
@@ -36,6 +54,7 @@ namespace Faforever.Qai.Api
 		public IActionResult GetLoginEndpoint()
 		{
 			return Redirect("/api/link/auth");
+
 		}
 
 		[HttpGet("auth")]
@@ -54,6 +73,12 @@ namespace Faforever.Qai.Api
 		public IActionResult GetDeniedEndpoint()
 		{
 			return BadRequest("User denied account linking.");
+		}
+
+		[HttpGet("error/{error}")]
+		public IActionResult GetErroredEndpoint(string error)
+		{
+			return BadRequest(error);
 		}
 	}
 }

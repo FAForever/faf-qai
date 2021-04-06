@@ -1,7 +1,9 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
+using Faforever.Qai.Core.Structures;
 using Faforever.Qai.Core.Structures.Configurations;
+using Faforever.Qai.Core.Structures.Link;
 using Faforever.Qai.Core.Structures.Webhooks;
 
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +16,7 @@ namespace Faforever.Qai.Core.Database
 	{
 		public DbSet<DiscordGuildConfiguration> DiscordConfigs { get; set; }
 		public DbSet<RelayConfiguration> RelayConfigurations { get; set; }
+		public DbSet<AccountLink> AccountLinks { get; set; }
 
 		public QAIDatabaseModel(DbContextOptions options) : base(options)
 		{

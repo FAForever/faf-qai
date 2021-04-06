@@ -18,7 +18,7 @@ namespace Faforever.Qai.Core.Commands.Context
 		}
 
 		public DiscordClient Client { get; private set; }
-
+		public DiscordUser User { get; private set; }
 		public DiscordMessage Message { get; private set; }
 		public DiscordGuild Guild { get; private set; }
 
@@ -28,6 +28,7 @@ namespace Faforever.Qai.Core.Commands.Context
 			Prefix = prefix;
 			Message = args.Message;
 			Guild = args.Guild;
+			User = args.Author;
 		}
 
 		public override async Task ReplyAsync(string message)

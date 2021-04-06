@@ -8,14 +8,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Faforever.Qai.Core.Migrations
 {
     [DbContext(typeof(QAIDatabaseModel))]
-    [Migration("20201103212204_InitalMigration")]
-    partial class InitalMigration
+    [Migration("20210406031520_InitMigration")]
+    partial class InitMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.9");
+                .HasAnnotation("ProductVersion", "5.0.4");
 
             modelBuilder.Entity("Faforever.Qai.Core.Structures.Configurations.DiscordGuildConfiguration", b =>
                 {
@@ -61,6 +61,26 @@ namespace Faforever.Qai.Core.Migrations
                     b.HasKey("DiscordServer");
 
                     b.ToTable("RelayConfigurations");
+                });
+
+            modelBuilder.Entity("Faforever.Qai.Core.Structures.Link.AccountLink", b =>
+                {
+                    b.Property<ulong>("DisocrdId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("DiscordUsername")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("FafId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FafUsername")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("DisocrdId");
+
+                    b.ToTable("AccountLinks");
                 });
 #pragma warning restore 612, 618
         }
