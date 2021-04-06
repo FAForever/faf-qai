@@ -44,6 +44,8 @@ using Newtonsoft.Json;
 
 using Qmmands;
 
+using static Faforever.Qai.Core.Services.AccountLinkService;
+
 namespace Faforever.Qai
 {
 	public class Startup
@@ -252,19 +254,19 @@ namespace Faforever.Qai
 									}
 									catch (Exception ex)
 									{
-										context.Fail(ex);
+										context.Response.Cookies.Append("error", ex.Message);
 									}
 
 									context.Success();
 								}
 								else
 								{
-									context.Fail("No token found.");
+									context.Response.Cookies.Append("error", "No token found.");
 								}
 							}
 							else
 							{
-								context.Fail("Failed to get user information from access token");
+								context.Response.Cookies.Append("error", "Failed to get user information from access token");
 							}
 						},
 						OnRemoteFailure = async context =>
@@ -311,19 +313,19 @@ namespace Faforever.Qai
 								{
 									if (!link.VerifyDiscord(token, user.Id))
 									{
-										context.Fail("Discord IDs did not match.");
+										context.Response.Cookies.Append("error", "Discord ID used for sign in did not match Discord ID from the Discord Application.");
 									}
 								}
 								catch (Exception ex)
 								{
-									context.Fail(ex);
+									context.Response.Cookies.Append("error", ex.Message);
 								}
 
 								context.Success();
 							}
 							else
 							{
-								context.Fail("No token found.");
+								context.Response.Cookies.Append("error", "No token found.");
 							}
 						},
 						OnRemoteFailure = async context =>

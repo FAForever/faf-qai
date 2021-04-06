@@ -38,6 +38,7 @@ namespace Faforever.Qai.Api
 					return Ok("Accounts linked successfully.");
 
 				case AccountLinkService.LinkStatus.Waiting:
+					Response.Cookies.Delete("error");
 					Response.Cookies.Append("token", token);
 					return Redirect("/api/link/login");
 
@@ -51,18 +52,33 @@ namespace Faforever.Qai.Api
 
 		[HttpGet("login")]
 		[Authorize(AuthenticationSchemes = "DISCORD")]
-		public IActionResult GetLoginEndpoint()
+		public async Task<IActionResult> GetLoginEndpoint()
 		{
-			return Redirect("/api/link/auth");
+			if (Request.Cookies.TryGetValue("error", out var error))
+			{
+				if(Request.Cookies.TryGetValue("token", out var token))
+				{
+					await _linkService.AbortLinkAsync(token);
+				}
 
+				return BadRequest(error);
+			}
+
+			return Redirect("/api/link/auth");
 		}
 
 		[HttpGet("auth")]
 		[Authorize(AuthenticationSchemes = "FAF")]
-		public IActionResult GetAuthEndpoint()
+		public async Task<IActionResult> GetAuthEndpoint()
 		{
 			if(Request.Cookies.TryGetValue("token", out var token))
 			{
+				if (Request.Cookies.TryGetValue("error", out var error))
+				{
+					await _linkService.AbortLinkAsync(token);
+					return BadRequest(error);
+				}
+
 				return Redirect($"/api/link/token/{token}");
 			}
 
@@ -73,12 +89,6 @@ namespace Faforever.Qai.Api
 		public IActionResult GetDeniedEndpoint()
 		{
 			return BadRequest("User denied account linking.");
-		}
-
-		[HttpGet("error/{error}")]
-		public IActionResult GetErroredEndpoint(string error)
-		{
-			return BadRequest(error);
 		}
 	}
 }

@@ -34,13 +34,13 @@ namespace Faforever.Qai.Core.Commands.Discord.Link
 		{
 			try
 			{
-				var token = await _link.Start(Context.User.Id, Context.User.Username);
+				var token = await _link.StartAsync(Context.User.Id, Context.User.Username);
 
 				var member = await Context.Guild.GetMemberAsync(Context.User.Id);
 
 				await member.SendMessageAsync($"https://{_configuration["Config:Host"]}/api/link/token/{HttpUtility.HtmlEncode(token)}");
 			}
-			catch (DiscordIdAlreadyMatchedException)
+			catch (DiscordIdAlreadyLinkedException)
 			{
 				await Context.ReplyAsync("This Discord account has already been linked.");
 			}

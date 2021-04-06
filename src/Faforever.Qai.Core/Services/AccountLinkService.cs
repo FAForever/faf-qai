@@ -35,10 +35,10 @@ namespace Faforever.Qai.Core.Services
 			LinkingController = new();
 		}
 
-		public async Task<string> Start(ulong discordId, string discordUsername)
+		public async Task<string> StartAsync(ulong discordId, string discordUsername)
 		{
 			if (await _database.FindAsync<AccountLink>(discordId) is not null)
-				throw new DiscordIdAlreadyMatchedException($"The ID {discordId} is already linked.");
+				throw new DiscordIdAlreadyLinkedException($"The ID {discordId} is already linked.");
 
 			var token = Guid.NewGuid().ToString();
 
@@ -64,7 +64,7 @@ namespace Faforever.Qai.Core.Services
 		public bool BindFafUser(string token, int fafId, string fafUsername)
 		{
 			if (_database.AccountLinks.AsNoTracking().FirstOrDefault(x => x.FafId == fafId) is not null)
-				throw new FafIdAlreadyMatchedException($"The ID {fafId} is already linked.");
+				throw new FafIdAlreadyLinkedException($"The ID {fafId} for the account {fafUsername} is already linked.");
 
 			if (LinkingController.TryGetValue(token, out var old))
 			{
@@ -79,6 +79,14 @@ namespace Faforever.Qai.Core.Services
 			}
 			else
 				throw new TokenNotFoundException("An expired or invalid token was provided.");
+		}
+
+		public async Task AbortLinkAsync(string token)
+		{
+			if(LinkingController.TryRemove(token, out var state))
+			{
+				await state.ExparationTimer.DisposeAsync();
+			}
 		}
 
 		public LinkStatus GetLinkStatus(string token)
@@ -121,28 +129,28 @@ namespace Faforever.Qai.Core.Services
 		/// <summary>
 		/// Thrown when a Discord User ID is attempted to be linked to a new FAF account after it has already been linked.
 		/// </summary>
-		public class DiscordIdAlreadyMatchedException : Exception
+		public class DiscordIdAlreadyLinkedException : Exception
 		{
-			public DiscordIdAlreadyMatchedException() : base() { }
-			public DiscordIdAlreadyMatchedException(string? message) : base(message) { }
-			public DiscordIdAlreadyMatchedException(string? message, Exception? innerException) : base(message, innerException) { }
-			public DiscordIdAlreadyMatchedException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+			public DiscordIdAlreadyLinkedException() : base() { }
+			public DiscordIdAlreadyLinkedException(string? message) : base(message) { }
+			public DiscordIdAlreadyLinkedException(string? message, Exception? innerException) : base(message, innerException) { }
+			public DiscordIdAlreadyLinkedException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 		}
 
 		/// <summary>
 		/// Thrown when a Faf User ID is attempted to be linked to a Discord account after it has already been linked.
 		/// </summary>
-		public class FafIdAlreadyMatchedException : Exception
+		public class FafIdAlreadyLinkedException : Exception
 		{
-			public FafIdAlreadyMatchedException() : base() { }
-			public FafIdAlreadyMatchedException(string? message) : base(message) { }
-			public FafIdAlreadyMatchedException(string? message, Exception? innerException) : base(message, innerException) { }
-			public FafIdAlreadyMatchedException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+			public FafIdAlreadyLinkedException() : base() { }
+			public FafIdAlreadyLinkedException(string? message) : base(message) { }
+			public FafIdAlreadyLinkedException(string? message, Exception? innerException) : base(message, innerException) { }
+			public FafIdAlreadyLinkedException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 		}
 
 		/// <summary>
 		/// Thrown when a bind is attempted to be made with a token that is no longer valid.
-		/// </summary>
+		/// </summary>s
 		public class TokenNotFoundException : Exception
 		{
 			public TokenNotFoundException() : base() { }
