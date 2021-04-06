@@ -124,6 +124,7 @@ namespace Faforever.Qai
 					options.AddModules(System.Reflection.Assembly.GetAssembly(typeof(CustomCommandContext)));
 					// Argument converters go here.
 					options.AddTypeParser(new DiscordChannelTypeConverter());
+					options.AddTypeParser(new DiscordRoleTypeConverter());
 					options.AddTypeParser(new BotUserCapsuleConverter());
 					return options;
 				})
