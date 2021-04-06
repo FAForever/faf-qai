@@ -59,12 +59,13 @@ namespace Faforever.Qai.Discord
 
 		private readonly IServiceProvider _services;
 		private readonly QCommandsHandler _commands;
+		private readonly DiscordEventHandler _eventHandler;
 		#endregion
 
 
 		public DiscordBot(IServiceProvider services, DiscordBotConfiguration configuration,
 			DiscordShardedClient client, DiscordRestClient rest,
-			QCommandsHandler commands)
+			QCommandsHandler commands, DiscordEventHandler eventHandler)
 		{
 			CommandsInProgress = new ConcurrentDictionary<CommandHandler, Tuple<Task, CancellationTokenSource>>();
 
@@ -73,6 +74,7 @@ namespace Faforever.Qai.Discord
 			Rest = rest;
 			this._services = services;
 			this._commands = commands;
+			this._eventHandler = eventHandler;
 		}
 
 		#region Confgiurations
@@ -122,8 +124,7 @@ namespace Faforever.Qai.Discord
 			}
 
 			// Register any additional Client events
-			eventHandler = new DiscordEventHandler(Client, Rest, _services.GetService<RelayService>());
-			eventHandler.Initalize();
+			_eventHandler.Initalize();
 
 			// Register the event needed to send data to the CommandHandler
 			Client.MessageCreated += Client_MessageCreated;

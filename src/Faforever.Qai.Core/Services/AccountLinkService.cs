@@ -17,6 +17,9 @@ namespace Faforever.Qai.Core.Services
 {
 	public class AccountLinkService
 	{
+		public delegate Task LinkCompletedDelegate(LinkCompleteEventArgs args);
+		public event LinkCompletedDelegate LinkComplete;
+
 		public enum LinkStatus
 		{
 			Ready,
@@ -35,14 +38,14 @@ namespace Faforever.Qai.Core.Services
 			LinkingController = new();
 		}
 
-		public async Task<string> StartAsync(ulong discordId, string discordUsername)
+		public async Task<string> StartAsync(ulong guildId, ulong discordId, string discordUsername)
 		{
 			if (await _database.FindAsync<AccountLink>(discordId) is not null)
 				throw new DiscordIdAlreadyLinkedException($"The ID {discordId} is already linked.");
 
 			var token = Guid.NewGuid().ToString();
 
-			LinkingController[token] = new (token, discordId, discordUsername, new Timer((x) =>
+			LinkingController[token] = new (token, guildId, discordId, discordUsername, new Timer((x) =>
 			{
 				_ = LinkingController.TryRemove(token, out _);
 			},
@@ -68,7 +71,7 @@ namespace Faforever.Qai.Core.Services
 
 			if (LinkingController.TryGetValue(token, out var old))
 			{
-				LinkingController[token] = new(token, old.DiscordId, old.DiscordUsername,
+				LinkingController[token] = new(token, old.InvokedFromGuild, old.DiscordId, old.DiscordUsername,
 					fafId, fafUsername, new Timer((x) =>
 					{
 						_ = LinkingController.TryRemove(token, out _);
@@ -85,6 +88,20 @@ namespace Faforever.Qai.Core.Services
 		{
 			if(LinkingController.TryRemove(token, out var state))
 			{
+				_ = Task.Run(async () =>
+				{
+					try
+					{
+						await LinkComplete.Invoke(new()
+						{
+							Complete = false,
+							Guild = state.InvokedFromGuild,
+							Link = null
+						});
+					}
+					catch { /* ignore any errors */ }
+				});
+
 				await state.ExparationTimer.DisposeAsync();
 			}
 		}
@@ -119,6 +136,20 @@ namespace Faforever.Qai.Core.Services
 				await _database.SaveChangesAsync();
 
 				await disp;
+
+				_ = Task.Run(async () =>
+				{
+					try
+					{
+						await LinkComplete.Invoke(new()
+						{
+							Complete = true,
+							Guild = state.InvokedFromGuild,
+							Link = link
+						});
+					}
+					catch { /* ignore any errors */ }
+				});
 
 				return link;
 			}

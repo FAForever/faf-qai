@@ -24,6 +24,7 @@ using Faforever.Qai.Core.Structures.Configurations;
 using Faforever.Qai.Core.Structures.Link;
 using Faforever.Qai.Discord;
 using Faforever.Qai.Discord.Core.Structures.Configurations;
+using Faforever.Qai.Discord.Utils.Bot;
 using Faforever.Qai.Irc;
 
 using IrcDotNet;
@@ -130,6 +131,7 @@ namespace Faforever.Qai
 				.AddSingleton(typeof(TwitchClientConfig), twitchCfg)
 				// Operation Service Registration
 				.AddSingleton<IBotFunService>(new BotFunService(botFunConfig))
+				.AddSingleton<DiscordEventHandler>()
 				.AddSingleton<AccountLinkService>()
 				.AddTransient<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()
 				.AddTransient<IFindPlayerOperation, ApiFindPlayerOperation>()
@@ -230,6 +232,7 @@ namespace Faforever.Qai
 					{
 						OnCreatingTicket = async context =>
 						{
+							// Get the FAF user information
 							var req = new HttpRequestMessage(HttpMethod.Get, $"{ApiUri}me");
 
 							req.Headers.Authorization = new("Bearer", context.AccessToken);
@@ -237,19 +240,17 @@ namespace Faforever.Qai
 							var res = await context.Backchannel.SendAsync(req);
 
 							if (res.IsSuccessStatusCode)
-							{
+							{ // if the request is valid, get the JSON data from it
 								var rawJson = await res.Content.ReadAsStreamAsync();
 
 								var faf = await System.Text.Json.JsonSerializer.DeserializeAsync<FafUser>(rawJson);
 
 								if (context.Request.Cookies.TryGetValue("token", out var token))
 								{
-									// TODO save FAF user information.
-
 									var link = context.HttpContext.RequestServices.GetRequiredService<AccountLinkService>();
 
 									try
-									{
+									{ // bind the information to the link with the token from the cookies
 										link.BindFafUser(token, faf.Data.Attributes.UserId, faf.Data.Attributes.UserName);
 									}
 									catch (Exception ex)
@@ -303,14 +304,13 @@ namespace Faforever.Qai
 
 							var user = await client.GetCurrentUserAsync();
 
-							// Save user information.
-
 							if (context.Request.Cookies.TryGetValue("token", out var token))
 							{
 								var link = context.HttpContext.RequestServices.GetRequiredService<AccountLinkService>();
 
 								try
-								{
+								{ // verify the user information grabbed matches the user info
+									// saved from the inital command
 									if (!link.VerifyDiscord(token, user.Id))
 									{
 										context.Response.Cookies.Append("error", "Discord ID used for sign in did not match Discord ID from the Discord Application.");

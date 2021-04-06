@@ -10,6 +10,8 @@ namespace Faforever.Qai.Core.Structures.Configurations
 		public ulong GuildId { get; set; }
 		public string Prefix { get; set; }
 
+		public ulong? RoleWhenLinked { get; set; }
+
 		// Ignore the value for UserBlacklist, we dont need it.
 		public HashSet<ulong> UserBlacklist { get; set; }
 

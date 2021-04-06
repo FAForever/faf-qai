@@ -34,7 +34,7 @@ namespace Faforever.Qai.Core.Commands.Discord.Link
 		{
 			try
 			{
-				var token = await _link.StartAsync(Context.User.Id, Context.User.Username);
+				var token = await _link.StartAsync(Context.Guild.Id, Context.User.Id, Context.User.Username);
 
 				var member = await Context.Guild.GetMemberAsync(Context.User.Id);
 
