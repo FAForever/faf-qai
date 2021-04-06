@@ -2,7 +2,7 @@
 
 namespace Faforever.Qai.Core.Migrations
 {
-    public partial class InitMigration : Migration
+    public partial class Init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -28,6 +28,7 @@ namespace Faforever.Qai.Core.Migrations
                     GuildId = table.Column<ulong>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Prefix = table.Column<string>(type: "TEXT", nullable: false),
+                    RoleWhenLinked = table.Column<ulong>(type: "INTEGER", nullable: true),
                     UserBlacklist = table.Column<string>(type: "TEXT", nullable: false),
                     FafLinks = table.Column<string>(type: "TEXT", nullable: false),
                     Records = table.Column<string>(type: "TEXT", nullable: false)
