@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Faforever.Qai.Core.Migrations
 {
     [DbContext(typeof(QAIDatabaseModel))]
-    [Migration("20210406191917_Init")]
+    [Migration("20210422152616_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,6 +33,10 @@ namespace Faforever.Qai.Core.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Records")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RegisteredRoles")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

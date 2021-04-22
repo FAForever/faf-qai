@@ -31,7 +31,8 @@ namespace Faforever.Qai.Core.Migrations
                     RoleWhenLinked = table.Column<ulong>(type: "INTEGER", nullable: true),
                     UserBlacklist = table.Column<string>(type: "TEXT", nullable: false),
                     FafLinks = table.Column<string>(type: "TEXT", nullable: false),
-                    Records = table.Column<string>(type: "TEXT", nullable: false)
+                    Records = table.Column<string>(type: "TEXT", nullable: false),
+                    RegisteredRoles = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {

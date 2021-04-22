@@ -50,6 +50,12 @@ namespace Faforever.Qai.Core.Database
 				v => JsonConvert.SerializeObject(v),
 				v => JsonConvert.DeserializeObject<HashSet<ulong>>(v) ?? new HashSet<ulong>());
 
+			modelBuilder.Entity<DiscordGuildConfiguration>()
+				.Property<HashSet<ulong>>("RegisteredRoles")
+				.HasConversion(
+				v => JsonConvert.SerializeObject(v),
+				v => JsonConvert.DeserializeObject<HashSet<ulong>>(v) ?? new HashSet<ulong>());
+
 			modelBuilder.Entity<RelayConfiguration>()
 				.Property(b => b.DiscordToIRCLinks)
 				.HasConversion(

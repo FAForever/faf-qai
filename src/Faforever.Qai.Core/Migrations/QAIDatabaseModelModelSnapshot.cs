@@ -34,6 +34,10 @@ namespace Faforever.Qai.Core.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("RegisteredRoles")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<ulong?>("RoleWhenLinked")
                         .HasColumnType("INTEGER");
 
