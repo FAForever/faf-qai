@@ -126,6 +126,8 @@ namespace Faforever.Qai
 					options.AddTypeParser(new DiscordChannelTypeConverter());
 					options.AddTypeParser(new DiscordRoleTypeConverter());
 					options.AddTypeParser(new BotUserCapsuleConverter());
+					options.AddTypeParser(new DiscordMemberConverter());
+					options.AddTypeParser(new DiscordUserConverter());
 					return options;
 				})
 				.AddSingleton<QCommandsHandler>()

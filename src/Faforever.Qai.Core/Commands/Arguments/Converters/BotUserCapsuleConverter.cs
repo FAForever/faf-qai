@@ -10,6 +10,8 @@ using IrcDotNet;
 
 using Qmmands;
 
+using static Faforever.Qai.Core.Commands.Arguments.Converters.ConverterUtils;
+
 namespace Faforever.Qai.Core.Commands.Arguments.Converters
 {
 	public class BotUserCapsuleConverter : TypeParser<IBotUserCapsule>
@@ -24,52 +26,16 @@ namespace Faforever.Qai.Core.Commands.Arguments.Converters
 			}
 			else if (context is DiscordCommandContext disCtx)
 			{
-				var cap = await GetDiscordUserOrMemberCapsule(parameter, value, disCtx);
+				var id = GetDiscordUserId(parameter, value);
+
+				if (id is null) return TypeParserResult<IBotUserCapsule>.Unsuccessful("Failed to get a valid discord ID.");
+
+				var cap = await GetDiscordUserOrMemberCapsule(id.Value, disCtx);
 				if(cap is not null)
 					return TypeParserResult<IBotUserCapsule>.Successful(cap);
 			}
 
 			return TypeParserResult<IBotUserCapsule>.Unsuccessful("Failed to get a valid user.");
-		}
-
-		private IrcUserCapsule? GetIrcUserCapsule(Parameter p, string v, IRCCommandContext ctx)
-		{
-			// TODO: Improve this?
-			var users = ctx.Client.GetChannelUsers();
-			var user = users.FirstOrDefault(x => x.User.NickName == v);
-			if (user is not null)
-				return new IrcUserCapsule(user.User);
-
-			return null;
-		}
-
-		private async Task<IBotUserCapsule?> GetDiscordUserOrMemberCapsule(Parameter p, string v, DiscordCommandContext ctx)
-		{
-			var valToParse = v;
-
-			if (valToParse.StartsWith("<@"))
-				valToParse = valToParse[2..(valToParse.Length - 1)];
-
-			if (valToParse.StartsWith("<!@"))
-				valToParse = valToParse[3..(valToParse.Length - 1)];
-
-			if (valToParse.EndsWith(">"))
-				valToParse = valToParse[..(valToParse.Length - 2)];
-
-			if(ulong.TryParse(valToParse, out var id))
-			{
-				var member = await ctx.Guild.GetMemberAsync(id);
-
-				if (member is not null)
-					return new DiscordMemberCapsule(member);
-
-				var user = await ctx.Client.GetUserAsync(id);
-
-				if (user is not null)
-					return new DiscordUserCapsule(user);
-			}
-
-			return null;
 		}
 	}
 }
