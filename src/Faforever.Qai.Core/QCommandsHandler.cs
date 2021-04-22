@@ -9,6 +9,7 @@ using Faforever.Qai.Core.Commands.Authorization;
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Commands.Context.Exceptions;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualBasic.CompilerServices;
 
@@ -22,11 +23,15 @@ namespace Faforever.Qai.Core
 
 		private readonly CommandService _commands;
 		private readonly ILogger _logger;
+		private readonly HashSet<ulong> _fafStaff;
 
-		public QCommandsHandler(CommandService commands, ILogger<QCommandsHandler> logger)
+		public QCommandsHandler(CommandService commands, ILogger<QCommandsHandler> logger, IConfiguration config)
 		{
 			this._commands = commands;
 			this._logger = logger;
+			this._fafStaff = new(from child in config.GetSection("Roles:FafStaff").GetChildren()
+							 where ulong.TryParse(child.Value, out _)
+							 select ulong.Parse(child.Value));
 			_commands.CommandExecuted += Commands_CommandExecuted;
 			_commands.CommandExecutionFailed += Commands_CommandExecutionFailed;
 		}
@@ -92,6 +97,12 @@ namespace Faforever.Qai.Core
 							return false; // ... then this user cant run the command ...
 					}
 				}
+				// Check to see if an attribute is the FAF staff attribute ...
+				else if (a is RequireFafStaffAttribute)
+				{
+					// ... and return false if it is, we only check for Discord users.
+					return false;
+				}
 			}
 			// ... otherwise they can run the command.
 			return true;
@@ -103,6 +114,7 @@ namespace Faforever.Qai.Core
 			// Set them to None, or no perms needed.
 			uint userPerms = 0x0;
 			uint botPerms = 0x0;
+			bool needsStaff = false;
 
 			// For every attribute on the command ...
 			foreach(var a in attributes)
@@ -135,31 +147,43 @@ namespace Faforever.Qai.Core
 						}
 					}
 				}
+				else if (a is RequireFafStaffAttribute)
+				{
+					// Check to see if the commands needs FAF staff.
+					needsStaff = true;
+				}
 			}
-
-			// Initalize the result variables. Assume the check will pass.
-			bool userResult = true;
-			bool botResult = true;
-			// If there is no requirement for user permissions, skip this.
-			if (userPerms != 0x0)
+			// We will check this differently if the command needs FAF staff.
+			if (needsStaff)
 			{
-				// Get the member object for the Author DiscordUser ...
-				var member = await ctx.Guild.GetMemberAsync(ctx.Message.Author.Id);
-				// ... and check that they have requiered permissions in the channel the command was from ...
-				var perm = (Permissions)userPerms;
-				userResult = ctx.Channel.PermissionsFor(member).HasPermission(perm);
+				return _fafStaff.Contains(ctx.User.Id);
 			}
-			// If there is no requirement for bot permissions, skip this.
-			if(botPerms != 0x0)
+			else
 			{
-				// Get the bots member object for the server the command was in ....
-				var selfMember = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
-				// ... and check that it has the required permissions in the channel the command was from ...
-				var perm = (Permissions)botPerms;
-				botResult = ctx.Channel.PermissionsFor(selfMember).HasPermission(perm);
+				// Initalize the result variables. Assume the check will pass.
+				bool userResult = true;
+				bool botResult = true;
+				// If there is no requirement for user permissions, skip this.
+				if (userPerms != 0x0)
+				{
+					// Get the member object for the Author DiscordUser ...
+					var member = await ctx.Guild.GetMemberAsync(ctx.Message.Author.Id);
+					// ... and check that they have requiered permissions in the channel the command was from ...
+					var perm = (Permissions)userPerms;
+					userResult = ctx.Channel.PermissionsFor(member).HasPermission(perm);
+				}
+				// If there is no requirement for bot permissions, skip this.
+				if (botPerms != 0x0)
+				{
+					// Get the bots member object for the server the command was in ....
+					var selfMember = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
+					// ... and check that it has the required permissions in the channel the command was from ...
+					var perm = (Permissions)botPerms;
+					botResult = ctx.Channel.PermissionsFor(selfMember).HasPermission(perm);
+				}
+				// return true if both check pass, otherwise false.
+				return userResult && botResult;
 			}
-			// return true if both check pass, otherwise false.
-			return userResult && botResult;
 		}
 
 		private async Task<bool> CheckPermissions(CustomCommandContext ctx, IReadOnlyList<Attribute> attributes)
