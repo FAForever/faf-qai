@@ -65,9 +65,17 @@ namespace Faforever.Qai.Core.Operations.Replays
 				};
 			else res = new();
 
-			JToken? map = json["included"]?.FirstOrDefault(x => x["type"]?.ToString() == "map"
-				&& x["relationships"]?["latestVersion"]?["data"]?["id"]?.ToObject<long>() 
-					== game["relationships"]?["mapVersion"]?["data"]?["id"]?.ToObject<long>());
+			JToken? map;
+			try
+			{
+				map = json["included"]?.FirstOrDefault(x => x["type"]?.ToString() == "map"
+					&& x["relationships"]?["latestVersion"]?["data"]?["id"]?.ToObject<long>()
+						== game["relationships"]?["mapVersion"]?["data"]?["id"]?.ToObject<long>());
+			}
+			catch
+			{
+				map = null;
+			}
 
 			if (map is not null)
 			{
