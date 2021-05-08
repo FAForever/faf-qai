@@ -71,7 +71,7 @@ namespace Faforever.Qai.Core.Migrations
 
             modelBuilder.Entity("Faforever.Qai.Core.Structures.Link.AccountLink", b =>
                 {
-                    b.Property<ulong>("DisocrdId")
+                    b.Property<ulong>("DiscordId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -84,7 +84,7 @@ namespace Faforever.Qai.Core.Migrations
                     b.Property<string>("FafUsername")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("DisocrdId");
+                    b.HasKey("DiscordId");
 
                     b.ToTable("AccountLinks");
                 });

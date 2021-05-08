@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Faforever.Qai.Core.Migrations
 {
     [DbContext(typeof(QAIDatabaseModel))]
-    [Migration("20210422152616_Init")]
+    [Migration("20210508150021_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -73,7 +73,7 @@ namespace Faforever.Qai.Core.Migrations
 
             modelBuilder.Entity("Faforever.Qai.Core.Structures.Link.AccountLink", b =>
                 {
-                    b.Property<ulong>("DisocrdId")
+                    b.Property<ulong>("DiscordId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -86,7 +86,7 @@ namespace Faforever.Qai.Core.Migrations
                     b.Property<string>("FafUsername")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("DisocrdId");
+                    b.HasKey("DiscordId");
 
                     b.ToTable("AccountLinks");
                 });

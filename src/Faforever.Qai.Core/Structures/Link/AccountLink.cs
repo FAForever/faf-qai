@@ -10,9 +10,9 @@ namespace Faforever.Qai.Core.Structures.Link
 	public class AccountLink
 	{
 		[Key]
-		public ulong DisocrdId { get; internal set; }
-		public int FafId { get; internal set; }
-		public string? FafUsername { get; internal set; }
-		public string? DiscordUsername { get; internal set; }
+		public ulong DiscordId { get; set; }
+		public int FafId { get; set; }
+		public string? FafUsername { get; set; }
+		public string? DiscordUsername { get; set; }
 	}
 }

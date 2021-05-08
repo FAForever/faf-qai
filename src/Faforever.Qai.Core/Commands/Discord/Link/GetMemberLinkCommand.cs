@@ -52,7 +52,7 @@ namespace Faforever.Qai.Core.Commands.Discord.Link
 					.WithTitle($"Link for {link.DiscordUsername}")
 					.AddField("Discord", $"```\n" +
 					$"Username : {link.DiscordUsername}\n" +
-					$"ID       : {link.DisocrdId}" +
+					$"ID       : {link.DiscordId}" +
 					$"\n```", true)
 					.AddField("FAF", $"```\n" +
 					$"Username : {link.FafUsername}\n" +

@@ -127,7 +127,7 @@ namespace Faforever.Qai.Core.Services
 				var link = new AccountLink()
 				{
 					DiscordUsername = state.DiscordUsername,
-					DisocrdId = state.DiscordId,
+					DiscordId = state.DiscordId,
 					FafUsername = state.FafUsername,
 					FafId = state.FafId ?? throw new Exception("Failed to find a valid FAF ID to save.")
 				};

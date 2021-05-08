@@ -88,7 +88,7 @@ namespace Faforever.Qai.Discord.Utils.Bot
 			{
 				try
 				{
-					await Rest.AddGuildMemberRoleAsync(guild.GuildId, args.Link?.DisocrdId ?? 0, guild.RoleWhenLinked.Value, "Account Linked.");
+					await Rest.AddGuildMemberRoleAsync(guild.GuildId, args.Link?.DiscordId ?? 0, guild.RoleWhenLinked.Value, "Account Linked.");
 				}
 				catch (Exception ex)
 				{

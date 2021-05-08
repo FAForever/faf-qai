@@ -18,7 +18,7 @@ namespace Faforever.Qai.Core.Database
 		public DbSet<RelayConfiguration> RelayConfigurations { get; set; }
 		public DbSet<AccountLink> AccountLinks { get; set; }
 
-		public QAIDatabaseModel(DbContextOptions options) : base(options)
+		public QAIDatabaseModel(DbContextOptions<QAIDatabaseModel> options) : base(options)
 		{
 
 		}

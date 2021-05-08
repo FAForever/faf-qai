@@ -10,7 +10,7 @@ namespace Faforever.Qai.Core.Migrations
                 name: "AccountLinks",
                 columns: table => new
                 {
-                    DisocrdId = table.Column<ulong>(type: "INTEGER", nullable: false)
+                    DiscordId = table.Column<ulong>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     FafId = table.Column<int>(type: "INTEGER", nullable: false),
                     FafUsername = table.Column<string>(type: "TEXT", nullable: true),
@@ -18,7 +18,7 @@ namespace Faforever.Qai.Core.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AccountLinks", x => x.DisocrdId);
+                    table.PrimaryKey("PK_AccountLinks", x => x.DiscordId);
                 });
 
             migrationBuilder.CreateTable(
