@@ -42,7 +42,7 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
 			{
 				cfg = new RelayConfiguration()
 				{
-					DiscordServer = Context.Channel.GuildId
+					DiscordServer = Context.Channel.GuildId.Value
 				};
 
 				await _database.AddAsync(cfg);
@@ -80,7 +80,7 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
 
 			var newHook = await discordChannel.CreateWebhookAsync($"Dostya-{ircChannel}", reason: "Dostya Relay Creation");
 
-			if (await _relay.AddRelayAsync(Context.Channel.GuildId, newHook, ircChannel))
+			if (await _relay.AddRelayAsync(Context.Channel.GuildId.Value, newHook, ircChannel))
 			{
 				await RespondBasicSuccess("Relay added!");
 			}

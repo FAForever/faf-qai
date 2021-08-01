@@ -28,14 +28,14 @@ namespace Faforever.Qai.Core.Commands.Arguments.Converters
 			{
 				var id = GetDiscordUserId(parameter, value);
 
-				if (id is null) return TypeParserResult<IBotUserCapsule>.Unsuccessful("Failed to get a valid discord ID.");
+				if (id is null) return TypeParserResult<IBotUserCapsule>.Failed("Failed to get a valid discord ID.");
 
 				var cap = await GetDiscordUserOrMemberCapsule(id.Value, disCtx);
 				if(cap is not null)
 					return TypeParserResult<IBotUserCapsule>.Successful(cap);
 			}
 
-			return TypeParserResult<IBotUserCapsule>.Unsuccessful("Failed to get a valid user.");
+			return TypeParserResult<IBotUserCapsule>.Failed("Failed to get a valid user.");
 		}
 	}
 }

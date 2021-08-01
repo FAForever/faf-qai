@@ -201,18 +201,18 @@ namespace Faforever.Qai.Core
 
 		private async Task Commands_ParserFailed(DefaultArgumentParserResult? res, CustomCommandContext baseContext)
 		{
-			await baseContext.ReplyAsync($"Failed to parse an argument for command: {res?.Command.Name ?? "unkown"}\n{res?.Reason ?? ""}");
+			await baseContext.ReplyAsync($"Failed to parse an argument for command: {res?.Command.Name ?? "unkown"}\n{res?.FailureReason ?? ""}");
 		}
 
 		private Task Commands_CommandExecutionFailed(CommandExecutionFailedEventArgs e)
 		{
-			_logger.LogError(e.Result.Exception, $"Failed to execute command:\n{e.Result.Reason}");
+			_logger.LogError(e.Result.Exception, $"Failed to execute command:\n{e.Result.FailureReason}");
 
 			var ctx = e.Context as CustomCommandContext;
 
 			if (!(ctx is null))
 			{
-				ctx.ReplyAsync($"Command execution failed: {e.Result.Reason}");
+				ctx.ReplyAsync($"Command execution failed: {e.Result.FailureReason}");
 			}
 
 			return Task.CompletedTask;
