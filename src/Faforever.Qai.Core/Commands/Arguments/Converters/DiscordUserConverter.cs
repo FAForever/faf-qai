@@ -22,16 +22,16 @@ namespace Faforever.Qai.Core.Commands.Arguments.Converters
 			{
 				var id = GetDiscordUserId(parameter, value);
 
-				if(id is null) return TypeParserResult<DiscordUser>.Unsuccessful("Failed to parse a valid ID.");
+				if(id is null) return TypeParserResult<DiscordUser>.Failed("Failed to parse a valid ID.");
 
 				var user = await GetDiscordUser(id.Value, ctx);
 
-				if(user is null) return TypeParserResult<DiscordUser>.Unsuccessful($"Failed to get a valid DiscordUser from {id.Value}.");
+				if(user is null) return TypeParserResult<DiscordUser>.Failed($"Failed to get a valid DiscordUser from {id.Value}.");
 
 				return TypeParserResult<DiscordUser>.Successful(user);
 			}
 
-			return TypeParserResult<DiscordUser>.Unsuccessful("Can't get a Discord user from a non Discord client.");
+			return TypeParserResult<DiscordUser>.Failed("Can't get a Discord user from a non Discord client.");
 		}
 	}
 }

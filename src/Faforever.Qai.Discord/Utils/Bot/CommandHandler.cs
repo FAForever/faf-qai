@@ -49,7 +49,7 @@ namespace Faforever.Qai.Discord.Utils.Bot
 				{
 					guildConfig = new DiscordGuildConfiguration
 					{
-						GuildId = msg.Channel.GuildId,
+						GuildId = msg.Channel.GuildId.Value,
 						Prefix = _config.Prefix
 					};
 

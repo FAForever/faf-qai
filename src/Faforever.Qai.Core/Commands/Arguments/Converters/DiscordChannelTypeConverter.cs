@@ -13,7 +13,7 @@ namespace Faforever.Qai.Core.Commands.Arguments.Converters
 		public override async ValueTask<TypeParserResult<DiscordChannel>> ParseAsync(Parameter parameter, string value, CommandContext context)
 		{
 			if (!(context is DiscordCommandContext ctx))
-				return TypeParserResult<DiscordChannel>.Unsuccessful("Context failed to parse to DiscordCommandContext");
+				return TypeParserResult<DiscordChannel>.Failed("Context failed to parse to DiscordCommandContext");
 
 			var valToParse = value;
 
@@ -27,11 +27,11 @@ namespace Faforever.Qai.Core.Commands.Arguments.Converters
 			{
 				var chan = await ctx.Client.GetChannelAsync(res);
 				if (chan is null)
-					return TypeParserResult<DiscordChannel>.Unsuccessful("Failed to get a channel.");
+					return TypeParserResult<DiscordChannel>.Failed("Failed to get a channel.");
 
 				return TypeParserResult<DiscordChannel>.Successful(chan);
 			}
-			else return TypeParserResult<DiscordChannel>.Unsuccessful("Failed to get a valid channel ID.");
+			else return TypeParserResult<DiscordChannel>.Failed("Failed to get a valid channel ID.");
 		}
 	}
 }

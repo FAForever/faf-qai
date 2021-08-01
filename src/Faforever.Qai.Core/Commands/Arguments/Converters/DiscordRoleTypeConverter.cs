@@ -17,7 +17,7 @@ namespace Faforever.Qai.Core.Commands.Arguments.Converters
 		public override async ValueTask<TypeParserResult<DiscordRole>> ParseAsync(Parameter parameter, string value, CommandContext context)
 		{
 			if (!(context is DiscordCommandContext ctx))
-				return TypeParserResult<DiscordRole>.Unsuccessful("Context failed to parse to DiscordCommandContext");
+				return TypeParserResult<DiscordRole>.Failed("Context failed to parse to DiscordCommandContext");
 
 			var valToParse = value;
 
@@ -31,11 +31,11 @@ namespace Faforever.Qai.Core.Commands.Arguments.Converters
 			{
 				var role = ctx.Guild.GetRole(res);
 				if (role is null)
-					return TypeParserResult<DiscordRole>.Unsuccessful("Failed to get a role.");
+					return TypeParserResult<DiscordRole>.Failed("Failed to get a role.");
 
 				return TypeParserResult<DiscordRole>.Successful(role);
 			}
-			else return TypeParserResult<DiscordRole>.Unsuccessful("Failed to get a valid role ID.");
+			else return TypeParserResult<DiscordRole>.Failed("Failed to get a valid role ID.");
 		}
 	}
 }
