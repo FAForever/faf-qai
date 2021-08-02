@@ -40,6 +40,13 @@ namespace Faforever.Qai.Core
 			if (baseContext.Prefix is null || baseContext.Prefix == "")
 				throw new NullPrefixException("Prefix cannont be null or blank.");
 
+			if(message[0] == '#')
+			{
+				var rest = message[1..];
+				if(!string.IsNullOrEmpty(rest) && rest.All(char.IsDigit))
+					message = $"{baseContext.Prefix}replay {rest}";
+			}
+
 			if (!CommandUtilities.HasPrefix(message, baseContext.Prefix, out string output))
 				return;
 			
