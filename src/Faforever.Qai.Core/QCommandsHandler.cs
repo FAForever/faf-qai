@@ -110,6 +110,7 @@ namespace Faforever.Qai.Core
 					return false;
 				}
 			}
+
 			// ... otherwise they can run the command.
 			return true;
 		}

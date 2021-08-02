@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -92,13 +91,11 @@ namespace Faforever.Qai
 				Directory.CreateDirectory("Database");
 #endif
 
-			BotFunConfiguration botFunConfig;
-			using (FileStream fs = new(Path.Join("Config", "games_config.json"), FileMode.Open))
-			{
-				using StreamReader sr = new(fs);
-				var json = sr.ReadToEnd();
-				botFunConfig = JsonConvert.DeserializeObject<BotFunConfiguration>(json);
-			}
+			string json = File.ReadAllText(Path.Join("Config", "games_config.json"));
+			var botFunConfig = JsonConvert.DeserializeObject<BotFunConfiguration>(json);
+			
+			json = File.ReadAllText(Path.Join("Config", "url_config.json"));
+			var urlConfig = JsonConvert.DeserializeObject<UrlConfiguration>(json);
 
 			TwitchClientConfig twitchCfg = new()
 			{
@@ -135,6 +132,7 @@ namespace Faforever.Qai
 				.AddSingleton(typeof(TwitchClientConfig), twitchCfg)
 				// Operation Service Registration
 				.AddSingleton<IBotFunService>(new BotFunService(botFunConfig))
+				.AddSingleton<IUrlService>(new UrlService(urlConfig))
 				.AddSingleton<DiscordEventHandler>()
 				.AddSingleton<AccountLinkService>()
 				.AddTransient<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()

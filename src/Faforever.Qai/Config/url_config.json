@@ -1,0 +1,21 @@
+{
+  "urls": {
+    "faf": { "title":"FAF main page!", "url": "https://www.faforever.com" },
+    "forum": { "title": "FAF Forum!", "url": "https://forum.faforever.com" },
+    "support": { "title": "Tech support!", "url": "https://forums.faforever.com/viewforum.php?f=3" },
+    "wiki": { "title": "FAF Wiki!", "url": "https://wiki.faforever.com/index.php?title=Main_Page" },
+    "news": { "title": "What's new?", "url": "https://www.faforever.com/news/" },
+    "dev": { "title": "Tumblr Development Feed", "url": "https://faforeverdevblog.tumblr.com/" },
+    "discord": { "title": "FAF Official Discord server", "url": "https://discord.gg/hgvj6Af" },
+    "replay": { "title": "Replay", "url": "https://replay.faforever.com/ID" },
+    "unitsdb": { "title": "Check out", "url": "https://direct.faforever.com/faf/unitsDB/ and spooky.github.io/unitdb/#/" },
+    "namechange": { "title": "Change username", "url": "https://faforever.com/account/username/change" },
+    "clans": { "title": "FAF clans!", "url": "https://clans.faforever.com" },
+    "github": { "title": "FAF on Github", "url": "https://github.com/FAForever" },
+    "youtube": { "title": "FAF Youtube", "url": "https://www.youtube.com/channel/UCkAWiUu4QE172kv-ZuyR42w" },
+    "replayparser": { "title": "Replay parser", "url": "https://fafafaf.bitbucket.io/" },
+    "tumblr": { "title": "FAF Reactions on tumblr", "url": "https://fafreactions.tumblr.com/" },
+    "wwpc": { "title": "World Wide People's Championship", "url": "http://forums.faforever.com/viewtopic.php?f=26&t=13780" },
+    "changelog": { "title": "Balance patchnotes", "url": "https://content.faforever.com/patchnotes/" }
+  },
+}
