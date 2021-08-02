@@ -11,7 +11,7 @@ namespace Faforever.Qai.Core.Models
 		public string? Title { get; set; }
 		public long Id { get; set; }
 		public string? Description { get; set; }
-		public Uri? DownlaadUrl { get; set; }
+		public Uri? DownloadUrl { get; set; }
 		public string? Size { get; set; }
 		public long? MaxPlayers { get; set; }
 		public bool? Ranked { get; set; }

@@ -64,7 +64,7 @@ namespace Faforever.Qai.Core.Operations.Maps
 				CreatedAt = map["attributes"]?["createTime"]?.ToObject<DateTime>(),
 				Id = map["id"]?.ToObject<long>() ?? 0,
 				Ranked = included["attributes"]?["ranked"]?.ToObject<bool>(),
-				DownlaadUrl = included["attributes"]?["downloadUrl"]?.ToObject<Uri>(),
+				DownloadUrl = included["attributes"]?["downloadUrl"]?.ToObject<Uri>(),
 				PreviewUrl = included["attributes"]?["thumbnailUrlLarge"]?.ToObject<Uri>(),
 				Description = included["attributes"]?["description"]?.ToString().RemoveBadContent(),
 				MaxPlayers = included["attributes"]?["maxPlayers"]?.ToObject<long>(),
