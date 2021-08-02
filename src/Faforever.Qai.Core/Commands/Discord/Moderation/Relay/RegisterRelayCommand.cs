@@ -49,10 +49,10 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
 				await _database.SaveChangesAsync();
 			}
 
-			// TODO: Some check to see if the IRC channel is avalible.
+			// TODO: Some check to see if the IRC channel is available.
 			if (cfg.DiscordToIRCLinks.ContainsKey(discordChannel.Id))
 			{
-				await RespondBasicError("A relay already exsists for this Discord channel.");
+				await RespondBasicError("A relay already exists for this Discord channel.");
 			}
 
 			var activeHooks = await discordChannel.GetWebhooksAsync();

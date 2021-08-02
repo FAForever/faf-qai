@@ -50,7 +50,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Map
 			var embed = new DiscordEmbedBuilder();
 			embed.WithTitle("Download map")
 				.WithColor(Context.DostyaRed)
-				.WithUrl(data.DownlaadUrl?.AbsoluteUri.Replace(" ", "%20"))
+				.WithUrl(data.DownloadUrl?.AbsoluteUri.Replace(" ", "%20"))
 				.WithAuthor($"{data.Title} (ID #{data.Id})")
 				.WithDescription(data.Description)
 				.AddField("Size", data.Size, true)
@@ -66,7 +66,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Map
 		public override async Task ReplyAsync(IRCCommandContext ctx, MapResult data)
 			=> await ctx.ReplyAsync($"Map: {data.Title}, ID: {data.Id}, Size: {data.Size}," +
 				$" Players: {data.MaxPlayers}, Ranked: {data.Ranked}, Author: {data.Author}," +
-				$" Download: {data.DownlaadUrl?.AbsoluteUri.Replace(" ", "%20")}," +
+				$" Download: {data.DownloadUrl?.AbsoluteUri.Replace(" ", "%20")}," +
 				$" Preview: {data.PreviewUrl?.AbsoluteUri.Replace(" ", "%20")}");
 	}
 }

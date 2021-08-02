@@ -75,7 +75,7 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
 			var res = await _relay.RemoveRelayAsync(Context.Channel.GuildId.Value, webhookId);
 			if (!res)
 			{
-				await RespondBasicSuccess("Relay removed succesfuly.");
+				await RespondBasicSuccess("Relay removed succesfully.");
 			}
 			else
 			{

@@ -56,7 +56,7 @@ namespace Faforever.Qai.Api
 					return BadRequest("Token is invalid or not found.");
 
 				default:
-					return BadRequest("Token is invalid, not found, or an unkown error occoured.");
+					return BadRequest("Token is invalid, not found, or an unknown error occoured.");
 			}
 		}
 
