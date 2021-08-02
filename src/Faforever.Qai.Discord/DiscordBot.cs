@@ -139,7 +139,7 @@ namespace Faforever.Qai.Discord
 		{
 			var ccfg = new CommandsNextConfiguration
 			{
-				EnableDms = false,
+				EnableDms = true,
 				EnableMentionPrefix = true,
 				EnableDefaultHelp = true,
 				CaseSensitive = false,

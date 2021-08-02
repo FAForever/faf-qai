@@ -171,7 +171,7 @@ namespace Faforever.Qai
 				TokenType = TokenType.Bot,
 				MinimumLogLevel = LogLevel.Debug,
 				ShardCount = discordConfig.Shards, // Default to 1 for automatic sharding.
-				Intents = DiscordIntents.Guilds | DiscordIntents.GuildMessages,
+				Intents = DiscordIntents.Guilds | DiscordIntents.GuildMessages | DiscordIntents.DirectMessages,
 			};
 
 			services.AddSingleton(discordConfig)
