@@ -1,21 +1,198 @@
 {
   "urls": {
-    "faf": { "title":"FAF main page!", "url": "https://www.faforever.com" },
-    "forum": { "title": "FAF Forum!", "url": "https://forum.faforever.com" },
-    "support": { "title": "Tech support!", "url": "https://forums.faforever.com/viewforum.php?f=3" },
-    "wiki": { "title": "FAF Wiki!", "url": "https://wiki.faforever.com/index.php?title=Main_Page" },
-    "news": { "title": "What's new?", "url": "https://www.faforever.com/news/" },
-    "dev": { "title": "Tumblr Development Feed", "url": "https://faforeverdevblog.tumblr.com/" },
-    "discord": { "title": "FAF Official Discord server", "url": "https://discord.gg/hgvj6Af" },
-    "replay": { "title": "Replay", "url": "https://replay.faforever.com/ID" },
-    "unitsdb": { "title": "Check out", "url": "https://direct.faforever.com/faf/unitsDB/ and spooky.github.io/unitdb/#/" },
-    "namechange": { "title": "Change username", "url": "https://faforever.com/account/username/change" },
-    "clans": { "title": "FAF clans!", "url": "https://clans.faforever.com" },
-    "github": { "title": "FAF on Github", "url": "https://github.com/FAForever" },
-    "youtube": { "title": "FAF Youtube", "url": "https://www.youtube.com/channel/UCkAWiUu4QE172kv-ZuyR42w" },
-    "replayparser": { "title": "Replay parser", "url": "https://fafafaf.bitbucket.io/" },
-    "tumblr": { "title": "FAF Reactions on tumblr", "url": "https://fafreactions.tumblr.com/" },
-    "wwpc": { "title": "World Wide People's Championship", "url": "http://forums.faforever.com/viewtopic.php?f=26&t=13780" },
-    "changelog": { "title": "Balance patchnotes", "url": "https://content.faforever.com/patchnotes/" }
+    "faf": {
+      "title": "FAF main page!",
+      "url": "https://www.faforever.com"
+    },
+    "forum": {
+      "title": "FAF Forum!",
+      "url": "https://forum.faforever.com"
+    },
+    "support": {
+      "title": "Tech support!",
+      "url": "https://forums.faforever.com/viewforum.php?f=3"
+    },
+    "wiki": {
+      "title": "FAF Wiki!",
+      "url": "https://wiki.faforever.com/index.php?title=Main_Page"
+    },
+    "news": {
+      "title": "What's new?",
+      "url": "https://www.faforever.com/news/"
+    },
+    "dev": {
+      "title": "Tumblr Development Feed",
+      "url": "https://faforeverdevblog.tumblr.com/"
+    },
+    "discord": {
+      "title": "FAF Official Discord server",
+      "url": "https://discord.gg/hgvj6Af"
+    },
+    "replay": {
+      "title": "Replay",
+      "url": "https://replay.faforever.com/ID"
+    },
+    "unitsdb": {
+      "title": "Check out",
+      "url": "https://direct.faforever.com/faf/unitsDB/ and spooky.github.io/unitdb/#/"
+    },
+    "namechange": {
+      "title": "Change username",
+      "url": "https://faforever.com/account/username/change"
+    },
+    "clans": {
+      "title": "FAF clans!",
+      "url": "https://clans.faforever.com"
+    },
+    "github": {
+      "title": "FAF on Github",
+      "url": "https://github.com/FAForever"
+    },
+    "youtube": {
+      "title": "FAF Youtube",
+      "url": "https://www.youtube.com/channel/UCkAWiUu4QE172kv-ZuyR42w"
+    },
+    "replayparser": {
+      "title": "Replay parser",
+      "url": "https://fafafaf.bitbucket.io/"
+    },
+    "tumblr": {
+      "title": "FAF Reactions on tumblr",
+      "url": "https://fafreactions.tumblr.com/"
+    },
+    "wwpc": {
+      "title": "World Wide People's Championship",
+      "url": "http://forums.faforever.com/viewtopic.php?f=26&t=13780"
+    },
+    "changelog": {
+      "title": "Balance patchnotes",
+      "url": "https://content.faforever.com/patchnotes/"
+    }
   },
+  "wiki_urls": {
+    "AI": {
+      "title": "Guide to AI modding:",
+      "url": "https://wiki.faforever.com/index.php?title=AI_Modding"
+    },
+    "adjacency": {
+      "title": "Information on the adjacency bonus:",
+      "url": "https://wiki.faforever.com/index.php?title=Adjacency_Bonus"
+    },
+    "avatars": {
+      "title": "Avatars and how to get them:",
+      "url": "https://wiki.faforever.com/index.php?title=FAF_chat#Avatars"
+    },
+    "balance": {
+      "title": "How game quality works:",
+      "url": "https://wiki.faforever.com/index.php?title=The_game_balance_index"
+    },
+    "chat": {
+      "title": "The FAF chat tab:",
+      "url": "https://wiki.faforever.com/index.php?title=FAF_chat"
+    },
+    "connection": {
+      "title": "Help with connection issues:",
+      "url": "https://wiki.faforever.com/index.php?title=Connection_issues_and_solutions"
+    },
+    "coop": {
+      "title": "The coop missions and campaign:",
+      "url": "https://wiki.faforever.com/index.php?title=Coop_Missions"
+    },
+    "engymod": {
+      "title": "The integrated Engy Mod:",
+      "url": "https://wiki.faforever.com/index.php?title=Game_Modifications_(Mods)#Engy_Mod"
+    },
+    "galacticwar": {
+      "title": "Galactic war and playing it:",
+      "url": "https://wiki.faforever.com/index.php?title=Galactic_War"
+    },
+    "hostgame": {
+      "title": "How to host and join games:",
+      "url": "https://wiki.faforever.com/index.php?title=Host_and_join_games"
+    },
+    "hotbuild": {
+      "title": "Setting up and using HotBuild:",
+      "url": "https://wiki.faforever.com/index.php?title=Game_Modifications_(Mods)#Gaz_UI_and_Hotbuild"
+    },
+    "ladder": {
+      "title": "Info on the FAF 1v1 ladder:",
+      "url": "https://wiki.faforever.com/index.php?title=The_Ladder"
+    },
+    "ladderpool": {
+      "title": "The Current Ladder map pool:",
+      "url": "https://wiki.faforever.com/index.php?title=Ladder_Map_Pool"
+    },
+    "leaderboards": {
+      "title": "The 1v1 Ladder Leaderboards:",
+      "url": "https://wiki.faforever.com/index.php?title=Leaderboards_and_Rating"
+    },
+    "mapeditor": {
+      "title": "Getting and using the map editor:",
+      "url": "https://wiki.faforever.com/index.php?title=Map_Editor"
+    },
+    "irc": {
+      "title": "Connecting to and using FAF chat with IRC:",
+      "url": "https://wiki.faforever.com/index.php?title=Chat_/_IRC_server"
+    },
+    "maps": {
+      "title": "The FAF Map Vault:",
+      "url": "https://wiki.faforever.com/index.php?title=Map_Vault"
+    },
+    "mapdownload": {
+      "title": "How to download maps:",
+      "url": "https://wiki.faforever.com/index.php?title=Map_Vault#3._Download_button"
+    },
+    "moderators": {
+      "title": "List of FAF moderators:",
+      "url": "https://wiki.faforever.com/index.php?title=User_Groups#FAF_Moderators"
+    },
+    "mods": {
+      "title": "How mods work with FAF:",
+      "url": "https://wiki.faforever.com/index.php?title=Game_Modifications_(Mods)"
+    },
+    "mumble": {
+      "title": "Using Mumble with FAF:",
+      "url": "https://wiki.faforever.com/index.php?title=Voicechat_(Mumble)"
+    },
+    "patches": {
+      "title": "All the patch changelogs:",
+      "url": "https://wiki.faforever.com/index.php?title=Main_Page#Patch_Change_Logs"
+    },
+    "replays": {
+      "title": "The FAF replay vault:",
+      "url": "https://wiki.faforever.com/index.php?title=Replay_Vault_%26_Live_Games"
+    },
+    "rating": {
+      "title": "How rating works in FAF:",
+      "url": "https://wiki.faforever.com/index.php?title=Global_Ranking"
+    },
+    "rules": {
+      "title": "The FAF client and forum rules:",
+      "url": "https://wiki.faforever.com/index.php?title=FAF_Client/Forum_Rules"
+    },
+    "school": {
+      "title": "FAF Dev School, the simple guide to all of FAF's code:",
+      "url": "https://wiki.faforever.com/index.php?title=FAF_Development_School"
+    },
+    "splitattack": {
+      "title": "Using Split attack in game:",
+      "url": "https://wiki.faforever.com/index.php?title=Game_Modifications_(Mods)#Split_Attack"
+    },
+    "trainers": {
+      "title": "List of personal trainers in FAF:",
+      "url": "https://wiki.faforever.com/index.php?title=User_Groups#Trainers"
+    },
+    "trueskill": {
+      "title": "Trueskill explained:",
+      "url": "https://wiki.faforever.com/index.php?title=How_Trueskill_works"
+    },
+    "tutorials": {
+      "title": "Help with learning how to play:",
+      "url": "https://wiki.faforever.com/index.php?title=Learning_SupCom"
+    },
+    "adaptivemap": {
+      "title": "Learn more about the adaptive maps from the Ultimate series",
+      "url": "https://wiki.faforever.com/index.php?title=Adaptive_Maps"
+    }
+  }
 }
