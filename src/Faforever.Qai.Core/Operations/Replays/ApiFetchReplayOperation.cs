@@ -31,7 +31,7 @@ namespace Faforever.Qai.Core.Operations.Replays
 			return ParseRawJson(data);
 		}
 
-		public async Task<ReplayResult?> FetchReplayAsync(string replayId)
+		public async Task<ReplayResult?> FetchReplayAsync(long replayId)
 		{
 			string data = await _api.Client
 				.GetStringAsync($"{baseurl}&filter=id=={replayId}");
