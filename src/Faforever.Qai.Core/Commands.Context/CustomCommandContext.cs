@@ -24,5 +24,11 @@ namespace Faforever.Qai.Core.Commands.Context
 		/// <param name="message">Message to be sent back.</param>
 		/// <returns>Operation for this reply.</returns>
 		public abstract Task ReplyAsync(string message);
+		/// <summary>
+		/// An action (/me) sent back to the user
+		/// </summary>
+		/// <param name="action">Message to be sent back.</param>
+		/// <returns>Operation for this reply.</returns>
+		public abstract Task ActionAsync(string action);
 	}
 }

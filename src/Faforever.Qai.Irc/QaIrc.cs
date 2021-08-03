@@ -74,7 +74,7 @@ namespace Faforever.Qai.Irc
 				return;
 			}
 			
-			IRCCommandContext ctx = new IRCCommandContext(_client.LocalUser, eventArgs.Source.Name, channeluser.User, eventArgs.Text, "!", _services);
+			IRCCommandContext ctx = new IRCCommandContext(_client.LocalUser, eventArgs.Source.Name, channeluser.User, eventArgs.Text, "!", _services, channel);
 			await _commandHandler.MessageRecivedAsync(ctx, eventArgs.Text);
 
 			await _relay.IRC_MessageReceived(channel.Name, eventArgs.Source.Name, eventArgs.Text);

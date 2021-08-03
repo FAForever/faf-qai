@@ -38,5 +38,19 @@ namespace Faforever.Qai.Core.Commands.Context
 				Client.SendMessage(RespondTo, message);
 			});
 		}
+
+		public override Task ActionAsync(string message)
+		{
+			return Task.Run(() =>
+			{
+				message = message.Replace("\n", " ");
+				IIrcMessageTarget? target = Channel;
+				if (target is null)
+					target = Author;
+
+				var actionMessage = IrcUtils.ActionMessage(message);
+				Client.SendMessage(target, actionMessage);
+			});
+		}
 	}
 }
