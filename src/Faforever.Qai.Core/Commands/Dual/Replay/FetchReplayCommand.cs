@@ -24,7 +24,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
 		}
 
 		[Command("replay")]
-		public async Task FetchReplayCommandAsync(string replayId)
+		public async Task FetchReplayCommandAsync(long replayId)
 		{
 			var data = await _replay.FetchReplayAsync(replayId);
 
