@@ -35,5 +35,12 @@ namespace Faforever.Qai.Core.Commands.Context
 		{
 			await Channel.SendMessageAsync(message);
 		}
+
+		public override Task ActionAsync(string action)
+		{
+			//throw new NotImplementedException();
+
+			return Task.CompletedTask;
+		}
 	}
 }

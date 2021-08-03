@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Faforever.Qai.Core.Commands.Arguments;
-using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Commands.Exceptions;
 using Faforever.Qai.Core.Services.BotFun;
 
@@ -13,6 +12,7 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Fun
 {
+
 	public class TauntCommand : DualCommandModule
 	{
 		private readonly IBotFunService _botFun;
@@ -38,15 +38,12 @@ namespace Faforever.Qai.Core.Commands.Dual.Fun
 			{
 				prefix = ircUser.User.UserName;
 			}
-			else if(user is null)
-			{
-				if (Context is DiscordCommandContext dctx)
-					prefix = dctx.Client.CurrentUser.Mention;
-				else if (Context is IRCCommandContext ictx)
-					prefix = ictx.Client.UserName;
-			}
 
-			await Context.ReplyAsync($"{prefix}: {_botFun.GetRandomTaunt()}");
+			var taunt = _botFun.GetRandomTaunt();
+			if (!string.IsNullOrEmpty(prefix))
+				taunt = $"{prefix}: {taunt}";
+
+			await Context.ReplyAsync(taunt);
 		}
 	}
 }
