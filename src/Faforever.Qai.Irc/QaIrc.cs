@@ -20,6 +20,7 @@ namespace Faforever.Qai.Irc
 		private readonly QCommandsHandler _commandHandler;
 		private readonly RelayService _relay;
 		private readonly IServiceProvider _services;
+		private readonly string[] _channels;
 
 		private readonly StandardIrcClient _client;
 
@@ -33,6 +34,7 @@ namespace Faforever.Qai.Irc
 			_relay = relay;
 			_relay.DiscordMessageReceived += BounceToIRC;
 			_services = services;
+			_channels = config.Channels;
 
 			_client = new StandardIrcClient { FloodPreventer = new IrcStandardFloodPreventer(4, 2000) };
 			_client.ErrorMessageReceived += OnClientErrorMessageReceived;
@@ -97,9 +99,10 @@ namespace Faforever.Qai.Irc
 				eventArgs.Channel.MessageReceived += OnChannelMessageReceived;
 			};
 
-			client.Channels.Join("#qai-test");
-			client.Channels.Join("#aeolus");
-			client.Channels.Join("#newbie");
+			foreach(var channel in _channels)
+			{
+				client.Channels.Join($"#{channel.Trim('#')}");
+			}
 		}
 
 		private void OnClientConnectFailed(object sender, IrcErrorEventArgs args)
