@@ -190,6 +190,7 @@ namespace Faforever.Qai
 			IrcConfiguration ircConfig = new()
 			{
 				Connection = Configuration["Config:Irc:Connection"],
+				Channels = Configuration["Config:Irc:Channels"].Split(',').Select(s => s.Trim()).ToArray(),
 				UserName = user,
 				NickName = user,
 				RealName = user,

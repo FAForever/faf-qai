@@ -11,14 +11,16 @@ namespace Faforever.Qai.Core.Structures.Configurations
 	public class IrcConfiguration
 	{
 		[JsonProperty("nickname")]
-		public string NickName { get; set; }
+		public string NickName { get; set; } = default!;
 		[JsonProperty("realname")]
-		public string RealName { get; set; }
+		public string RealName { get; set; } = default!;
 		[JsonProperty("password")]
-		public string Password { get; set; }
+		public string Password { get; set; } = default!;
 		[JsonProperty("username")]
-		public string UserName { get; set; }
+		public string UserName { get; set; } = default!;
 		[JsonProperty("con_uri")]
-		public string Connection { get; set; }
+		public string Connection { get; set; } = default!;
+		[JsonProperty("channels")]
+		public string[] Channels { get; set; } = default!;
 	}
 }
