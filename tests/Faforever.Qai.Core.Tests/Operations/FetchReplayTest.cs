@@ -25,7 +25,7 @@ namespace Faforever.Qai.Core.Tests.Operations
 		}
 
 		[TestCase("13670943", TestName = "Get Replay By ID", Author = "Soyvolon")]
-		public async Task VerifyReplayIDsMatch(string replayId)
+		public async Task VerifyReplayIDsMatch(long replayId)
 		{
 			var res = await Replay.FetchReplayAsync(replayId);
 			Assert.NotNull(res);
