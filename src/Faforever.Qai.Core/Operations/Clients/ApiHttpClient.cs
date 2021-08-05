@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Faforever.Qai.Core.Operations.Clients
 {
-	public class ApiClient
+	public class ApiHttpClient
 	{
 		public HttpClient Client { get; init; }
 
-		public ApiClient(HttpClient client)
+		public ApiHttpClient(HttpClient client)
 		{
 			this.Client = client;
 		}

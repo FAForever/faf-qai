@@ -13,9 +13,9 @@ namespace Faforever.Qai.Core.Operations.Maps
 {
 	public class ApiFetchLadderPoolOperation : IFetchLadderPoolOperation
 	{
-		private readonly ApiClient _api;
+		private readonly ApiHttpClient _api;
 
-		public ApiFetchLadderPoolOperation(ApiClient api)
+		public ApiFetchLadderPoolOperation(ApiHttpClient api)
 		{
 			_api = api;
 		}

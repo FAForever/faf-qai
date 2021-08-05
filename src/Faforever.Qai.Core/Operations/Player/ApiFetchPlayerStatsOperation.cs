@@ -10,12 +10,22 @@ using Faforever.Qai.Core.Operations.Clients;
 
 namespace Faforever.Qai.Core.Operations.Player
 {
+	
+	public class FetchPlayerLastGameResult
+	{
+		public string Id { get; set; }
+		public string Name { get; set; }
+		public DateTime? StartTime { get; set; }
+		public DateTime? EndTime { get; set; }
+	}
+
+
 	[ExcludeFromCodeCoverage]
 	public class ApiFetchPlayerStatsOperation : IFetchPlayerStatsOperation
 	{
-		private readonly ApiClient _api;
+		private readonly ApiHttpClient _api;
 
-		public ApiFetchPlayerStatsOperation(ApiClient api)
+		public ApiFetchPlayerStatsOperation(ApiHttpClient api)
 		{
 			this._api = api;
 		}
