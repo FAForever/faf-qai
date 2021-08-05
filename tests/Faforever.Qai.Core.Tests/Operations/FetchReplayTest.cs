@@ -29,7 +29,7 @@ namespace Faforever.Qai.Core.Tests.Operations
 		{
 			var res = await Replay.FetchReplayAsync(replayId);
 			Assert.NotNull(res);
-			Assert.AreEqual(res.Id.ToString(), replayId, message: $"Expected {replayId} got {res.Id}");
+			Assert.AreEqual(res.Id, replayId, message: $"Expected {replayId} got {res.Id}");
 		}
 
 		[TestCase("Soyvolon", TestName = "Get Last Replay For User", Author = "Soyvolon")]
