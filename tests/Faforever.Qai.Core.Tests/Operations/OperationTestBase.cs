@@ -55,7 +55,7 @@ namespace Faforever.Qai.Core.Tests.Operations
 				.AddTransient<IFetchTwitchStreamsOperation, FetchTwitchStreamsOperation>();
 
 			// HTTP Client Mapping
-			collection.AddHttpClient<ApiClient>(client =>
+			collection.AddHttpClient<ApiHttpClient>(client =>
 			{
 				client.BaseAddress = new($"{config["Config:Faf:Api"]}");
 			});

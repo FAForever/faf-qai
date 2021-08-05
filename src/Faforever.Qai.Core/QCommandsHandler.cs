@@ -11,7 +11,6 @@ using Faforever.Qai.Core.Commands.Context.Exceptions;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic.CompilerServices;
 
 using Qmmands;
 

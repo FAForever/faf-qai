@@ -11,9 +11,9 @@ namespace Faforever.Qai.Core.Operations.Player
 {
 	public class ApiFindPlayerOperation : IFindPlayerOperation
 	{
-		private readonly ApiClient _api;
+		private readonly ApiHttpClient _api;
 
-		public ApiFindPlayerOperation(ApiClient api)
+		public ApiFindPlayerOperation(ApiHttpClient api)
 		{
 			this._api = api;
 		}

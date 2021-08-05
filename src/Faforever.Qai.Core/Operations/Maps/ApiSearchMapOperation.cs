@@ -15,9 +15,9 @@ namespace Faforever.Qai.Core.Operations.Maps
 {
 	public class ApiSearchMapOperation : ISearchMapOperation
 	{
-		private readonly ApiClient _api;
+		private readonly ApiHttpClient _api;
 
-		public ApiSearchMapOperation(ApiClient api)
+		public ApiSearchMapOperation(ApiHttpClient api)
 		{
 			_api = api;
 		}

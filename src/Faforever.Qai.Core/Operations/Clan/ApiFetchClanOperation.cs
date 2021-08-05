@@ -14,9 +14,9 @@ namespace Faforever.Qai.Core.Operations.Clan
 {
 	public class ApiFetchClanOperation : IFetchClanOperation
 	{
-		private readonly ApiClient _api;
+		private readonly ApiHttpClient _api;
 
-		public ApiFetchClanOperation(ApiClient api)
+		public ApiFetchClanOperation(ApiHttpClient api)
 		{
 			_api = api;
 		}

@@ -73,8 +73,10 @@ namespace Faforever.Qai.Discord.Utils.Bot
 				cancellationToken.ThrowIfCancellationRequested();
 
 				if (command is null)
-				{ // Looks like that command does not exsist!
-					await CommandResponder.RespondCommandNotFound(msg.Channel, prefix);
+				{
+					// Looks like that command does not exist!
+					// 2021-08-04: Commented out not found response, could be a command for a different bot // Crot
+					//await CommandResponder.RespondCommandNotFound(msg.Channel, prefix);
 				}
 				else
 				{ // We found a command, lets deal with it.

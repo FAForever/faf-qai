@@ -13,12 +13,12 @@ namespace Faforever.Qai.Core.Operations.Replays
 {
 	public class ApiFetchReplayOperation : IFetchReplayOperation
 	{
-		private readonly ApiClient _api;
+		private readonly ApiHttpClient _api;
 		private const string baseurl = "/data/game?include=mapVersion,playerStats,mapVersion.map," +
 				"playerStats.player,featuredMod,playerStats.player.globalRating," +
 				"playerStats.player.ladder1v1Rating,playerStats.player.clanMembership.clan";
 
-		public ApiFetchReplayOperation(ApiClient api)
+		public ApiFetchReplayOperation(ApiHttpClient api)
 		{
 			_api = api;
 		}

@@ -14,6 +14,7 @@ using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Operations.Clan;
 using Faforever.Qai.Core.Operations.Clients;
 using Faforever.Qai.Core.Operations.Content;
+using Faforever.Qai.Core.Operations.FafApi;
 using Faforever.Qai.Core.Operations.Maps;
 using Faforever.Qai.Core.Operations.Player;
 using Faforever.Qai.Core.Operations.Replays;
@@ -144,9 +145,13 @@ namespace Faforever.Qai
 				.AddTransient<IFetchLadderPoolOperation, ApiFetchLadderPoolOperation>()
 				.AddTransient<IFetchReplayOperation, ApiFetchReplayOperation>()
 				.AddTransient<IFetchClanOperation, ApiFetchClanOperation>()
-				.AddTransient<IFetchTwitchStreamsOperation, FetchTwitchStreamsOperation>();
+				.AddTransient<IFetchTwitchStreamsOperation, FetchTwitchStreamsOperation>()
+				.AddTransient<FafApiClient>();
+
+
+
 			// HTTP Client Mapping
-			services.AddHttpClient<ApiClient>(client =>
+			services.AddHttpClient<ApiHttpClient>(client =>
 			{
 				client.BaseAddress = ApiUri;
 			});
