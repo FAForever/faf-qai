@@ -185,6 +185,7 @@ namespace Faforever.Qai
 					return new(dcfg);
 				})
 				.AddSingleton<DiscordBot>();
+
 			// IRC Information Setup
 			var user = Configuration["Config:Irc:User"];
 			var pass = Environment.GetEnvironmentVariable("IRC_PASS");
@@ -397,6 +398,9 @@ namespace Faforever.Qai
 		/// <returns>The task for this operation.</returns>
 		private static async Task StartClients(IApplicationBuilder app)
 		{
+			var relayService = app.ApplicationServices.GetRequiredService<RelayService>();
+			await relayService.InitializeAsync();
+
 			var ircBot = app.ApplicationServices.GetRequiredService<QaIrc>();
 			
 			ircBot.Run();

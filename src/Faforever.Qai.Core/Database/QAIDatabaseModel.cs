@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Faforever.Qai.Core.Database.Entities;
+using Faforever.Qai.Core.Extensions;
 using Faforever.Qai.Core.Structures.Webhooks;
 
 using Microsoft.EntityFrameworkCore;
@@ -29,41 +30,13 @@ namespace Faforever.Qai.Core.Database
 		{
 			base.OnModelCreating(modelBuilder);
 
-			modelBuilder.Entity<DiscordGuildConfiguration>()
-				.Property(b => b.FafLinks)
-				.HasConversion(
-				v => JsonConvert.SerializeObject(v),
-				v => JsonConvert.DeserializeObject<ConcurrentDictionary<ulong, string>>(v) ?? new ConcurrentDictionary<ulong, string>());
+			modelBuilder.Entity<DiscordGuildConfiguration>().Property(b => b.FafLinks).Json();
+			modelBuilder.Entity<DiscordGuildConfiguration>().Property(b => b.Records).Json();
+			modelBuilder.Entity<DiscordGuildConfiguration>().Property(b => b.UserBlacklist).Json();
+			modelBuilder.Entity<DiscordGuildConfiguration>().Property<HashSet<ulong>>("RegisteredRoles").Json();
 
-			modelBuilder.Entity<DiscordGuildConfiguration>()
-				.Property(b => b.Records)
-				.HasConversion(
-				v => JsonConvert.SerializeObject(v),
-				v => JsonConvert.DeserializeObject<ConcurrentDictionary<string, string>>(v) ?? new ConcurrentDictionary<string, string>());
-
-			modelBuilder.Entity<DiscordGuildConfiguration>()
-				.Property(b => b.UserBlacklist)
-				.HasConversion(
-				v => JsonConvert.SerializeObject(v),
-				v => JsonConvert.DeserializeObject<HashSet<ulong>>(v) ?? new HashSet<ulong>());
-
-			modelBuilder.Entity<DiscordGuildConfiguration>()
-				.Property<HashSet<ulong>>("RegisteredRoles")
-				.HasConversion(
-				v => JsonConvert.SerializeObject(v),
-				v => JsonConvert.DeserializeObject<HashSet<ulong>>(v) ?? new HashSet<ulong>());
-
-			modelBuilder.Entity<RelayConfiguration>()
-				.Property(b => b.DiscordToIRCLinks)
-				.HasConversion(
-				v => JsonConvert.SerializeObject(v),
-				v => JsonConvert.DeserializeObject<ConcurrentDictionary<ulong, string>>(v) ?? new ConcurrentDictionary<ulong, string>());
-
-			modelBuilder.Entity<RelayConfiguration>()
-				.Property(b => b.Webhooks)
-				.HasConversion(
-				v => JsonConvert.SerializeObject(v),
-				v => JsonConvert.DeserializeObject<ConcurrentDictionary<string, DiscordWebhookData>>(v) ?? new ConcurrentDictionary<string, DiscordWebhookData>());
+			modelBuilder.Entity<RelayConfiguration>().Property(b => b.DiscordToIRCLinks).Json();
+			modelBuilder.Entity<RelayConfiguration>().Property(b => b.Webhooks).Json();
 		}
 	}
 }
