@@ -25,10 +25,12 @@ SOFTWARE.
 */
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Faforever.Qai.Core
 {
-	public partial class Levenshtein
+	[ExcludeFromCodeCoverage]
+	public static class Levenshtein
 	{
 		/// <summary>
 		/// Compares the two values to find the minimum Levenshtein distance. 
