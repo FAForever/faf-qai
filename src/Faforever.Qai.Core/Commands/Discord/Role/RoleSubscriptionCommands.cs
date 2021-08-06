@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
@@ -9,7 +6,6 @@ using DSharpPlus.Entities;
 using Faforever.Qai.Core.Commands.Authorization;
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Database.Entities;
-using Faforever.Qai.Core.Structures.Configurations;
 
 using Microsoft.Extensions.DependencyInjection;
 

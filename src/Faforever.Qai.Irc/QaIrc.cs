@@ -55,7 +55,7 @@ namespace Faforever.Qai.Irc
 			_client.Dispose();
 		}
 
-		private async void OnPrivateMessage(object? receiver, IrcMessageEventArgs eventArgs)
+		private async void OnPrivateMessage(object receiver, IrcMessageEventArgs eventArgs)
 		{
 			IrcUser user = eventArgs.Source as IrcUser;
 
@@ -83,7 +83,7 @@ namespace Faforever.Qai.Irc
 			await _relay.IRC_MessageReceived(channel.Name, eventArgs.Source.Name, eventArgs.Text);
 		}
 
-		private void OnClientRegistered(object? sender, EventArgs args)
+		private void OnClientRegistered(object sender, EventArgs args)
 		{
 			IrcClient client = sender as IrcClient;
 			_logger.Log(LogLevel.Information, "Client registered");

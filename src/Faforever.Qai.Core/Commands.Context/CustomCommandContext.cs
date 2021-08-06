@@ -12,7 +12,7 @@ namespace Faforever.Qai.Core.Commands.Context
 		/// <summary>
 		/// The prefix used to trigger this command.
 		/// </summary>
-		public string Prefix { get; protected set; }
+		public string Prefix { get; protected set; } = default!;
 
 		public readonly DiscordColor DostyaRed = new DiscordColor(0xff0000);
 

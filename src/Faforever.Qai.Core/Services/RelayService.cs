@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 using DSharpPlus;
@@ -11,14 +10,11 @@ using DSharpPlus.Entities;
 
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Database.Entities;
-using Faforever.Qai.Core.Structures.Configurations;
 using Faforever.Qai.Core.Structures.Webhooks;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-
-using Newtonsoft.Json;
 
 namespace Faforever.Qai.Core.Services
 {
@@ -28,7 +24,7 @@ namespace Faforever.Qai.Core.Services
 	public class RelayService : IDisposable
 	{
 		public delegate Task RelayDiscordMessage(string ircChannel, string author, string message);
-		public event RelayDiscordMessage DiscordMessageReceived;
+		public event RelayDiscordMessage? DiscordMessageReceived;
 
 		private readonly IServiceProvider _services;
 		private readonly ILogger _logger;
@@ -50,15 +46,17 @@ namespace Faforever.Qai.Core.Services
 			this._rest = rest;
 
 			Http = new HttpClient();
+			IRCToWebhookRelations = new();
+			DiscordToIRCWebhookRelations = new();
 		}
 
 		public async Task<bool> InitalizeAsync()
 		{
+			if (initalized)
+				return true;
+
 			try
 			{
-				IRCToWebhookRelations = new();
-				DiscordToIRCWebhookRelations = new();
-
 				var _database = _services.GetRequiredService<QAIDatabaseModel>();
 
 				var relays = _database.RelayConfigurations
@@ -197,7 +195,9 @@ namespace Faforever.Qai.Core.Services
 				try
 				{
 					// send to IRC
-					await DiscordMessageReceived(ircChannel, author, message);
+					if (DiscordMessageReceived != null)
+						await DiscordMessageReceived(ircChannel, author, message);
+
 					// bounce to other discord channels listening
 					await IRC_MessageReceived(ircChannel, author, message, discordChannel);
 				}
@@ -249,7 +249,7 @@ namespace Faforever.Qai.Core.Services
 
 				// TODO: free unmanaged resources (unmanaged objects) and override finalizer
 				// TODO: set large fields to null
-				IRCToWebhookRelations = null;
+				IRCToWebhookRelations.Clear();
 				disposedValue = true;
 			}
 		}

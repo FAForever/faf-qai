@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Database.Entities;
-using Faforever.Qai.Core.Structures;
 using Faforever.Qai.Core.Structures.Link;
 
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +16,7 @@ namespace Faforever.Qai.Core.Services
 	public class AccountLinkService
 	{
 		public delegate Task LinkCompletedDelegate(LinkCompleteEventArgs args);
-		public event LinkCompletedDelegate LinkComplete;
+		public event LinkCompletedDelegate? LinkComplete;
 
 		public enum LinkStatus
 		{
@@ -89,19 +86,22 @@ namespace Faforever.Qai.Core.Services
 		{
 			if(LinkingController.TryRemove(token, out var state))
 			{
-				_ = Task.Run(async () =>
+				if(LinkComplete != null)
 				{
-					try
+					_ = Task.Run(async () =>
 					{
-						await LinkComplete.Invoke(new()
+						try
 						{
-							Complete = false,
-							Guild = state.InvokedFromGuild,
-							Link = null
-						});
-					}
-					catch { /* ignore any errors */ }
-				});
+							await LinkComplete.Invoke(new()
+							{
+								Complete = false,
+								Guild = state.InvokedFromGuild,
+								Link = null
+							});
+						}
+						catch { /* ignore any errors */ }
+					});
+				}
 
 				await state.ExparationTimer.DisposeAsync();
 			}
@@ -138,19 +138,23 @@ namespace Faforever.Qai.Core.Services
 
 				await disp;
 
-				_ = Task.Run(async () =>
+				if(LinkComplete != null)
 				{
-					try
+					_ = Task.Run(async () =>
 					{
-						await LinkComplete.Invoke(new()
+						try
 						{
-							Complete = true,
-							Guild = state.InvokedFromGuild,
-							Link = link
-						});
-					}
-					catch { /* ignore any errors */ }
-				});
+							await LinkComplete.Invoke(new()
+							{
+								Complete = true,
+								Guild = state.InvokedFromGuild,
+								Link = link
+							});
+						}
+						catch { /* ignore any errors */ }
+					});
+				}
+				
 
 				return link;
 			}

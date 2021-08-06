@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-
-#nullable disable
+﻿#nullable disable
 
 namespace Faforever.Qai.Database.Setup
 {
-    public partial class AccountLink
+	public partial class AccountLink
     {
         public long Id { get; set; }
         public long FafId { get; set; }

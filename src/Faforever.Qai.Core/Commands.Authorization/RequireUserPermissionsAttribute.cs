@@ -1,10 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 using DSharpPlus;
-
-using Faforever.Qai.Core.Commands.Authorization.Exceptions;
 
 namespace Faforever.Qai.Core.Commands.Authorization
 {

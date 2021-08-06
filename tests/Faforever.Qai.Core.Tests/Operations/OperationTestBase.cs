@@ -1,9 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Faforever.Qai.Core.Operations.Clan;
 using Faforever.Qai.Core.Operations.Clients;
@@ -21,7 +17,7 @@ using NUnit.Framework;
 
 namespace Faforever.Qai.Core.Tests.Operations
 {
-    public class OperationTestBase
+	public class OperationTestBase
     {
 		protected IServiceProvider Services { get; private set; }
 

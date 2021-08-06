@@ -84,10 +84,9 @@ namespace Faforever.Qai.Core
 						break;
 				}
 			}
-
 		}
 
-		private async Task<bool> CheckPermissions(IRCCommandContext ctx, IReadOnlyList<Attribute> attributes)
+		private static bool CheckPermissions(IRCCommandContext ctx, IReadOnlyList<Attribute> attributes)
 		{
 			// TODO: See if we need more complicated permission checking for the IRC client
 			// If the authro is an operator, then they can run the command ...
@@ -199,7 +198,7 @@ namespace Faforever.Qai.Core
 			var disResult = false;
 
 			if (ctx is IRCCommandContext irc)
-				ircResult = await CheckPermissions(irc, attributes);
+				ircResult = CheckPermissions(irc, attributes);
 			else if (ctx is DiscordCommandContext dis)
 				disResult = await CheckPermissions(dis, attributes);
 
@@ -234,8 +233,6 @@ namespace Faforever.Qai.Core
 
 		private Task Respond_ArgumentException()
 		{
-
-
 			return Task.CompletedTask;
 		}
 	}

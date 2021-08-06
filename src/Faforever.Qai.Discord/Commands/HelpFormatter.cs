@@ -18,7 +18,7 @@ namespace Faforever.Qai.Discord.Commands
 	public class HelpFormatter : BaseHelpFormatter
 	{
 		public DiscordEmbedBuilder EmbedBuilder { get; }
-		private Command Command { get; set; }
+		private Command? Command { get; set; }
 
 		public HelpFormatter(CommandContext ctx) : base(ctx)
 		{

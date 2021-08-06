@@ -1,9 +1,5 @@
 using System.Threading.Tasks;
 
-using DSharpPlus;
-
-using Faforever.Qai.Core.Commands.Authorization;
-
 using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Fun

@@ -1,10 +1,4 @@
 using System.Threading.Tasks;
-
-using DSharpPlus.Entities;
-
-using Faforever.Qai.Core.Commands.Context;
-using Faforever.Qai.Core.Models;
-using Faforever.Qai.Core.Operations.Units;
 using Faforever.Qai.Core.Services;
 using Qmmands;
 

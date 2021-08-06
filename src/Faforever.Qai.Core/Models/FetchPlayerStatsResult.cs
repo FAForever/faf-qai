@@ -5,8 +5,8 @@ namespace Faforever.Qai.Core.Models
 {
 	public class FetchPlayerStatsResult
 	{
-		public string Name { get; set; }
-		public string Id { get; set; }
+		public string Name { get; set; } = default!;
+		public string Id { get; set; } = default!;
 		public GameStatistics? LadderStats { get; set; } = null;
 		public GameStatistics? GlobalStats { get; set; } = null;
 		public FAFClan? Clan { get; set; } = null;

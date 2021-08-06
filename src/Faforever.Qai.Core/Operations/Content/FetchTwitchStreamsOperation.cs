@@ -1,14 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using Faforever.Qai.Core.Models;
 using Faforever.Qai.Core.Operations.Clients;
 
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Faforever.Qai.Core.Operations.Content
 {

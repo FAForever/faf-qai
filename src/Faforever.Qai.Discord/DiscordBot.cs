@@ -55,8 +55,6 @@ namespace Faforever.Qai.Discord
 		#region Private Variables
 		private DiscordBotConfiguration Config { get; set; }
 
-		private DiscordEventHandler eventHandler;
-
 		private readonly IServiceProvider _services;
 		private readonly QCommandsHandler _commands;
 		private readonly DiscordEventHandler _eventHandler;
@@ -68,7 +66,7 @@ namespace Faforever.Qai.Discord
 			QCommandsHandler commands, DiscordEventHandler eventHandler)
 		{
 			CommandsInProgress = new ConcurrentDictionary<CommandHandler, Tuple<Task, CancellationTokenSource>>();
-
+			Commands = new Dictionary<string, Command>();
 			Config = configuration;
 			Client = client;
 			Rest = rest;
@@ -82,9 +80,11 @@ namespace Faforever.Qai.Discord
 		/// Register the DiscordBotConfiguration object for this bot.
 		/// </summary>
 		/// <returns>Task that registers the configuration</returns>
-		public async Task RegisterBotConfigurationAsync()
+		public Task RegisterBotConfigurationAsync()
 		{
 			// TODO: Bot Configuration reading. ENV variables vs JSON config vs .ini file?
+
+			return Task.CompletedTask;
 		}
 		#endregion
 
@@ -127,7 +127,6 @@ namespace Faforever.Qai.Discord
 			_eventHandler.Initalize();
 
 			// Register the event needed to send data to the CommandHandler
-			Client.MessageCreated += Client_MessageCreated;
 			Client.MessageCreated += QMmands_MessageCreated;
 		}
 
@@ -156,32 +155,6 @@ namespace Faforever.Qai.Discord
 		#endregion
 
 		#region Command Events
-		private Task Client_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
-		{
-			//TODO Remove after testing.
-			return Task.CompletedTask;
-
-			if (CommandsInProgress is null)
-				return Task.CompletedTask; // Looks like we can't handle any commands.
-
-			try
-			{
-				var cancel = new CancellationTokenSource();
-				var handler = new CommandHandler(Commands, sender, Config, _services);
-				var task = handler.MessageReceivedAsync(sender.GetCommandsNext(), e.Message, cancel.Token);
-				if (task.Status == TaskStatus.Running)
-				{
-					CommandsInProgress[handler] = new Tuple<Task, CancellationTokenSource>(task, cancel);
-				}
-			}
-			catch (Exception ex)
-			{
-				Client.Logger.LogError(Event_CommandHandler, ex, "An unkown error occoured.");
-			}
-
-			return Task.CompletedTask;
-		}
-
 		private Task QMmands_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
 		{
 			if (e.Author.IsBot) return Task.CompletedTask; // ignore bots.
@@ -217,8 +190,6 @@ namespace Faforever.Qai.Discord
 		{
 			if (!(CommandsInProgress is null))
 			{
-				Client.MessageCreated -= Client_MessageCreated;
-
 				foreach (var cmd in CommandsInProgress.AsParallel())
 				{
 					cmd.Value.Item2.Cancel();
@@ -253,8 +224,6 @@ namespace Faforever.Qai.Discord
 		{
 			if (!(CommandsInProgress is null))
 			{
-				Client.MessageCreated -= Client_MessageCreated;
-
 				await Task.Run(() =>
 				{
 					foreach (var cmd in CommandsInProgress.AsParallel())
