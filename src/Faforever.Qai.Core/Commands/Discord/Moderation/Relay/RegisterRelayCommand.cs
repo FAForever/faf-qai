@@ -8,10 +8,6 @@ using Faforever.Qai.Core.Commands.Authorization;
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Database.Entities;
 using Faforever.Qai.Core.Services;
-using Faforever.Qai.Core.Structures.Configurations;
-using Faforever.Qai.Core.Structures.Webhooks;
-
-using Microsoft.EntityFrameworkCore.Internal;
 
 using Qmmands;
 
@@ -38,6 +34,12 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
 			[Description("IRC channel to link to.")]
 			string ircChannel)
 		{
+			if (Context.Channel.GuildId == null)
+			{
+				await RespondBasicError("Can only use relay command in a guild channel");
+				return;
+			}
+
 			var cfg = _database.Find<RelayConfiguration>(Context.Channel.GuildId);
 			if (cfg is null)
 			{

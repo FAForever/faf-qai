@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace Faforever.Qai.Core.Commands.Authorization
 {
 	public enum IrcPermissions

@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using Faforever.Qai.Core.Commands.Arguments;
-using Faforever.Qai.Core.Commands.Exceptions;
 using Faforever.Qai.Core.Services.BotFun;
 
 using Qmmands;

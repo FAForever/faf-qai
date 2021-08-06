@@ -1,9 +1,6 @@
-using Faforever.Qai.Core.Structures.Configurations;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Serialization;
 
 namespace Faforever.Qai.Core.Services
 {

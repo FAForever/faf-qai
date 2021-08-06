@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -10,11 +9,11 @@ using Faforever.Qai.Core.Operations.Clients;
 
 namespace Faforever.Qai.Core.Operations.Player
 {
-	
+
 	public class FetchPlayerLastGameResult
 	{
-		public string Id { get; set; }
-		public string Name { get; set; }
+		public string Id { get; set; } = default!;
+		public string Name { get; set; } = default!;
 		public DateTime? StartTime { get; set; }
 		public DateTime? EndTime { get; set; }
 	}

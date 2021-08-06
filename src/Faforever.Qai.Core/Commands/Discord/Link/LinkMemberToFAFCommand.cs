@@ -1,15 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-
-using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Database.Entities;
 using Faforever.Qai.Core.Services;
-using Faforever.Qai.Core.Structures.Configurations;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

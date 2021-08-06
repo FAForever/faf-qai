@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http;
 using System.Security.Cryptography;
@@ -61,7 +60,7 @@ namespace Faforever.Qai.Core.Operations.FafApi
 				json = await File.ReadAllTextAsync(cacheFile);
 			}
 
-			return JsonConvert.DeserializeObject<T[]>(json, new JsonApiSerializerSettings());
+			return JsonConvert.DeserializeObject<T[]>(json, new JsonApiSerializerSettings()) ?? Array.Empty<T>();
 		}
 	}
 
@@ -133,7 +132,7 @@ namespace Faforever.Qai.Core.Operations.FafApi
 
 		public override string ToString()
 		{
-			if (!endpoints.TryGetValue(typeof(T), out string endpoint))
+			if (!endpoints.TryGetValue(typeof(T), out string? endpoint))
 				endpoint = typeof(T).Name.ToLower();
 
 			if (!args.ContainsKey("include") && includes.TryGetValue(typeof(T), out var inc))

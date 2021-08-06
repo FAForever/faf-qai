@@ -7,7 +7,6 @@ using Faforever.Qai.Core.Commands.Authorization;
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Database.Entities;
 using Faforever.Qai.Core.Services;
-using Faforever.Qai.Core.Structures.Configurations;
 
 using Qmmands;
 
@@ -74,6 +73,7 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
 		private async Task RemoveRelayCommandAsync(ulong webhookId)
 		{
 			var res = await _relay.RemoveRelayAsync(Context.Channel.GuildId.Value, webhookId);
+
 			if (!res)
 			{
 				await RespondBasicSuccess("Relay removed succesfully.");

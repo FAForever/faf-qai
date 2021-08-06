@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json.Linq;
@@ -55,7 +52,9 @@ namespace Faforever.Qai.Core.Operations.Clients
 
 		private async Task RefreshBearerToken()
 		{
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
 			var res = await _client.PostAsync($"https://id.twitch.tv/oauth2/token?client_id={_cfg.ClientId}&client_secret={_cfg.ClientSecret}&grant_type=client_credentials", null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
 			if (res.IsSuccessStatusCode)
 			{

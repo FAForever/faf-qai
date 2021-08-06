@@ -1,7 +1,5 @@
 using System.Threading.Tasks;
 
-using DSharpPlus;
-
 using Faforever.Qai.Core.Commands.Context;
 
 using Qmmands;

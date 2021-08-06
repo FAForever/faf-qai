@@ -11,12 +11,12 @@ namespace Faforever.Qai.Discord.Core.Structures.Configurations
 		/// The Bot Token used to connect to Discord.
 		/// </summary>
 		[JsonProperty("token")]
-		public string Token { get; set; }
+		public string Token { get; set; } = default!;
 		/// <summary>
 		/// The default prefix reconized by the bot.
 		/// </summary>
 		[JsonProperty("prefix")]
-		public string Prefix { get; set; }
+		public string Prefix { get; set; } = default!;
 		/// <summary>
 		/// The default amount of shards to load. Set to 1 for automatic sharding.
 		/// </summary>

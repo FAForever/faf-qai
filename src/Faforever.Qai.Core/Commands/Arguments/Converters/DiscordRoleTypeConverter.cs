@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
@@ -14,7 +10,7 @@ namespace Faforever.Qai.Core.Commands.Arguments.Converters
 {
 	public class DiscordRoleTypeConverter : TypeParser<DiscordRole>
 	{
-		public override async ValueTask<TypeParserResult<DiscordRole>> ParseAsync(Parameter parameter, string value, CommandContext context)
+		public override ValueTask<TypeParserResult<DiscordRole>> ParseAsync(Parameter parameter, string value, CommandContext context)
 		{
 			if (!(context is DiscordCommandContext ctx))
 				return TypeParserResult<DiscordRole>.Failed("Context failed to parse to DiscordCommandContext");

@@ -45,8 +45,6 @@ using Newtonsoft.Json;
 
 using Qmmands;
 
-using static Faforever.Qai.Core.Services.AccountLinkService;
-
 namespace Faforever.Qai
 {
 	public class Startup
@@ -277,10 +275,12 @@ namespace Faforever.Qai
 								context.Response.Cookies.Append("error", "Failed to get user information from access token");
 							}
 						},
-						OnRemoteFailure = async context =>
+						OnRemoteFailure = context =>
 						{
 							// TODO remove token from cookies and delete server token cache.
 							Console.WriteLine(context.Failure.Message);
+
+							return Task.CompletedTask;
 						}
 					};
 				})
@@ -335,11 +335,11 @@ namespace Faforever.Qai
 								context.Response.Cookies.Append("error", "No token found.");
 							}
 						},
-						OnRemoteFailure = async context =>
+						OnRemoteFailure = context =>
 						{
 							// TODO remove token from cookies and delete server token cache.
 
-
+							return Task.CompletedTask;
 						}
 					};
 				});

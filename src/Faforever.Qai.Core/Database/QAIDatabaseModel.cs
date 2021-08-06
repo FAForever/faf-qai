@@ -11,9 +11,9 @@ namespace Faforever.Qai.Core.Database
 {
 	public class QAIDatabaseModel : DbContext
 	{
-		public DbSet<DiscordGuildConfiguration> DiscordConfigs { get; set; }
-		public DbSet<RelayConfiguration> RelayConfigurations { get; set; }
-		public DbSet<AccountLink> AccountLinks { get; set; }
+		public DbSet<DiscordGuildConfiguration> DiscordConfigs => Set<DiscordGuildConfiguration>();
+		public DbSet<RelayConfiguration> RelayConfigurations => Set<RelayConfiguration>();
+		public DbSet<AccountLink> AccountLinks => Set<AccountLink>();
 
 		public QAIDatabaseModel(DbContextOptions<QAIDatabaseModel> options) : base(options)
 		{
