@@ -8,6 +8,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 
 using Faforever.Qai.Core.Database;
+using Faforever.Qai.Core.Database.Entities;
 using Faforever.Qai.Core.Structures.Configurations;
 using Faforever.Qai.Discord.Core.Structures.Configurations;
 using Faforever.Qai.Discord.Utils.Commands;

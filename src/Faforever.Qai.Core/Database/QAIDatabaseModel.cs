@@ -1,9 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-
-using Faforever.Qai.Core.Structures;
-using Faforever.Qai.Core.Structures.Configurations;
-using Faforever.Qai.Core.Structures.Link;
+using Faforever.Qai.Core.Database.Entities;
 using Faforever.Qai.Core.Structures.Webhooks;
 
 using Microsoft.EntityFrameworkCore;

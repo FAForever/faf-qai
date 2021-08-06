@@ -1,12 +1,7 @@
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Faforever.Qai.Core.Structures.Link
+namespace Faforever.Qai.Core.Database.Entities
 {
-
 	public class AccountLink
 	{
 		[Key]

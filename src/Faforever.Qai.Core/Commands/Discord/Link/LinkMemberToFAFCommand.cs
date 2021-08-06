@@ -7,6 +7,7 @@ using System.Web;
 
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Database;
+using Faforever.Qai.Core.Database.Entities;
 using Faforever.Qai.Core.Services;
 using Faforever.Qai.Core.Structures.Configurations;
 

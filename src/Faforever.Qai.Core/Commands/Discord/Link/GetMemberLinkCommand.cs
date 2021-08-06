@@ -9,6 +9,7 @@ using DSharpPlus.Entities;
 using Faforever.Qai.Core.Commands.Arguments;
 using Faforever.Qai.Core.Commands.Authorization;
 using Faforever.Qai.Core.Database;
+using Faforever.Qai.Core.Database.Entities;
 using Faforever.Qai.Core.Structures.Link;
 
 using Microsoft.Extensions.DependencyInjection;

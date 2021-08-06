@@ -38,12 +38,12 @@ namespace Faforever.Qai.Database.Setup
 			await data.AccountLinks.ForEachAsync(async (x) =>
 			{
 				var did = Convert.ToUInt64(x.DiscordId);
-				var link = await db.FindAsync<Core.Structures.Link.AccountLink>(did);
+				var link = await db.FindAsync<Core.Database.Entities.AccountLink>(did);
 				if(link is null)
 				{
 					try
 					{
-						await db.AddAsync(new Core.Structures.Link.AccountLink()
+						await db.AddAsync(new Core.Database.Entities.AccountLink()
 						{
 							DiscordId = did,
 							FafId = Convert.ToInt32(x.FafId)

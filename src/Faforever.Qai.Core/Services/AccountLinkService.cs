@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Faforever.Qai.Core.Database;
+using Faforever.Qai.Core.Database.Entities;
 using Faforever.Qai.Core.Structures;
 using Faforever.Qai.Core.Structures.Link;
 

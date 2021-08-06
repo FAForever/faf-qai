@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 using Faforever.Qai.Core.Structures.Webhooks;
 
-namespace Faforever.Qai.Core.Structures.Configurations
+namespace Faforever.Qai.Core.Database.Entities
 {
 	public class RelayConfiguration
 	{

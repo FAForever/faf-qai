@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 using DSharpPlus.Entities;
 
-namespace Faforever.Qai.Core.Structures.Configurations
+namespace Faforever.Qai.Core.Database.Entities
 {
 	public class DiscordGuildConfiguration
 	{
