@@ -180,7 +180,7 @@ namespace Faforever.Qai.Discord
 			// Start the Clients!
 			await Client.StartAsync();
 			var relay = _services.GetRequiredService<RelayService>();
-			await relay.InitalizeAsync();
+			await relay.InitializeAsync();
 		}
 		#endregion
 
