@@ -1,15 +1,11 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Converters;
-using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
 using Faforever.Qai.Core;
@@ -25,17 +21,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Faforever.Qai.Discord
 {
-	public class DiscordBot : IDisposable, IAsyncDisposable
+	public sealed class DiscordBot : IDisposable, IAsyncDisposable
 	{
 		#region Event Ids
 		// 127### - designates a Discord Bot event.
 		public static EventId Event_CommandResponder { get; } = new EventId(127001, "Command Responder");
 		public static EventId Event_CommandHandler { get; } = new EventId(127002, "Command Handler");
 		public static EventId Event_EventHandler { get; } = new EventId(127003, "Event Handler");
-		#endregion
-
-		#region Static Variables
-		public static ConcurrentDictionary<CommandHandler, Tuple<Task, CancellationTokenSource>>? CommandsInProgress { get; private set; }
 		#endregion
 
 		#region Public Variables
@@ -66,7 +58,6 @@ namespace Faforever.Qai.Discord
 			DiscordShardedClient client, DiscordRestClient rest,
 			QCommandsHandler commands, DiscordEventHandler eventHandler)
 		{
-			CommandsInProgress = new ConcurrentDictionary<CommandHandler, Tuple<Task, CancellationTokenSource>>();
 			Commands = new Dictionary<string, Command>();
 			Config = configuration;
 			Client = client;
@@ -185,75 +176,29 @@ namespace Faforever.Qai.Discord
 		}
 		#endregion
 
-
-
 		public void Dispose()
 		{
-			if (!(CommandsInProgress is null))
-			{
-				foreach (var cmd in CommandsInProgress.AsParallel())
-				{
-					cmd.Value.Item2.Cancel();
-					cmd.Value.Item2.Dispose();
-					cmd.Value.Item1.Dispose();
-				}
-
-				// Clear out the dict.
-				CommandsInProgress = null;
-
-				try
-				{
-					Client.StopAsync().GetAwaiter().GetResult();
-				}
-				catch (Exception ex)
-				{
-					Client.Logger.LogWarning(ex, "Failed to stop client.");
-				}
-
-				try
-				{
-					Rest.Dispose();
-				}
-				catch (Exception ex)
-				{
-					Client.Logger.LogWarning(ex, "Failed to displse the rest client.");
-				}
-			}
+			Rest.Dispose();
 		}
 
 		public async ValueTask DisposeAsync()
 		{
-			if (!(CommandsInProgress is null))
+			try
 			{
-				await Task.Run(() =>
-				{
-					foreach (var cmd in CommandsInProgress.AsParallel())
-					{
-						cmd.Value.Item2.Cancel();
-						cmd.Value.Item2.Dispose();
-						cmd.Value.Item1.Dispose();
-					}
-				});
+				await Client.StopAsync();
+			}
+			catch (Exception ex)
+			{
+				Client.Logger.LogWarning(ex, "Failed to stop client.");
+			}
 
-				// Clear out the dict.
-				CommandsInProgress = null;
-				try
-				{
-					await Client.StopAsync();
-				}
-				catch (Exception ex)
-				{
-					Client.Logger.LogWarning(ex, "Failed to stop client.");
-				}
-
-				try
-				{
-					Rest.Dispose();
-				}
-				catch (Exception ex)
-				{
-					Client.Logger.LogWarning(ex, "Failed to displse the rest client.");
-				}
+			try
+			{
+				Rest.Dispose();
+			}
+			catch (Exception ex)
+			{
+				Client.Logger.LogWarning(ex, "Failed to displse the rest client.");
 			}
 		}
 	}

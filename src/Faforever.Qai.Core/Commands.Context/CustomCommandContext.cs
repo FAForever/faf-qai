@@ -28,8 +28,6 @@ namespace Faforever.Qai.Core.Commands.Context
 
 		public Task ReplyAsync(object message, ReplyOption replyOption = ReplyOption.Always)
 		{
-			//IRC doesn't support newlines. So we replace those with spaces.
-			var msg = message.ToString()?.Replace("\n", " ");
 			var privateResponse = isPrivate || replyOption == ReplyOption.InPrivate;
 
 			if (privateResponse || replyOption != ReplyOption.OnlyWhenPrivate)

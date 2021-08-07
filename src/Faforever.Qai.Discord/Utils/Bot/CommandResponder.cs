@@ -41,15 +41,6 @@ namespace Faforever.Qai.Discord.Utils.Commands
 			}
 		}
 
-		public static async Task RespondCommandNotFound(DiscordChannel executionChannel, string prefix)
-		{
-			var embed = CommandModule.ErrorBase()
-				.WithTitle("Command not found.")
-				.WithDescription($"Use {prefix}help to see all avalible commands.");
-
-			await executionChannel.SendMessageAsync(embed: embed);
-		}
-
 		private static async Task ChecksFailedResponderAsync(CommandErrorEventArgs args, ChecksFailedException e)
 		{
 			var embed = CommandModule.ErrorBase()
