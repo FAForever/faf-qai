@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Faforever.Qai.Database.Setup
 {
-	public partial class userdataContext : DbContext
+    public partial class userdataContext : DbContext
     {
         public userdataContext()
         {

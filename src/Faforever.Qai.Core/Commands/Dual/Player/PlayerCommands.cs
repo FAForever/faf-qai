@@ -11,90 +11,90 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Player
 {
-	public class PlayerCommands : DualCommandModule<FetchPlayerStatsResult>
-	{
-		private readonly IPlayerService _playerService;
+    public class PlayerCommands : DualCommandModule<FetchPlayerStatsResult>
+    {
+        private readonly IPlayerService _playerService;
 
-		public PlayerCommands(IPlayerService playerService)
-		{
-			_playerService = playerService;
-		}
+        public PlayerCommands(IPlayerService playerService)
+        {
+            _playerService = playerService;
+        }
 
-		[Command("player", "ratings")]
-		public async Task GetRatingsAsync(string username)
-		{
-			FetchPlayerStatsResult? playerStats = await _playerService.FetchPlayerStats(username);
+        [Command("player", "ratings")]
+        public async Task GetRatingsAsync(string username)
+        {
+            FetchPlayerStatsResult? playerStats = await _playerService.FetchPlayerStats(username);
 
-			if (playerStats is null)
-				await Context.ReplyAsync("No player found.");
-			else await ReplyAsync(playerStats);
-				
-		}
+            if (playerStats is null)
+                await Context.ReplyAsync("No player found.");
+            else await ReplyAsync(playerStats);
 
-		public override async Task ReplyAsync(IRCCommandContext ctx, FetchPlayerStatsResult data)
-		{
-			await Context.ReplyAsync($"found player '{data.Name}' with the following information:\n" +
-					$"1v1: rating '{data.LadderStats?.Rating.ToString("F0") ?? "0"}', ranked '{data.LadderStats?.Ranking ?? 0}'\n" +
-					$"Global: rating '{data.GlobalStats?.Rating.ToString("F0") ?? "0"}', ranked '{data.GlobalStats?.Ranking ?? 0}'");
-		}
+        }
 
-		public override async Task ReplyAsync(DiscordCommandContext ctx, FetchPlayerStatsResult data)
-		{
-			List<string> toJoin;
-			if (data.OldNames.Count > 5)
-			{
-				toJoin = data.OldNames.GetRange(0, 5);
-				toJoin.Add("...");
-			}
-			else
-			{
-				toJoin = data.OldNames;
-			}
+        public override async Task ReplyAsync(IRCCommandContext ctx, FetchPlayerStatsResult data)
+        {
+            await Context.ReplyAsync($"found player '{data.Name}' with the following information:\n" +
+                    $"1v1: rating '{data.LadderStats?.Rating.ToString("F0") ?? "0"}', ranked '{data.LadderStats?.Ranking ?? 0}'\n" +
+                    $"Global: rating '{data.GlobalStats?.Rating.ToString("F0") ?? "0"}', ranked '{data.GlobalStats?.Ranking ?? 0}'");
+        }
+
+        public override async Task ReplyAsync(DiscordCommandContext ctx, FetchPlayerStatsResult data)
+        {
+            List<string> toJoin;
+            if (data.OldNames.Count > 5)
+            {
+                toJoin = data.OldNames.GetRange(0, 5);
+                toJoin.Add("...");
+            }
+            else
+            {
+                toJoin = data.OldNames;
+            }
 
 
-			var embed = new DiscordEmbedBuilder()
-				.WithColor(Context.DostyaRed)
-				.WithTitle(data.Name)
-				.WithDescription($"**ID: {data.Id}**")
-				.WithColor(DiscordColor.Red);
+            var embed = new DiscordEmbedBuilder()
+                .WithColor(Context.DostyaRed)
+                .WithTitle(data.Name)
+                .WithDescription($"**ID: {data.Id}**")
+                .WithColor(DiscordColor.Red);
 
-			if (toJoin.Count != 0)
-				embed.AddField("Aliases", string.Join("\n", toJoin));
+            if (toJoin.Count != 0)
+                embed.AddField("Aliases", string.Join("\n", toJoin));
 
-			if (!(data.LadderStats is null))
-				embed.AddField("Ladder:", "```http\n" +
-					$"Rating  :: {data.LadderStats?.Rating.ToString("F0") ?? "0"}\n" +
-					$"Ranking :: {data.LadderStats?.Ranking ?? 0}\n" +
-					$"Games   :: {data.LadderStats?.GamesPlayed ?? 0}\n" +
-					"```");
+            if (!(data.LadderStats is null))
+                embed.AddField("Ladder:", "```http\n" +
+                    $"Rating  :: {data.LadderStats?.Rating.ToString("F0") ?? "0"}\n" +
+                    $"Ranking :: {data.LadderStats?.Ranking ?? 0}\n" +
+                    $"Games   :: {data.LadderStats?.GamesPlayed ?? 0}\n" +
+                    "```");
 
-			if (!(data.GlobalStats is null))
-				embed.AddField("Global:", "```http\n" +
-					$"Rating  :: {data.GlobalStats?.Rating.ToString("F0") ?? "0"}\n" +
-					$"Ranking :: {data.GlobalStats?.Ranking ?? 0}\n" +
-					$"Games   :: {data.GlobalStats?.GamesPlayed ?? 0}\n" +
-					"```");
+            if (!(data.GlobalStats is null))
+                embed.AddField("Global:", "```http\n" +
+                    $"Rating  :: {data.GlobalStats?.Rating.ToString("F0") ?? "0"}\n" +
+                    $"Ranking :: {data.GlobalStats?.Ranking ?? 0}\n" +
+                    $"Games   :: {data.GlobalStats?.GamesPlayed ?? 0}\n" +
+                    "```");
 
-			if (!(data.Clan is null))
-				embed.AddField($"Clan: {data.Clan?.Name}", "```http\n" +
-					$"Clan Size :: {data.Clan?.Size ?? 0}\n" +
-					$"URL       :: {data.Clan?.URL ?? "n/a"}\n" +
-					"```");
+            if (!(data.Clan is null))
+                embed.AddField($"Clan: {data.Clan?.Name}", "```http\n" +
+                    $"Clan Size :: {data.Clan?.Size ?? 0}\n" +
+                    $"URL       :: {data.Clan?.URL ?? "n/a"}\n" +
+                    "```");
 
-			await ctx.Channel.SendMessageAsync(embed: embed);
-		}
+            await ctx.Channel.SendMessageAsync(embed: embed);
+        }
 
-		[Command("searchplayer")]
-		public async Task FindPlayerAsync(string searchTerm)
-		{
-			FindPlayerResult? findPlayerResult = await _playerService.FindPlayer(searchTerm);
-			if (findPlayerResult.Usernames.Count == 0)
-				await Context.ReplyAsync($"Found no players when searching for '{searchTerm}'");
-			else
-			{
-				string players = string.Join(", ", findPlayerResult.Usernames);
-				await Context.ReplyAsync($"Found the following players: {players}");
-			}
-		}
-	}
+        [Command("searchplayer")]
+        public async Task FindPlayerAsync(string searchTerm)
+        {
+            FindPlayerResult? findPlayerResult = await _playerService.FindPlayer(searchTerm);
+            if (findPlayerResult.Usernames.Count == 0)
+                await Context.ReplyAsync($"Found no players when searching for '{searchTerm}'");
+            else
+            {
+                string players = string.Join(", ", findPlayerResult.Usernames);
+                await Context.ReplyAsync($"Found the following players: {players}");
+            }
+        }
+    }
 }

@@ -11,62 +11,62 @@ namespace Faforever.Qai.Database.Setup
     {
         static void Main(string[] args)
         {
-			StartAsync().GetAwaiter().GetResult();
+            StartAsync().GetAwaiter().GetResult();
         }
 
-		public static async Task StartAsync()
-		{
-			ServiceCollection services = new ServiceCollection();
-			services.AddDbContext<QAIDatabaseModel>(options =>
-			{
-				options.UseSqlite("Data Source=Database/qai-dostya.db");
-			}, ServiceLifetime.Singleton, ServiceLifetime.Singleton)
-				.AddDbContext<userdataContext>(options =>
-				{
-					options.UseSqlite("Data Source=Database/userdata.db");
-				}, ServiceLifetime.Singleton, ServiceLifetime.Singleton);
+        public static async Task StartAsync()
+        {
+            ServiceCollection services = new ServiceCollection();
+            services.AddDbContext<QAIDatabaseModel>(options =>
+            {
+                options.UseSqlite("Data Source=Database/qai-dostya.db");
+            }, ServiceLifetime.Singleton, ServiceLifetime.Singleton)
+                .AddDbContext<userdataContext>(options =>
+                {
+                    options.UseSqlite("Data Source=Database/userdata.db");
+                }, ServiceLifetime.Singleton, ServiceLifetime.Singleton);
 
-			var proivder = services.BuildServiceProvider();
-			var scope = proivder.CreateScope();
-			var db = scope.ServiceProvider.GetRequiredService<QAIDatabaseModel>();
-			var data = scope.ServiceProvider.GetRequiredService<userdataContext>();
+            var proivder = services.BuildServiceProvider();
+            var scope = proivder.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<QAIDatabaseModel>();
+            var data = scope.ServiceProvider.GetRequiredService<userdataContext>();
 
-			ApplyDatabaseMigrations(db);
+            ApplyDatabaseMigrations(db);
 
-			Console.WriteLine("Starting.");
+            Console.WriteLine("Starting.");
 
-			await data.AccountLinks.ForEachAsync(async (x) =>
-			{
-				var did = Convert.ToUInt64(x.DiscordId);
-				var link = await db.FindAsync<Core.Database.Entities.AccountLink>(did);
-				if(link is null)
-				{
-					try
-					{
-						await db.AddAsync(new Core.Database.Entities.AccountLink()
-						{
-							DiscordId = did,
-							FafId = Convert.ToInt32(x.FafId)
-						});
-					}
-					catch { }
-				}
-			});
+            await data.AccountLinks.ForEachAsync(async (x) =>
+            {
+                var did = Convert.ToUInt64(x.DiscordId);
+                var link = await db.FindAsync<Core.Database.Entities.AccountLink>(did);
+                if (link is null)
+                {
+                    try
+                    {
+                        await db.AddAsync(new Core.Database.Entities.AccountLink()
+                        {
+                            DiscordId = did,
+                            FafId = Convert.ToInt32(x.FafId)
+                        });
+                    }
+                    catch { }
+                }
+            });
 
-			await db.SaveChangesAsync();
+            await db.SaveChangesAsync();
 
-			Console.WriteLine("Done.");
-		}
+            Console.WriteLine("Done.");
+        }
 
-		private static void ApplyDatabaseMigrations(DbContext database)
-		{
-			if (!(database.Database.GetPendingMigrations()).Any())
-			{
-				return;
-			}
+        private static void ApplyDatabaseMigrations(DbContext database)
+        {
+            if (!(database.Database.GetPendingMigrations()).Any())
+            {
+                return;
+            }
 
-			database.Database.Migrate();
-			database.SaveChanges();
-		}
-	}
+            database.Database.Migrate();
+            database.SaveChanges();
+        }
+    }
 }

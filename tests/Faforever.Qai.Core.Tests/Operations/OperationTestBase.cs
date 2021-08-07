@@ -17,59 +17,59 @@ using NUnit.Framework;
 
 namespace Faforever.Qai.Core.Tests.Operations
 {
-	public class OperationTestBase
+    public class OperationTestBase
     {
-		protected IServiceProvider Services { get; private set; }
+        protected IServiceProvider Services { get; private set; }
 
-		[OneTimeSetUp]
-		public void OneTimeSetUp()
-		{
-			ServiceCollection collection = new();
-			collection.AddSingleton<IConfiguration>((x) =>
-			{
-				return new ConfigurationBuilder()
-					.SetBasePath(Directory.GetParent(AppContext.BaseDirectory).FullName)
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
+        {
+            ServiceCollection collection = new();
+            collection.AddSingleton<IConfiguration>((x) =>
+            {
+                return new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetParent(AppContext.BaseDirectory).FullName)
 #if DEBUG
-						.AddJsonFile("appsettings.Development.json", false)
+                        .AddJsonFile("appsettings.Development.json", false)
 #else
                         .AddJsonFile("appsettings.json", false)
 #endif
-						.Build();
-			});
+                        .Build();
+            });
 
-			var config = collection.BuildServiceProvider().GetRequiredService<IConfiguration>();
+            var config = collection.BuildServiceProvider().GetRequiredService<IConfiguration>();
 
-			collection
-				.AddTransient<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()
-				.AddTransient<IFindPlayerOperation, ApiFindPlayerOperation>()
-				.AddTransient<ISearchUnitDatabaseOperation, UnitDbSearchUnitDatabaseOpeartion>()
-				.AddTransient<IPlayerService, OperationPlayerService>()
-				.AddTransient<ISearchMapOperation, ApiSearchMapOperation>()
-				.AddTransient<IFetchLadderPoolOperation, ApiFetchLadderPoolOperation>()
-				.AddTransient<IFetchReplayOperation, ApiFetchReplayOperation>()
-				.AddTransient<IFetchClanOperation, ApiFetchClanOperation>()
-				.AddTransient<IFetchTwitchStreamsOperation, FetchTwitchStreamsOperation>();
+            collection
+                .AddTransient<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()
+                .AddTransient<IFindPlayerOperation, ApiFindPlayerOperation>()
+                .AddTransient<ISearchUnitDatabaseOperation, UnitDbSearchUnitDatabaseOpeartion>()
+                .AddTransient<IPlayerService, OperationPlayerService>()
+                .AddTransient<ISearchMapOperation, ApiSearchMapOperation>()
+                .AddTransient<IFetchLadderPoolOperation, ApiFetchLadderPoolOperation>()
+                .AddTransient<IFetchReplayOperation, ApiFetchReplayOperation>()
+                .AddTransient<IFetchClanOperation, ApiFetchClanOperation>()
+                .AddTransient<IFetchTwitchStreamsOperation, FetchTwitchStreamsOperation>();
 
-			// HTTP Client Mapping
-			collection.AddHttpClient<ApiHttpClient>(client =>
-			{
-				client.BaseAddress = new($"{config["Config:Faf:Api"]}");
-			});
+            // HTTP Client Mapping
+            collection.AddHttpClient<ApiHttpClient>(client =>
+            {
+                client.BaseAddress = new($"{config["Config:Faf:Api"]}");
+            });
 
-			collection.AddHttpClient<UnitClient>(client =>
-			{
-				client.BaseAddress = new Uri(UnitDbUtils.UnitApi);
-			});
+            collection.AddHttpClient<UnitClient>(client =>
+            {
+                client.BaseAddress = new Uri(UnitDbUtils.UnitApi);
+            });
 
-			collection.AddHttpClient<TwitchClient>();
+            collection.AddHttpClient<TwitchClient>();
 
-			Services = collection.BuildServiceProvider();
-		}
+            Services = collection.BuildServiceProvider();
+        }
 
-		[OneTimeTearDown]
-		public void OneTimeTearDown()
-		{
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
 
-		}
+        }
     }
 }

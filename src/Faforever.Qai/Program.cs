@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Faforever.Qai
 {
-	public class Program
+    public class Program
     {
         public static void Main(string[] args)
         {

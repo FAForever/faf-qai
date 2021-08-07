@@ -4,25 +4,25 @@ using Faforever.Qai.Core.Structures.Configurations;
 
 namespace Faforever.Qai.Core.Services.BotFun
 {
-	public class BotFunService : IBotFunService
-	{
-		private readonly BotFunConfiguration _config;
+    public class BotFunService : IBotFunService
+    {
+        private readonly BotFunConfiguration _config;
 
-		public BotFunService(BotFunConfiguration config)
-		{
-			_config = config;
-		}
+        public BotFunService(BotFunConfiguration config)
+        {
+            _config = config;
+        }
 
-		public string GetRandomEightballResponse()
-			=> _config.EightballPhrases.Random();
+        public string GetRandomEightballResponse()
+            => _config.EightballPhrases.Random();
 
-		public string GetRandomKickTaunt() 
-			=> _config.KickTaunts.Random();
+        public string GetRandomKickTaunt()
+            => _config.KickTaunts.Random();
 
-		public string GetRandomSpamProtectionTaunt() 
-			=> _config.SpamProtectionTaunts.Random();
+        public string GetRandomSpamProtectionTaunt()
+            => _config.SpamProtectionTaunts.Random();
 
-		public string GetRandomTaunt() 
-			=> _config.Taunts.Random();
-	}
+        public string GetRandomTaunt()
+            => _config.Taunts.Random();
+    }
 }
