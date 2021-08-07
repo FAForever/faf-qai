@@ -27,7 +27,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Fun
 					username = ictx.Author.NickName;
 			}
 
-			await Context.ActionAsync($" hugs {username}");
+			await Context.SendActionAsync($" hugs {username}");
 		}
 	}
 }

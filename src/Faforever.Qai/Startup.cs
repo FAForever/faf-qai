@@ -137,6 +137,7 @@ namespace Faforever.Qai
 				.AddTransient<IFindPlayerOperation, ApiFindPlayerOperation>()
 				.AddTransient<ISearchUnitDatabaseOperation, UnitDbSearchUnitDatabaseOpeartion>()
 				.AddTransient<IPlayerService, OperationPlayerService>()
+				.AddTransient<GameService>()
 				.AddTransient<ISearchMapOperation, ApiSearchMapOperation>()
 				.AddTransient<IFetchLadderPoolOperation, ApiFetchLadderPoolOperation>()
 				.AddTransient<IFetchReplayOperation, ApiFetchReplayOperation>()

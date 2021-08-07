@@ -17,6 +17,8 @@ namespace Faforever.Qai.Core.Commands.Context
 			}
 		}
 
+		protected override bool isPrivate => false;
+
 		public DiscordClient Client { get; private set; }
 		public DiscordUser User { get; private set; }
 		public DiscordMessage Message { get; private set; }
@@ -31,12 +33,26 @@ namespace Faforever.Qai.Core.Commands.Context
 			User = args.Author;
 		}
 
-		public override async Task ReplyAsync(string message)
+		protected override async Task SendReplyAsync(object message, bool inPrivate = false)
 		{
-			await Channel.SendMessageAsync(message);
+			if(inPrivate)
+			{
+				var member = (DiscordMember)User;
+				if (message is DiscordEmbed embed)
+					await member.SendMessageAsync(embed);
+				else
+					await member.SendMessageAsync(message.ToString());
+			}
+			else
+			{
+				if (message is DiscordEmbed embed)
+					await Channel.SendMessageAsync(embed);
+				else
+					await Channel.SendMessageAsync(message.ToString());
+			}
 		}
 
-		public override Task ActionAsync(string action)
+		public override Task SendActionAsync(string action)
 		{
 			//throw new NotImplementedException();
 

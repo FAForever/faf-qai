@@ -14,6 +14,8 @@ namespace Faforever.Qai.Core.Commands.Context
 		public IrcChannelUser? ChannelUser { get; private set; }
 		public string Message { get; private set; }
 
+		protected override bool isPrivate => Channel is null;
+
 		public IRCCommandContext(IrcLocalUser client, string respondTo, IrcUser author, string message, string prefix, IServiceProvider services, IrcChannel? channel = null) : base(services)
 		{
 			Client = client;
@@ -21,7 +23,6 @@ namespace Faforever.Qai.Core.Commands.Context
 			Message = message;
 			Prefix = prefix;
 			Author = author;
-
 			Channel = channel;
 
 			if (!(Channel is null))
@@ -29,17 +30,21 @@ namespace Faforever.Qai.Core.Commands.Context
 			else ChannelUser = null;
 		}
 
-		public override Task ReplyAsync(string message)
+		protected override Task SendReplyAsync(object message, bool inPrivate = false)
 		{
 			return Task.Run(() =>
 			{
 				//IRC doesn't support newlines. So we replace those with spaces.
-				message = message.Replace("\n", " ");
-				Client.SendMessage(RespondTo, message);
+				var msg = message.ToString()?.Replace("\n", " ");
+
+				if(inPrivate)
+					Client.SendMessage(RespondTo, msg);
+				else
+					Client.SendMessage(Channel, msg);
 			});
 		}
 
-		public override Task ActionAsync(string message)
+		public override Task SendActionAsync(string message)
 		{
 			return Task.Run(() =>
 			{

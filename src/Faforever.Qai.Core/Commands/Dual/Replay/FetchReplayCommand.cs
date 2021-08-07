@@ -1,83 +1,104 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
 
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Models;
+using Faforever.Qai.Core.Operations.FafApi;
 using Faforever.Qai.Core.Operations.Replays;
-
+using Faforever.Qai.Core.Services;
 using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Replay
 {
-	public class FetchReplayCommand : DualCommandModule<ReplayResult>
+	public class FetchReplayCommand : DualCommandModule
 	{
-		private readonly IFetchReplayOperation _replay;
+		private GameService _gameService;
 
-		public FetchReplayCommand(IFetchReplayOperation replay)
+		public FetchReplayCommand(GameService gameService)
 		{
-			_replay = replay;
+			_gameService = gameService;
 		}
 
 		[Command("replay")]
-		public async Task FetchReplayCommandAsync(long replayId)
+		public async Task FetchReplayCommandAsync(long gameId)
 		{
-			var data = await _replay.FetchReplayAsync(replayId);
+			var game = await _gameService.FetchGame(gameId);
 
-			await RespondToUser(data);
+			await RespondToUser(game);
 		}
 
 		[Command("lastreplay")]
 		public async Task FetchLastReplayCommandAsync(string username)
 		{
-			var data = await _replay.FetchLastReplayAsync(username);
+			var data = await _gameService.FetchLastGame(username);
 
 			await RespondToUser(data);
 		}
 
-		private async Task RespondToUser(ReplayResult? data)
+		private async Task RespondToUser(Game? game)
 		{
-			if (data is null)
-				await Context.ReplyAsync("Failed to get a replay by that ID");
-			else await ReplyAsync(data);
+			if (game is null)
+			{
+				await ReplyAsync("Failed to get a replay by that ID");
+				return;
+			}
+
+			await ReplyAsync(() => IrcResponse(game), () => DiscordResponse(game));
 		}
 
-		public override async Task ReplyAsync(DiscordCommandContext ctx, ReplayResult res)
+		private DiscordEmbed DiscordResponse(Game game)
 		{
 			var embed = new DiscordEmbedBuilder();
-			embed.WithAuthor(res.Title)
+
+			var description = new StringBuilder();
+
+			embed
 				.WithColor(Context.DostyaRed)
-				.WithTitle($"Download replay #{res.Id}")
-				.WithUrl(res.ReplayUri?.AbsoluteUri.Replace(" ", "%20"))
-				.WithThumbnail(res.MapInfo?.PreviewUrl?.AbsoluteUri.Replace(" ", "%20"))
-				.AddField("Start Time", res.StartTime?.ToString("u"), true)
-				.AddField("Victory Condition", res.VictoryConditions, true)
-				.AddField("Validity", res.Validity, true)
-				.AddField("Map Is Ranked?", res.MapInfo?.Ranked?.ToString() ?? "n/a", true)
-				.AddField("Map Info:", $"{res.MapInfo?.Title} [{res.MapInfo?.Version}] ({res.MapInfo?.Size})");
+				.WithTitle($"Download replay #{game.Id}")
+				.WithThumbnail(game.MapVersion.ThumbnailUrlLarge)
+				.AddField("Map Info:", $"{game.MapVersion.Map.DisplayName}", true)
+				.AddField("Start Time", game.StartTime.ToString("u"), true)
+				.AddField("Duration", game.Duration?.ToString() ?? "-", true)
+				.WithUrl(game.ReplayUrl)
+				;
 
-			foreach(var p in res.PlayerData ?? Enumerable.Empty<FetchPlayerStatsResult>())
-				embed.AddField($"{p.ReplayData?.Faction} - {p.Name}" +
-					$" [{(res.Ranked1v1 ? "R" : "G")}{(res.Ranked1v1 ? p.LadderStats?.Rating : p.GlobalStats?.Rating)}]",
-					$"Team {p.ReplayData?.Team}\nScore: {p.ReplayData?.Score}", true);
+			var players = (game.PlayerStats ?? Enumerable.Empty<PlayerStats>()).OrderBy(s => s.StartSpot);
+			var teams = new Dictionary<int, List<string>>();
+			foreach (var p in players) {
+				if (!teams.ContainsKey(p.Team))
+					teams[p.Team] = new();
 
-			await ctx.Channel.SendMessageAsync(embed);
+				teams[p.Team].Add($"{p.Player.Login} ({p.BeforeRating}, {p.FactionName})");
+			}
+
+			var n = 1;
+			foreach (var team in teams.OrderBy(t => t.Key))
+			{
+				var field = "";
+
+				foreach (var player in team.Value)
+					field += $"{player}\n";
+
+				embed.AddField($"Team {n}", field, true);
+
+				n++;
+			}
+
+			embed.WithDescription(description.ToString());
+
+			return embed;
 		}
 
-		public override async Task ReplyAsync(IRCCommandContext ctx, ReplayResult res)
+		public string IrcResponse(Game res)
 		{
-			var output = $"Replay #{res.Id}: {res.Title} ({res.ReplayUri}) on " +
-				$"{res.MapInfo?.Title} [{res.MapInfo?.Version}] ({res.MapInfo?.Size}). Players: ";
-			List<string> pdata = new();
+			var output = $"Replay #{res.Id}, {res.MapVersion.Map.DisplayName}, duration: {res.Duration}, {res.ReplayUrl}";
 
-			foreach (var p in res.PlayerData ?? Enumerable.Empty<FetchPlayerStatsResult>())
-				pdata.Add($"{p.Name} (T: {p.ReplayData?.Team}, S: {p.ReplayData?.Score})");
-
-			output += string.Join(", ", pdata);
-
-			await ctx.ReplyAsync(output);
+			return output;
 		}
 	}
 }
