@@ -65,10 +65,13 @@ namespace Faforever.Qai.Irc
 
 		private async void OnChannelMessageReceived(object sender, IrcMessageEventArgs eventArgs)
 		{
-			_logger.Log(LogLevel.Information,
-				$"Received Message '{eventArgs.Text}' from '{eventArgs.Source.Name}");
-
 			IrcChannel channel = sender as IrcChannel;
+
+			var logMessage = $"{channel?.Name} Received Message '{eventArgs.Text}' from '{eventArgs.Source.Name}'";
+			if (channel is not null)
+				logMessage += $" in channel '{channel.Name}';
+
+			_logger.Log(LogLevel.Debug, logMessage);
 
 			var channeluser = channel.GetChannelUser(eventArgs.Source as IrcUser);
 
