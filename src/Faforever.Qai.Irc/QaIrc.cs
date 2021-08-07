@@ -69,7 +69,7 @@ namespace Faforever.Qai.Irc
 
 			var logMessage = $"{channel?.Name} Received Message '{eventArgs.Text}' from '{eventArgs.Source.Name}'";
 			if (channel is not null)
-				logMessage += $" in channel '{channel.Name}';
+				logMessage += $" in channel '{channel.Name}'";
 
 			_logger.Log(LogLevel.Debug, logMessage);
 
