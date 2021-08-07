@@ -1,11 +1,9 @@
 
 using System;
 using System.Threading.Tasks;
-using DSharpPlus.Entities;
 using Faforever.Qai.Core.Commands.Context;
 
 using Qmmands;
-using static IrcDotNet.IrcClient;
 
 namespace Faforever.Qai.Core.Commands
 {

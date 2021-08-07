@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
@@ -20,10 +14,10 @@ namespace Faforever.Qai.Core.Extensions
 				v => JsonConvert.DeserializeObject<TProperty>(JsonConvert.SerializeObject(v)) ?? new()
 			);
 
-
 			builder = builder.HasConversion(
 				v => JsonConvert.SerializeObject(v),
-				v => JsonConvert.DeserializeObject<TProperty>(v) ?? new()
+				v => JsonConvert.DeserializeObject<TProperty>(v) ?? new(),
+				comparer
 			);
 
 			return builder;

@@ -1,15 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
-
-using Faforever.Qai.Core.Commands.Context;
-using Faforever.Qai.Core.Models;
 using Faforever.Qai.Core.Operations.FafApi;
-using Faforever.Qai.Core.Operations.Replays;
 using Faforever.Qai.Core.Services;
 using Qmmands;
 
@@ -17,7 +12,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
 {
 	public class FetchReplayCommand : DualCommandModule
 	{
-		private GameService _gameService;
+		private readonly GameService _gameService;
 
 		public FetchReplayCommand(GameService gameService)
 		{
@@ -79,13 +74,12 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
 			var n = 1;
 			foreach (var team in teams.OrderBy(t => t.Key))
 			{
-				var field = "";
+				var sb = new StringBuilder();
 
 				foreach (var player in team.Value)
-					field += $"{player}\n";
+					sb.Append($"{player}\n");
 
-				embed.AddField($"Team {n}", field, true);
-
+				embed.AddField($"Team {n}", sb.ToString(), true);
 				n++;
 			}
 
@@ -94,7 +88,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
 			return embed;
 		}
 
-		public string IrcResponse(Game res)
+		public static string IrcResponse(Game res)
 		{
 			var output = $"Replay #{res.Id}, {res.MapVersion.Map.DisplayName}, duration: {res.Duration}, {res.ReplayUrl}";
 

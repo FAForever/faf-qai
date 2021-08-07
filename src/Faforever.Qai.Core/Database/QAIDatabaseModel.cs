@@ -1,12 +1,8 @@
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Faforever.Qai.Core.Database.Entities;
 using Faforever.Qai.Core.Extensions;
-using Faforever.Qai.Core.Structures.Webhooks;
 
 using Microsoft.EntityFrameworkCore;
-
-using Newtonsoft.Json;
 
 namespace Faforever.Qai.Core.Database
 {

@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Exceptions;
-using DSharpPlus.Entities;
 
 using Faforever.Qai.Discord.Commands;
 
