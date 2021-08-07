@@ -58,7 +58,7 @@ namespace Faforever.Qai.Core
 
 			if (command == default)
 			{
-				await baseContext.ReplyAsync("Command not found.");
+				//await baseContext.ReplyAsync("Command not found.");
 				return;
 			}
 
@@ -66,7 +66,7 @@ namespace Faforever.Qai.Core
 
 			if(!await CheckPermissions(baseContext, attributes))
 			{
-				await baseContext.ReplyAsync("You do not have permissions to run that command!");
+				await baseContext.ReplyAsync("You do not have permissions to run that command!", ReplyOption.InPrivate);
 				return;
 			}
 
@@ -214,12 +214,9 @@ namespace Faforever.Qai.Core
 		{
 			_logger.LogError(e.Result.Exception, $"Failed to execute command:\n{e.Result.FailureReason}");
 
-			var ctx = e.Context as CustomCommandContext;
 
-			if (!(ctx is null))
-			{
-				ctx.ReplyAsync($"Command execution failed: {e.Result.FailureReason}");
-			}
+			if (e.Context is CustomCommandContext ctx)
+				ctx.ReplyAsync($"Command execution failed: {e.Result.FailureReason}", ReplyOption.InPrivate);
 
 			return Task.CompletedTask;
 		}

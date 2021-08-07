@@ -4,6 +4,16 @@ using System.Collections.Generic;
 
 namespace Faforever.Qai.Core.Operations.FafApi
 {
+	public enum Faction : byte
+	{
+		Aeon = 1,
+		Cybran = 2,
+		Uef = 3,
+		Seraphim = 4,
+		Random = 5,
+		Nomad = 6
+	}
+
 	public class FeaturedMod
 	{
 		public int Id { get; set; }
@@ -38,6 +48,8 @@ namespace Faforever.Qai.Core.Operations.FafApi
 		public short Version { get; set; }
 		public short Width { get; set; }
 
+		public string Size => $"{Width}x{Height}";
+
 		public Map Map { get; set; }
 	}
 
@@ -67,10 +79,10 @@ namespace Faforever.Qai.Core.Operations.FafApi
 	{
 		public int Id { get; set; }
 		public Player Player { get; set; }
-		public double? BeforeMean { get; set; }
-		public double? BeforeDeviation { get; set; }
-		public double? AfterMean { get; set; }
-		public double? AfterDeviation { get; set; }
+		public decimal? BeforeMean { get; set; }
+		public decimal? BeforeDeviation { get; set; }
+		public decimal? AfterMean { get; set; }
+		public decimal? AfterDeviation { get; set; }
 		public bool Ai { get; set; }
 		public byte Color { get; set; }
 		public byte Faction { get; set; }
@@ -78,6 +90,34 @@ namespace Faforever.Qai.Core.Operations.FafApi
 		public DateTime? ScoreTime { get; set; }
 		public byte StartSpot { get; set; }
 		public sbyte Team { get; set; }
+
+		public int? BeforeRating => GetRating(BeforeMean, BeforeDeviation);
+		public int? AfterRating => GetRating(AfterMean, AfterDeviation);
+
+		public string FactionName
+		{
+			get
+			{
+				if (!Enum.IsDefined(typeof(Faction), Faction))
+					return "Unknown";
+
+				var name = Enum.GetName(typeof(Faction), Faction);
+
+				if (name == "Uef")
+					return "UEF";
+
+				return name;
+			}
+		}
+
+		private static int? GetRating(decimal? mean, decimal? dev)
+		{
+			if (mean == null || dev == null)
+				return null;
+
+
+			return (int)Math.Round(mean.Value - dev.Value * 3);
+		}
 	}
 
 	public class Game
@@ -92,8 +132,8 @@ namespace Faforever.Qai.Core.Operations.FafApi
 		public DateTime StartTime { get; set; }
 		public string Validity { get; set; }
 		public string VictoryCondition { get; set; }
-
 		public List<PlayerStats> PlayerStats { get; set; }
+		public TimeSpan? Duration => EndTime != null ? EndTime - StartTime : null;
 	}
 
 	public class Player

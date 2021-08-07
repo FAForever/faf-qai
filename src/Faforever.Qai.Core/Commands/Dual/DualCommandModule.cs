@@ -1,9 +1,11 @@
 
+using System;
 using System.Threading.Tasks;
-
+using DSharpPlus.Entities;
 using Faforever.Qai.Core.Commands.Context;
 
 using Qmmands;
+using static IrcDotNet.IrcClient;
 
 namespace Faforever.Qai.Core.Commands
 {
@@ -19,15 +21,27 @@ namespace Faforever.Qai.Core.Commands
 				await ReplyAsync(ictx, data);
 		}
 
-		public virtual async Task ReplyAsync(DiscordCommandContext ctx, T data)
-			=> await ctx.Channel.SendMessageAsync(data?.ToString() ?? "No Data");
-
-		public virtual async Task ReplyAsync(IRCCommandContext ctx, T data)
-			=> await ctx.ReplyAsync(data?.ToString() ?? "No Data");
+		public virtual async Task ReplyAsync(DiscordCommandContext ctx, T data) => await ctx.Channel.SendMessageAsync(data?.ToString() ?? "No Data");
+		public virtual async Task ReplyAsync(IRCCommandContext ctx, T data) => await ctx.ReplyAsync(data?.ToString() ?? "No Data");
 	}
 
 	public class DualCommandModule : ModuleBase<CustomCommandContext>
 	{
+		protected virtual async Task ReplyAsync(Func<string> getIrcReply, Func<object>? getDiscordReply)
+		{
+			object message;
 
+			if (Context is DiscordCommandContext && getDiscordReply != null)
+				message = getDiscordReply();
+			else
+				message = getIrcReply();
+
+			await Context.ReplyAsync(message);
+		}
+
+		protected virtual async Task ReplyAsync(string message)
+		{
+			await Context.ReplyAsync(message);
+		}
 	}
 }
