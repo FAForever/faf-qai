@@ -5,5 +5,10 @@ indent_style = tab
 charset = utf-8
 csharp_style_var_for_built_in_types=true:silent
 csharp_style_var_when_type_is_apparent=true:silent
+csharp_prefer_braces=when_multiline:silent
+csharp_prefer_simple_using_statement = true:suggestion
+# Wrapping preferences
+csharp_preserve_single_line_blocks = true
+csharp_preserve_single_line_statements = true
 [*.{cs,vb}]
 indent_style=space
