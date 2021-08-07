@@ -1,14 +1,15 @@
 #nullable disable warnings
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Faforever.Qai.Core.Operations.FafApi
 {
 	public enum Faction : byte
 	{
-		Aeon = 1,
-		Cybran = 2,
-		Uef = 3,
+		Uef = 1,
+		Aeon = 2,
+		Cybran = 3,
 		Seraphim = 4,
 		Random = 5,
 		Nomad = 6
