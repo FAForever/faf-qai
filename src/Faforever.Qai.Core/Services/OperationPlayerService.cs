@@ -67,7 +67,7 @@ namespace Faforever.Qai.Core.Services
 		public async Task<Player?> FetchPlayer(string username)
 		{
 			var query = new ApiQuery<Player>()
-				.Where("login", "==", username)
+				.Where("login", username)
 				.Limit(1);
 
 			var players = await _api.GetAsync(query);

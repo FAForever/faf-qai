@@ -35,6 +35,24 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
 			await RespondToUser(data);
 		}
 
+		[Command("topreplays")]
+		public async Task FetchTopReplaysAsync(string mapName = null)
+		{
+			var games = await _gameService.FetchTopRatedGames(mapName, FafMod.Faf);
+
+			foreach (var game in games)
+				await RespondToUser(game);
+		}
+
+		[Command("top1v1replays")]
+		public async Task FetchTopLadderReplaysAsync(string mapName = null)
+		{
+			var games = await _gameService.FetchTopRatedGames(mapName, FafMod.Ladder1v1);
+
+			foreach (var game in games)
+				await RespondToUser(game);
+		}
+
 		private async Task RespondToUser(Game? game)
 		{
 			if (game is null)
@@ -52,13 +70,16 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
 
 			var description = new StringBuilder();
 
+			var mapName = game.MapVersion != null ? $"{game.MapVersion.Map.DisplayName}": "Unknown";
+
 			embed
 				.WithColor(Context.DostyaRed)
-				.WithTitle($"Download replay #{game.Id}")
-				.WithThumbnail(game.MapVersion.ThumbnailUrlLarge)
-				.AddField("Map Info:", $"{game.MapVersion.Map.DisplayName}", true)
+				.WithTitle($"{game.Name} - Download replay #{game.Id}")
+				.WithThumbnail(game.MapVersion?.ThumbnailUrlLarge)
+				.AddField("Map:", mapName, true)
 				.AddField("Start Time", game.StartTime.ToString("u"), true)
-				.AddField("Duration", game.Duration?.ToString() ?? "-", true)
+				.AddField("Duration", game.GameDuration.ToString() ?? "-", true)
+				.AddField("Avg rating", game.AverageRating().ToString() ?? "-", true)
 				.WithUrl(game.ReplayUrl)
 				;
 
@@ -88,9 +109,10 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
 			return embed;
 		}
 
-		public static string IrcResponse(Game res)
+		public static string IrcResponse(Game game)
 		{
-			var output = $"Replay #{res.Id}, {res.MapVersion.Map.DisplayName}, duration: {res.Duration}, {res.ReplayUrl}";
+			var mapName = game.MapVersion?.Map.DisplayName ?? "unknown map";
+			var output = $"#{game.Id} {game.Name}, {mapName}, duration: {game.GameDuration}, rating: {game.AverageRating()}, {game.ReplayUrl}";
 
 			return output;
 		}

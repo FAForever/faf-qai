@@ -126,15 +126,26 @@ namespace Faforever.Qai.Core.Operations.FafApi
 		public int Id { get; set; }
 		public DateTime? EndTime { get; set; }
 		public Player Host { get; set; }
-		public MapVersion MapVersion { get; set; }
+		public MapVersion? MapVersion { get; set; }
 		public FeaturedMod FeaturedMod { get; set; }
 		public string Name { get; set; }
+		public long? ReplayTicks { get; set; }
 		public string ReplayUrl { get; set; }
 		public DateTime StartTime { get; set; }
 		public string Validity { get; set; }
 		public string VictoryCondition { get; set; }
 		public List<PlayerStats> PlayerStats { get; set; }
-		public TimeSpan? Duration => EndTime != null ? EndTime - StartTime : null;
+		public TimeSpan GameDuration => TimeSpan.FromSeconds((ReplayTicks ?? 0) / 10);
+		public TimeSpan? RealDuration => EndTime != null ? EndTime - StartTime : null;
+
+		private double? _averageRating;
+		public double AverageRating()
+		{
+			if (_averageRating == null)
+				_averageRating = PlayerStats.Where(p => p.BeforeMean != null && p.BeforeDeviation != null).Average(p => p.BeforeRating);
+
+			return _averageRating ?? 0.0d;
+		}
 	}
 
 	public class Player

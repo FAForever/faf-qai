@@ -1,3 +1,4 @@
+using Faforever.Qai.Core.Extensions;
 using Faforever.Qai.Core.Operations.Clients;
 using JsonApiSerializer;
 using Microsoft.AspNetCore.WebUtilities;
@@ -10,6 +11,7 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Faforever.Qai.Core.Operations.FafApi
 {
@@ -79,8 +81,8 @@ namespace Faforever.Qai.Core.Operations.FafApi
 		static Dictionary<WhereOp, string> opStrings = new()
 		{
 			{ WhereOp.Equals, "==" },
-			{ WhereOp.GreaterThan, ">" },
-			{ WhereOp.LessThan, "<" }
+			{ WhereOp.GreaterThan, "=gt=" },
+			{ WhereOp.LessThan, "=lt=" }
 		};
 
 		Dictionary<string, string> args = new();
@@ -94,14 +96,31 @@ namespace Faforever.Qai.Core.Operations.FafApi
 			args["include"] = s;
 			return this;
 		}
-		public ApiQuery<T> Where<TValue>(string fieldName, string opStr, TValue value)
+
+		public ApiQuery<T> Where<TValue>(string fieldName, WhereOp op, TValue value)
 		{
-			args["filter"] = $"{fieldName} {opStr} {value}";
+			var opStr = opStrings[op];
+			var expr = $"{fieldName}{opStr}{FormatValue(value)}";
+
+			if (args.ContainsKey("filter"))
+				args["filter"] += $";{expr}";
+			else
+				args["filter"] = expr;
 
 			return this;
 		}
 
-		public ApiQuery<T> Where<TValue>(Expression<Func<T, TValue>> expr, string opStr, TValue value)
+		public ApiQuery<T> Where<TValue>(string fieldName, TValue value) => Where(fieldName, WhereOp.Equals, value);
+
+		private static string FormatValue<TValue>(TValue value)
+		{
+			if (value is DateTime dt)
+				return dt.ToIso8601();
+
+			return HttpUtility.UrlEncode(value?.ToString() ?? "");
+		}
+
+		public ApiQuery<T> Where<TValue>(Expression<Func<T, TValue>> expr, WhereOp opStr, TValue value)
 		{
 			if (expr.Body is not MemberExpression body)
 				throw new ArgumentException($"Should be a member expression", nameof(expr));
@@ -146,6 +165,6 @@ namespace Faforever.Qai.Core.Operations.FafApi
 	{
 		Equals,
 		GreaterThan,
-		LessThan
+		LessThan,
 	}
 }
