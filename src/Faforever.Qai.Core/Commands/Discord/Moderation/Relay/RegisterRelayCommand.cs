@@ -26,7 +26,8 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
 
         [Command("registerrelay", "rrelay")]
         [Description("Registers a link between an IRC channel and a Discord channel.")]
-        [RequirePermissions(Permissions.ManageChannels)]
+        [RequireUserPermissions(Permissions.ManageChannels)]
+        [RequireBotPermissions(Permissions.ManageWebhooks)]
         public async Task RegisterRelayCommandAsync(
             [Description("Discord channel to link to.")]
             DiscordChannel discordChannel,
@@ -34,8 +35,8 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
             [Description("IRC channel to link to.")]
             string ircChannel)
         {
-            if (ircChannel[0] != '#')
-                ircChannel = $"#{ircChannel}";
+            ircChannel = GetIrcChannelName(ircChannel);
+
             if (Context.Channel.GuildId == null)
             {
                 await RespondBasicError("Can only use relay command in a guild channel");
@@ -77,7 +78,7 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
 
                     await _database.SaveChangesAsync();
 
-                    await RespondBasicSuccess($"Moved the relay for IRC channel `{ircChannel}` to {discordChannel.Mention}");
+                    await RespondBasicSuccess($"Moved the relay for IRC channel `{ircChannel}` to {discordChannel.Name}");
                 }
 
                 return;
@@ -87,7 +88,7 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
 
             if (await _relay.AddRelayAsync(Context.Channel.GuildId.Value, newHook, ircChannel))
             {
-                await RespondBasicSuccess("Relay added!");
+                await RespondBasicSuccess($"Relay bridge added ({discordChannel.Name} <-> {ircChannel})");
             }
             else
             {

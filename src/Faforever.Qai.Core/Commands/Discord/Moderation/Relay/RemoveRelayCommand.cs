@@ -30,6 +30,8 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
             [Description("IRC channel to remove relays for.")]
             string ircChannel)
         {
+            ircChannel = GetIrcChannelName(ircChannel);
+
             var cfg = await _database.FindAsync<RelayConfiguration>(Context.Channel.GuildId);
             if (cfg is null || !cfg.Webhooks.TryGetValue(ircChannel, out var hook))
             {

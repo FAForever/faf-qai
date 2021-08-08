@@ -1,5 +1,6 @@
 
 using System;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
@@ -67,5 +68,33 @@ namespace Faforever.Qai.Core.Commands
                 .WithColor(DiscordColor.Black);
         }
         #endregion
+
+        private static Regex DiscordIdRegex = new Regex("<#([0-9]+)>", RegexOptions.Compiled);
+        protected string GetIrcChannelName(string ircChannel)
+        {
+            // if discord transformed #<channel> to id
+            var match = DiscordIdRegex.Match(ircChannel);
+
+            if (match.Success)
+            {
+                if (ulong.TryParse(match.Groups[1].Value, out var id))
+                    ircChannel = Context.Guild.Channels[id].Name;
+            }
+            
+            if (!ircChannel.StartsWith("#"))
+                ircChannel = $"#{ircChannel}";
+
+            return ircChannel;
+        }
+
+        private string? FixIrcChannel(string ircChannel)
+        {
+            
+
+            if (!ircChannel.StartsWith("#"))
+                ircChannel = $"#{ircChannel}";
+
+            return ircChannel;
+        }
     }
 }
