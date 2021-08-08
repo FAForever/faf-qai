@@ -178,6 +178,7 @@ namespace Faforever.Qai.Core.Services
             {
                 var msg = new DiscordWebhookBuilder()
                         .WithUsername(author)
+                        .WithAvatarUrl("https://www.faforever.com/images/faf-logo.png")
                         .WithContent(message);
 
                 if (channelToIgnore != 0)
