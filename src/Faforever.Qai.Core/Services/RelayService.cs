@@ -174,6 +174,10 @@ namespace Faforever.Qai.Core.Services
             if (!IRCToWebhookRelations.TryGetValue(ircChannel, out var hooks))
                 return;
 
+            // /me action from IRC is encoded \0001ACTION the action\0001
+            if(message.StartsWith("\u0001ACTION"))
+                message = $"_{message[8..].TrimEnd('\u0001')}_";
+
             foreach (var h in hooks)
             {
                 var msg = new DiscordWebhookBuilder()
