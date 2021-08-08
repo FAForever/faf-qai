@@ -54,8 +54,6 @@ namespace Faforever.Qai.Core.Commands.Context
 
         public override Task SendActionAsync(string action)
         {
-            //throw new NotImplementedException();
-
             return Task.CompletedTask;
         }
     }

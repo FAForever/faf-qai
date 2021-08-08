@@ -31,7 +31,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
 
         }
 
-        public override async Task ReplyAsync(IRCCommandContext ctx, FetchPlayerStatsResult data)
+        public override async Task ReplyAsync(IrcCommandContext ctx, FetchPlayerStatsResult data)
         {
             await Context.ReplyAsync($"found player '{data.Name}' with the following information:\n" +
                     $"1v1: rating '{data.LadderStats?.Rating.ToString("F0") ?? "0"}', ranked '{data.LadderStats?.Ranking ?? 0}'\n" +

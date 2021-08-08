@@ -50,7 +50,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Content
             await ctx.Channel.SendMessageAsync(output);
         }
 
-        public override async Task ReplyAsync(IRCCommandContext ctx, TwitchStreamsResult data)
+        public override async Task ReplyAsync(IrcCommandContext ctx, TwitchStreamsResult data)
         {
             List<string> res = new();
             foreach (var s in data.Streams)

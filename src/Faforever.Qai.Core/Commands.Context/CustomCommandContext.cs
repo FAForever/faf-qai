@@ -21,7 +21,7 @@ namespace Faforever.Qai.Core.Commands.Context
         /// </summary>
         public string Prefix { get; protected set; } = default!;
         public readonly DiscordColor DostyaRed = new DiscordColor(0xff0000);
-        public CustomCommandContext(IServiceProvider services) : base(services) { }
+        protected CustomCommandContext(IServiceProvider services) : base(services) { }
 
         protected abstract bool isPrivate { get; }
 

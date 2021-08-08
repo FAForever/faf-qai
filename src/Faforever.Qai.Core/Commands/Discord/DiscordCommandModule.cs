@@ -25,9 +25,6 @@ namespace Faforever.Qai.Core.Commands
         /// <returns></returns>
         protected async Task RespondBasicSuccess(string message)
         {
-            if (this.Context is null)
-                throw new NullReferenceException("Command Context is null");
-
             await this.Context.Channel.SendMessageAsync(
                 embed: SuccessBase()
                     .WithColor(Context.DostyaRed)
@@ -42,9 +39,6 @@ namespace Faforever.Qai.Core.Commands
         /// <returns></returns>
         protected async Task RespondBasicError(string message)
         {
-            if (this.Context is null)
-                throw new NullReferenceException("Command Conntext is null");
-
             await this.Context.Channel.SendMessageAsync(
                 embed: ErrorBase()
                     .WithTitle(DiscordEmoji.FromName(this.Context.Client, ":x:"))
@@ -81,16 +75,6 @@ namespace Faforever.Qai.Core.Commands
                     ircChannel = Context.Guild.Channels[id].Name;
             }
             
-            if (!ircChannel.StartsWith("#"))
-                ircChannel = $"#{ircChannel}";
-
-            return ircChannel;
-        }
-
-        private string? FixIrcChannel(string ircChannel)
-        {
-            
-
             if (!ircChannel.StartsWith("#"))
                 ircChannel = $"#{ircChannel}";
 

@@ -15,12 +15,12 @@ namespace Faforever.Qai.Core.Commands
         {
             if (Context is DiscordCommandContext dctx)
                 await ReplyAsync(dctx, data);
-            else if (Context is IRCCommandContext ictx)
+            else if (Context is IrcCommandContext ictx)
                 await ReplyAsync(ictx, data);
         }
 
         public virtual async Task ReplyAsync(DiscordCommandContext ctx, T data) => await ctx.Channel.SendMessageAsync(data?.ToString() ?? "No Data");
-        public virtual async Task ReplyAsync(IRCCommandContext ctx, T data) => await ctx.ReplyAsync(data?.ToString() ?? "No Data");
+        public virtual async Task ReplyAsync(IrcCommandContext ctx, T data) => await ctx.ReplyAsync(data?.ToString() ?? "No Data");
     }
 
     public class DualCommandModule : ModuleBase<CustomCommandContext>

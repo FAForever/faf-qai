@@ -17,7 +17,7 @@ namespace Faforever.Qai.Core.Database
 
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             // Futher configuration goes here.
         }

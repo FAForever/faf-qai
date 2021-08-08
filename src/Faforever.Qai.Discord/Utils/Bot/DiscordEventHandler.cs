@@ -56,7 +56,6 @@ namespace Faforever.Qai.Discord.Utils.Bot
             return Task.CompletedTask;
         }
 
-        #region Relay
         private Task Relay_MessageReceived(DiscordClient sender, MessageCreateEventArgs e)
         {
             if (e.Author.IsBot) return Task.CompletedTask;
@@ -65,9 +64,7 @@ namespace Faforever.Qai.Discord.Utils.Bot
 
             return Task.CompletedTask;
         }
-        #endregion
 
-        #region Account Linking
         private Task _linkService_LinkComplete(LinkCompleteEventArgs args)
         {
             _ = Task.Run(async () => await AssignLinkedRole(args));
@@ -95,6 +92,5 @@ namespace Faforever.Qai.Discord.Utils.Bot
                 }
             }
         }
-        #endregion
     }
 }

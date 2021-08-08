@@ -17,7 +17,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Utility
             {
                 msg = $"Ping: {dctx.Client.Ping}ms";
             }
-            else if (Context is IRCCommandContext ictx)
+            else if (Context is IrcCommandContext ictx)
             {
                 msg = $"Idle For: {ictx.Client.IdleDuration.TotalMilliseconds}ms";
             }

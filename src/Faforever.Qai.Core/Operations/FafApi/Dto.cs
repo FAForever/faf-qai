@@ -135,7 +135,7 @@ namespace Faforever.Qai.Core.Operations.FafApi
         public string Validity { get; set; }
         public string VictoryCondition { get; set; }
         public List<PlayerStats> PlayerStats { get; set; }
-        public TimeSpan GameDuration => TimeSpan.FromSeconds((ReplayTicks ?? 0) / 10);
+        public TimeSpan GameDuration => TimeSpan.FromSeconds((ReplayTicks ?? 0) / 10d);
         public TimeSpan? RealDuration => EndTime != null ? EndTime - StartTime : null;
 
         private double? _averageRating;

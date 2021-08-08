@@ -13,15 +13,13 @@ namespace Faforever.Qai.Core.Services
     public class OperationPlayerService : IPlayerService
     {
         private readonly FafApiClient _api;
-        private readonly QAIDatabaseModel _db;
         private readonly GameService _gameService;
         private readonly IFetchPlayerStatsOperation _playerStatsOperation;
         private readonly IFindPlayerOperation _findPlayerOperation;
 
-        public OperationPlayerService(QAIDatabaseModel db, FafApiClient api, GameService gameService, IFetchPlayerStatsOperation playerStatsOperation, IFindPlayerOperation findPlayerOperation)
+        public OperationPlayerService(FafApiClient api, GameService gameService, IFetchPlayerStatsOperation playerStatsOperation, IFindPlayerOperation findPlayerOperation)
         {
             _api = api;
-            _db = db;
             _gameService = gameService;
             _playerStatsOperation = playerStatsOperation;
             _findPlayerOperation = findPlayerOperation;

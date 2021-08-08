@@ -30,7 +30,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Info
             else await ReplyAsync(result);
         }
 
-        public override async Task ReplyAsync(IRCCommandContext ctx, UnitDatabaseSerachResult data)
+        public override async Task ReplyAsync(IrcCommandContext ctx, UnitDatabaseSerachResult data)
         {
             var desc = data.GeneralData.UnitName is not null ? $@"""{data.GeneralData.UnitName}"" {data.Description}" : data.Description;
             await ctx.ReplyAsync($"[{data.GeneralData.FactionName} - {data.Id}] {desc}: {data.GetUnitDatabaseUrl()}");

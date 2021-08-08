@@ -3,8 +3,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Exceptions;
-
-using Faforever.Qai.Discord.Commands;
+using DSharpPlus.Entities;
 
 using Microsoft.Extensions.Logging;
 
@@ -33,7 +32,7 @@ namespace Faforever.Qai.Discord.Utils.Commands
             }
             else
             {
-                var embed = CommandModule.ErrorBase()
+                var embed = ErrorBase()
                     .WithDescription($"An unhadled error occoured: {e.Exception.Message}");
 
                 await e.Context.RespondAsync(embed: embed).ConfigureAwait(false);
@@ -42,7 +41,7 @@ namespace Faforever.Qai.Discord.Utils.Commands
 
         private static async Task ChecksFailedResponderAsync(CommandErrorEventArgs args, ChecksFailedException e)
         {
-            var embed = CommandModule.ErrorBase()
+            var embed = ErrorBase()
                 .WithDescription($"Invalid Permissions: {e.Message}");
 
             await args.Context.RespondAsync(embed: embed);
@@ -50,10 +49,16 @@ namespace Faforever.Qai.Discord.Utils.Commands
 
         private static async Task ArgumentResponder(CommandErrorEventArgs args)
         {
-            var embed = CommandModule.ErrorBase()
+            var embed = ErrorBase()
                 .WithDescription($"Invalid Arguments");
 
             await args.Context.RespondAsync(embed: embed);
+        }
+
+        private static DiscordEmbedBuilder ErrorBase()
+        {
+            return new DiscordEmbedBuilder()
+                .WithColor(DiscordColor.Red);
         }
     }
 }

@@ -50,7 +50,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Map
             await ctx.Channel.SendMessageAsync(embed);
         }
 
-        public override async Task ReplyAsync(IRCCommandContext ctx, IReadOnlyList<MapResult> data)
+        public override async Task ReplyAsync(IrcCommandContext ctx, IReadOnlyList<MapResult> data)
         {
             string res = $"Ladder Pool (First 25 Results): ";
             List<string> stringData = new();

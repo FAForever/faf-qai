@@ -59,7 +59,7 @@ namespace Faforever.Qai.Irc
         {
             IrcUser user = eventArgs.Source as IrcUser;
 
-            var ctx = new IRCCommandContext(_client.LocalUser, eventArgs.Source.Name, user, eventArgs.Text, "!", _services);
+            var ctx = new IrcCommandContext(_client.LocalUser, eventArgs.Source.Name, user, eventArgs.Text, "!", _services);
             await _commandHandler.MessageRecivedAsync(ctx, eventArgs.Text);
         }
 
@@ -80,7 +80,7 @@ namespace Faforever.Qai.Irc
                 return;
             }
 
-            IRCCommandContext ctx = new IRCCommandContext(_client.LocalUser, eventArgs.Source.Name, channeluser.User, eventArgs.Text, "!", _services, channel);
+            IrcCommandContext ctx = new IrcCommandContext(_client.LocalUser, eventArgs.Source.Name, channeluser.User, eventArgs.Text, "!", _services, channel);
             await _commandHandler.MessageRecivedAsync(ctx, eventArgs.Text);
 
             await _relay.IRC_MessageReceived(channel.Name, eventArgs.Source.Name, eventArgs.Text);

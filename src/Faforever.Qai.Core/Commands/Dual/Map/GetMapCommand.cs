@@ -59,7 +59,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Map
             await ctx.Channel.SendMessageAsync(embed);
         }
 
-        public override async Task ReplyAsync(IRCCommandContext ctx, MapResult data)
+        public override async Task ReplyAsync(IrcCommandContext ctx, MapResult data)
             => await ctx.ReplyAsync($"Map: {data.Title}, ID: {data.Id}, Size: {data.Size}," +
                 $" Players: {data.MaxPlayers}, Ranked: {data.Ranked}, Author: {data.Author}," +
                 $" Download: {data.DownloadUrl?.AbsoluteUri.Replace(" ", "%20")}," +

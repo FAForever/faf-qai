@@ -12,7 +12,7 @@ namespace Faforever.Qai.Core.Commands.Arguments.Converters
     {
         public override async ValueTask<TypeParserResult<IBotUserCapsule>> ParseAsync(Parameter parameter, string value, CommandContext context)
         {
-            if (context is IRCCommandContext ircCtx)
+            if (context is IrcCommandContext ircCtx)
             {
                 var cap = GetIrcUserCapsule(parameter, value, ircCtx);
                 if (cap is not null)

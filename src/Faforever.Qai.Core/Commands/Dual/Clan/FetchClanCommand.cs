@@ -56,7 +56,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Clan
             await ctx.Channel.SendMessageAsync(embed);
         }
 
-        public override async Task ReplyAsync(IRCCommandContext ctx, FetchClanResult data)
+        public override async Task ReplyAsync(IrcCommandContext ctx, FetchClanResult data)
         {
             string res = $"Clan: {data.Clan.Name} ({data.Clan.URL}), Size: {data.Clan.Size}, Description: {data.Clan.Description?.Replace("\n", " ")}";
 

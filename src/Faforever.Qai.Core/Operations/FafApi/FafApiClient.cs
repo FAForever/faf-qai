@@ -39,9 +39,9 @@ namespace Faforever.Qai.Core.Operations.FafApi
             return Path.Combine(cacheDir, BitConverter.ToString(hash).Replace("-", ""));
         }
 
-        public async Task<IEnumerable<T>> GetAsync<T>(ApiQuery<T> uriQuery, bool useCache = false)
+        public async Task<IEnumerable<T>> GetAsync<T>(ApiQuery<T> query, bool useCache = false)
         {
-            var uri = $"data/{uriQuery}";
+            var uri = $"data/{query}";
             var cacheFile = GetCacheFile(uri);
             string json;
 

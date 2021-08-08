@@ -23,7 +23,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Fun
             {
                 if (Context is DiscordCommandContext dctx)
                     username = dctx.User.Mention;
-                else if (Context is IRCCommandContext ictx)
+                else if (Context is IrcCommandContext ictx)
                     username = ictx.Author.NickName;
             }
 

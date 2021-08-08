@@ -5,7 +5,7 @@ using IrcDotNet;
 
 namespace Faforever.Qai.Core.Commands.Context
 {
-    public class IRCCommandContext : CustomCommandContext
+    public class IrcCommandContext : CustomCommandContext
     {
         public string RespondTo { get; private set; }
         public IrcUser Author { get; set; }
@@ -16,7 +16,7 @@ namespace Faforever.Qai.Core.Commands.Context
 
         protected override bool isPrivate => Channel is null;
 
-        public IRCCommandContext(IrcLocalUser client, string respondTo, IrcUser author, string message, string prefix, IServiceProvider services, IrcChannel? channel = null) : base(services)
+        public IrcCommandContext(IrcLocalUser client, string respondTo, IrcUser author, string message, string prefix, IServiceProvider services, IrcChannel? channel = null) : base(services)
         {
             Client = client;
             RespondTo = respondTo;
@@ -44,16 +44,16 @@ namespace Faforever.Qai.Core.Commands.Context
             });
         }
 
-        public override Task SendActionAsync(string message)
+        public override Task SendActionAsync(string action)
         {
             return Task.Run(() =>
             {
-                message = message.Replace("\n", " ");
+                action = action.Replace("\n", " ");
                 IIrcMessageTarget? target = Channel;
                 if (target is null)
                     target = Author;
 
-                var actionMessage = IrcUtils.ActionMessage(message);
+                var actionMessage = IrcUtils.ActionMessage(action);
                 Client.SendMessage(target, actionMessage);
             });
         }
