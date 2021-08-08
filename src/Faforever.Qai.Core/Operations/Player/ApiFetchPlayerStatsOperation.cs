@@ -30,8 +30,9 @@ namespace Faforever.Qai.Core.Operations.Player
             FetchPlayerStatsResult result = new FetchPlayerStatsResult
             {
                 Name = username,
-                Id = json.RootElement.GetProperty("data")[0].GetProperty("id").GetString()
+                Id = json.RootElement.GetProperty("data")[0].GetProperty("id").GetString() ?? ""
             };
+
             foreach (JsonElement element in includedElement.EnumerateArray())
             {
                 var typeElement = element.GetProperty("type");
@@ -69,7 +70,9 @@ namespace Faforever.Qai.Core.Operations.Player
                         result.Clan = clan;
                         break;
                     case "nameRecord":
-                        result.OldNames.Add(attributes.GetProperty("name").GetString());
+                        var name = attributes.GetProperty("name").GetString();
+                        if(name is not null)
+                            result.OldNames.Add(name);
                         break;
                 }
             }

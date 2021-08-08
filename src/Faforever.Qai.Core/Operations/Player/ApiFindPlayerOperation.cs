@@ -32,7 +32,9 @@ namespace Faforever.Qai.Core.Operations.Player
 
                 var attributes = element.GetProperty("attributes");
 
-                result.Usernames.Add(attributes.GetProperty("login").GetString());
+                var username = attributes.GetProperty("login").GetString();
+                if(username is not null)
+                    result.Usernames.Add(username);
             }
 
             return result;

@@ -72,6 +72,9 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
 
         private async Task RemoveRelayCommandAsync(ulong webhookId)
         {
+            if (Context.Channel.GuildId == null)
+                return;
+
             var res = await _relay.RemoveRelayAsync(Context.Channel.GuildId.Value, webhookId);
 
             if (!res)
