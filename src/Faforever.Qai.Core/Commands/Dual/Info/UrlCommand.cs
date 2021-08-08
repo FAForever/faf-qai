@@ -4,29 +4,29 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Info
 {
-    public class LinkCommand : DualCommandModule
+    public class UrlCommand : DualCommandModule
     {
         private readonly IUrlService _urlService;
 
-        public LinkCommand(IUrlService urlService)
+        public UrlCommand(IUrlService urlService)
         {
             this._urlService = urlService;
         }
 
-        [Command("link")]
-        [Description("Search for a specifik link")]
-        public async Task LinkCommandAsync([Remainder] string search)
+        [Command("url")]
+        [Description("Search for a specific url")]
+        public async Task UrlCommandAsync([Remainder] string search)
         {
             var result = _urlService.FindUrl(search);
 
             if (result is not null)
                 await Context.ReplyAsync($"{result.Title} {result.Url}");
             else
-                await Context.ReplyAsync("Link not found");
+                await Context.ReplyAsync("Url not found");
         }
 
         [Command("wiki")]
-        [Description("Search for a specifik wiki link")]
+        [Description("Search for a specifik wiki url")]
         public async Task WikiCommandAsync([Remainder] string search)
         {
             var result = _urlService.FindWikiUrl(search);
