@@ -34,6 +34,8 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
             [Description("IRC channel to link to.")]
             string ircChannel)
         {
+            if (ircChannel[0] != '#')
+                ircChannel = $"#{ircChannel}";
             if (Context.Channel.GuildId == null)
             {
                 await RespondBasicError("Can only use relay command in a guild channel");
