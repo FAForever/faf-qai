@@ -4,8 +4,8 @@ using DSharpPlus;
 
 namespace Faforever.Qai.Core.Commands.Authorization
 {
-    [System.AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-    sealed class RequirePermissionsAttribute : Attribute, IPermissionsAttribute
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
+    class RequirePermissionsAttribute : Attribute, IPermissionsAttribute
     {
         public Permissions? DiscordPermissions { get; }
         public IrcPermissions? IRCPermissions { get; }

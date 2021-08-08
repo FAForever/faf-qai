@@ -1,8 +1,9 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
-
+using Faforever.Qai.Core.Commands.Authorization;
 using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Context
@@ -48,6 +49,6 @@ namespace Faforever.Qai.Core.Commands.Context
         /// <returns>Operation for this reply.</returns>
         public abstract Task SendActionAsync(string action);
 
-
+        public abstract Task<bool> CheckPermissionsAsync(CommandRequirements required);
     }
 }

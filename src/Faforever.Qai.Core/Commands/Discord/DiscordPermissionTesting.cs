@@ -6,27 +6,27 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Discord
 {
-    public class PermissionTestingCommands : DiscordCommandModule
+    public class DiscordPermissionTesting : DiscordCommandModule
     {
         [Command("testbotperms")]
-        [RequireBotPermissions(DSharpPlus.Permissions.ManageMessages)]
+        [RequireBotPermissions(DSharpPlus.Permissions.ManageWebhooks)]
         public async Task BotPermsCheck()
         {
-            await RespondBasicSuccess("Valid!");
+            await RespondBasicSuccess("Bot have ManageWebhooks permission!");
         }
 
         [Command("testuserperms")]
         [RequireUserPermissions(DSharpPlus.Permissions.Administrator)]
         public async Task UserPremsCheck()
         {
-            await RespondBasicSuccess("Valid!");
+            await RespondBasicSuccess("User have Administrator permission!");
         }
 
         [Command("testbothperms")]
-        [RequirePermissions(DSharpPlus.Permissions.Administrator)]
+        [RequirePermissions(DSharpPlus.Permissions.ManageChannels)]
         public async Task BothPermsCheck()
         {
-            await RespondBasicSuccess("Valid!");
+            await RespondBasicSuccess("User and bot have ManageChannels permission!");
         }
     }
 }

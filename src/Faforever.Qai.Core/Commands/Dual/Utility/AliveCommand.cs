@@ -19,7 +19,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Utility
             }
             else if (Context is IrcCommandContext ictx)
             {
-                msg = $"Idle For: {ictx.Client.IdleDuration.TotalMilliseconds}ms";
+                msg = $"Idle For: {ictx.LocalUser.IdleDuration.TotalMilliseconds}ms";
             }
 
             await Context.ReplyAsync(msg);
