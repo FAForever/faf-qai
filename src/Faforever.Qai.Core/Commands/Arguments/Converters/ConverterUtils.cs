@@ -13,7 +13,8 @@ namespace Faforever.Qai.Core.Commands.Arguments.Converters
     {
         public static IrcUserCapsule? GetIrcUserCapsule(Parameter p, string v, IrcCommandContext ctx)
         {
-            var users = ctx.Client.GetChannelUsers();
+            var users = ctx.LocalUser.GetChannelUsers();
+            
             var user = users.FirstOrDefault(x => x.User.NickName == v);
             if (user is not null)
                 return new IrcUserCapsule(user.User);

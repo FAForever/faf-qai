@@ -4,11 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using DSharpPlus;
-
+using DSharpPlus.Entities;
 using Faforever.Qai.Core.Commands.Authorization;
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Commands.Context.Exceptions;
-
+using IrcDotNet;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -16,6 +16,8 @@ using Qmmands;
 
 namespace Faforever.Qai.Core
 {
+
+    
     public class QCommandsHandler
     {
         public static readonly Random Rand = new Random(); // for basic random operations
@@ -58,17 +60,15 @@ namespace Faforever.Qai.Core
 
             if (command == default)
             {
+                _logger.LogDebug($"Command {message} not found!");
                 //await baseContext.ReplyAsync("Command not found.");
                 return;
             }
 
-            var attributes = command.Command.Attributes;
-
-            if (!await CheckPermissions(baseContext, attributes))
-            {
-                await baseContext.ReplyAsync("You do not have permissions to run that command!", ReplyOption.InPrivate);
+            var required = GetCommandRequirements(command.Command);
+            var success = await baseContext.CheckPermissionsAsync(required);
+            if (!success)
                 return;
-            }
 
             var parts = output.Split(" ");
             var arguments = parts.Length > 0 ? string.Join(" ", parts[1..]) : "";
@@ -86,126 +86,54 @@ namespace Faforever.Qai.Core
             }
         }
 
-        private static bool CheckPermissions(IrcCommandContext ctx, IReadOnlyList<Attribute> attributes)
+        private static CommandRequirements GetCommandRequirements(Command command)
         {
-            // TODO: See if we need more complicated permission checking for the IRC client
-            // If the authro is an operator, then they can run the command ...
-            if (ctx.Author.IsOperator) return true;
-            // ... otherwise, for every attribute ...
-            foreach (var a in attributes)
-            {// ... if it is a permissions attribute ...
-                if (a is IPermissionsAttribute perms)
-                { // ... and it has IRC permissions ...
-                    if (perms.IRCPermissions is not null)
-                    { // ... if it is requireing an operator ...
-                        if (perms.IRCPermissions.Value == IrcPermissions.Operator)
-                            return false; // ... then this user cant run the command ...
-                    }
-                }
-                // Check to see if an attribute is the FAF staff attribute ...
-                else if (a is RequireFafStaffAttribute)
+            var permissionAttributes = command.Attributes.Where(c => c is IPermissionsAttribute).Cast<IPermissionsAttribute>();
+
+            static void AddPermissions(CommandRequirements requirements, IPermissionsAttribute attribute)
+            {
+                bool bot = false, user = false;
+                var discord = attribute.DiscordPermissions ?? Permissions.None;
+                var irc = attribute.IRCPermissions ?? IrcPermissions.None;
+
+                switch (attribute)
                 {
-                    // ... and return false if it is, we only check for Discord users.
-                    return false;
+                    case RequireUserPermissionsAttribute:
+                        user = true;
+                        break;
+                    case RequireBotPermissionsAttribute:
+                        bot = true;
+                        break;
+                    case RequirePermissionsAttribute:
+                        bot = true;
+                        user = true;
+                        break;
+                    case RequireFafStaffAttribute:
+                        requirements.Discord.FafStaff = true;
+                        break;
+                }
+
+                if (bot)
+                {
+                    requirements.Discord.Bot |= discord;
+                    requirements.Irc.Bot |= irc;
+                }
+
+                if (user)
+                {
+                    requirements.Discord.User |= discord;
+                    requirements.Irc.User |= irc;
                 }
             }
+            
+            var req = new CommandRequirements();
+            foreach (var attribute in permissionAttributes)
+                AddPermissions(req, attribute);
 
-            // ... otherwise they can run the command.
-            return true;
+            return req;
         }
 
-        private async Task<bool> CheckPermissions(DiscordCommandContext ctx, IReadOnlyList<Attribute> attributes)
-        {
-            // Create the inital permissions needed to run the command.
-            // Set them to None, or no perms needed.
-            uint userPerms = 0x0;
-            uint botPerms = 0x0;
-            bool needsStaff = false;
-
-            // For every attribute on the command ...
-            foreach (var a in attributes)
-            {
-                // ... if that attribute is a permissions attribute ...
-                if (a is IPermissionsAttribute perms)
-                {
-                    // ... and it has a valid Discord permission ...
-                    if (!(perms.DiscordPermissions is null))
-                    {
-                        // ... see what type of permission attribute it is ...
-                        switch (perms)
-                        {
-                            // ... if it is a user permissions ...
-                            case RequireUserPermissionsAttribute user:
-                                // ... Add the requierment to the userPerms.
-                                userPerms |= (uint)perms.DiscordPermissions;
-                                break;
-                            // ... if it is a bot permission ...
-                            case RequireBotPermissionsAttribute bot:
-                                // ... add the requirement to the botPerms.
-                                botPerms |= (uint)perms.DiscordPermissions;
-                                break;
-                            // ... if it is for both ...
-                            case RequirePermissionsAttribute both:
-                                // ... add the requirement to both.
-                                userPerms |= (uint)perms.DiscordPermissions;
-                                botPerms |= (uint)perms.DiscordPermissions;
-                                break;
-                        }
-                    }
-                }
-                else if (a is RequireFafStaffAttribute)
-                {
-                    // Check to see if the commands needs FAF staff.
-                    needsStaff = true;
-                }
-            }
-            // We will check this differently if the command needs FAF staff.
-            if (needsStaff)
-            {
-                return _fafStaff.Contains(ctx.User.Id);
-            }
-            else
-            {
-                // Initalize the result variables. Assume the check will pass.
-                bool userResult = true;
-                bool botResult = true;
-                // If there is no requirement for user permissions, skip this.
-                if (userPerms != 0x0)
-                {
-                    // Get the member object for the Author DiscordUser ...
-                    var member = await ctx.Guild.GetMemberAsync(ctx.Message.Author.Id);
-                    // ... and check that they have requiered permissions in the channel the command was from ...
-                    var perm = (Permissions)userPerms;
-                    userResult = ctx.Channel.PermissionsFor(member).HasPermission(perm);
-                }
-                // If there is no requirement for bot permissions, skip this.
-                if (botPerms != 0x0)
-                {
-                    // Get the bots member object for the server the command was in ....
-                    var selfMember = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
-                    // ... and check that it has the required permissions in the channel the command was from ...
-                    var perm = (Permissions)botPerms;
-                    botResult = ctx.Channel.PermissionsFor(selfMember).HasPermission(perm);
-                }
-                // return true if both check pass, otherwise false.
-                return userResult && botResult;
-            }
-        }
-
-        private async Task<bool> CheckPermissions(CustomCommandContext ctx, IReadOnlyList<Attribute> attributes)
-        {
-            var ircResult = false;
-            var disResult = false;
-
-            if (ctx is IrcCommandContext irc)
-                ircResult = CheckPermissions(irc, attributes);
-            else if (ctx is DiscordCommandContext dis)
-                disResult = await CheckPermissions(dis, attributes);
-
-            return ircResult || disResult;
-        }
-
-        private async Task Commands_ParserFailed(DefaultArgumentParserResult? res, CustomCommandContext baseContext)
+        private static async Task Commands_ParserFailed(DefaultArgumentParserResult? res, CustomCommandContext baseContext)
         {
             await baseContext.ReplyAsync($"Failed to parse an argument for command: {res?.Command.Name ?? "unkown"}\n{res?.FailureReason ?? ""}");
         }
@@ -228,7 +156,7 @@ namespace Faforever.Qai.Core
             return Task.CompletedTask;
         }
 
-        private Task Respond_ArgumentException()
+        private static Task Respond_ArgumentException()
         {
             return Task.CompletedTask;
         }

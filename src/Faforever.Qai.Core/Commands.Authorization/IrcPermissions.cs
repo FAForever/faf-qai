@@ -1,8 +1,12 @@
+using System;
+
 namespace Faforever.Qai.Core.Commands.Authorization
 {
+    [Flags]
     public enum IrcPermissions
     {
         None = 0,
-        Operator = 1
+        AeolusModerator = 1,
+        ChannelModerator = 2,
     }
 }
