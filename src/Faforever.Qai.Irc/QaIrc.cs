@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Faforever.Qai.Irc
 {
-    public class QaIrc : IDisposable
+    public sealed class QaIrc : IDisposable
     {
         private readonly string _hostname;
         private readonly IrcRegistrationInfo _userInfo;
@@ -22,7 +22,7 @@ namespace Faforever.Qai.Irc
         private readonly IServiceProvider _services;
         private readonly string[] _channels;
         private readonly IPlayerService _playerService;
-        private readonly StandardIrcClient _client;
+        private StandardIrcClient _client;
 
         public QaIrc(IrcConfiguration config, IrcRegistrationInfo userInfo, ILogger<QaIrc> logger,
             QCommandsHandler commandHandler, RelayService relay, IPlayerService playerService, IServiceProvider services)
@@ -37,11 +37,7 @@ namespace Faforever.Qai.Irc
             _channels = config.Channels;
             _playerService = playerService;
 
-            _client = new StandardIrcClient { FloodPreventer = new IrcStandardFloodPreventer(4, 2000) };
-            _client.ErrorMessageReceived += OnClientErrorMessageReceived;
-            _client.Connected += OnClientConnected;
-            _client.ConnectFailed += OnClientConnectFailed;
-            _client.Registered += OnClientRegistered;
+            InitializeClient();
         }
 
         public void Run()
@@ -51,8 +47,25 @@ namespace Faforever.Qai.Irc
 
         public void Dispose()
         {
-            _client.Quit(1000, "I'm outta here");
+            if(_client.IsConnected)
+                _client.Quit(1000, "I'm outta here");
+
+            _client.ErrorMessageReceived -= OnClientErrorMessageReceived;
+            _client.Connected -= OnClientConnected;
+            _client.ConnectFailed -= OnClientConnectFailed;
+            _client.Disconnected -= OnClientDisconnected;
+            _client.Registered -= OnClientRegistered;
             _client.Dispose();
+        }
+
+        private void InitializeClient()
+        {
+            _client = new StandardIrcClient { FloodPreventer = new IrcStandardFloodPreventer(4, 2000) };
+            _client.ErrorMessageReceived += OnClientErrorMessageReceived;
+            _client.Connected += OnClientConnected;
+            _client.ConnectFailed += OnClientConnectFailed;
+            _client.Disconnected += OnClientDisconnected;
+            _client.Registered += OnClientRegistered;
         }
 
         private async void OnPrivateMessage(object receiver, IrcMessageEventArgs eventArgs)
@@ -62,6 +75,8 @@ namespace Faforever.Qai.Irc
             var ctx = new IrcCommandContext(_client, eventArgs.Source.Name, user, eventArgs.Text, "!", _services);
 
             await _commandHandler.MessageRecivedAsync(ctx, eventArgs.Text);
+
+            _client.Disconnect();
         }
 
         private async void OnChannelMessageReceived(object sender, IrcMessageEventArgs eventArgs)
@@ -90,6 +105,7 @@ namespace Faforever.Qai.Irc
 
         private void OnClientRegistered(object sender, EventArgs args)
         {
+            reconnecting = false;
             IrcClient client = sender as IrcClient;
             _logger.Log(LogLevel.Information, "Client registered");
 
@@ -111,13 +127,39 @@ namespace Faforever.Qai.Irc
             }
         }
 
+        private bool reconnecting;
+        private void OnClientDisconnected(object sender, EventArgs args)
+        {
+            _logger.Log(LogLevel.Information, "client disconnected");
+
+            if(!reconnecting)
+                Task.Run(TryReconnect);
+        }
+
+        private async Task TryReconnect()
+        {
+            if(!_client.IsConnected)
+            {
+                reconnecting = true;
+                _client.Dispose();
+                await Task.Delay(10 * 1000);
+                
+                InitializeClient();
+                _logger.Log(LogLevel.Information, "Trying to reconnect...");
+                _client.Connect(_hostname, false, _userInfo);
+            }
+        }
+
         private void OnClientConnectFailed(object sender, IrcErrorEventArgs args)
         {
             _logger.Log(LogLevel.Critical, args.Error, "connect failed");
+            if (reconnecting)
+                Task.Run(TryReconnect);
         }
 
         private void OnClientConnected(object sender, EventArgs args)
         {
+            reconnecting = false;
             _logger.Log(LogLevel.Information, "client connected");
         }
 
