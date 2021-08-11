@@ -47,7 +47,12 @@ namespace Faforever.Qai.Irc
 
         public void Dispose()
         {
-            if(_client.IsConnected)
+            DisposeClient();
+        }
+
+        private void DisposeClient()
+        {
+            if (_client.IsConnected)
                 _client.Quit(1000, "I'm outta here");
 
             _client.ErrorMessageReceived -= OnClientErrorMessageReceived;
@@ -141,7 +146,7 @@ namespace Faforever.Qai.Irc
             if(!_client.IsConnected)
             {
                 reconnecting = true;
-                _client.Dispose();
+                DisposeClient();
                 await Task.Delay(10 * 1000);
                 
                 InitializeClient();
