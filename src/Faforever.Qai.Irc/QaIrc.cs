@@ -80,8 +80,6 @@ namespace Faforever.Qai.Irc
             var ctx = new IrcCommandContext(_client, eventArgs.Source.Name, user, eventArgs.Text, "!", _services);
 
             await _commandHandler.MessageRecivedAsync(ctx, eventArgs.Text);
-
-            _client.Disconnect();
         }
 
         private async void OnChannelMessageReceived(object sender, IrcMessageEventArgs eventArgs)
