@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus;
 using DSharpPlus.Entities;
+using Faforever.Qai.Core.Commands;
 using Faforever.Qai.Core.Commands.Authorization;
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Commands.Context.Exceptions;
@@ -16,8 +17,6 @@ using Qmmands;
 
 namespace Faforever.Qai.Core
 {
-
-    
     public class QCommandsHandler
     {
         public static readonly Random Rand = new Random(); // for basic random operations
@@ -56,7 +55,16 @@ namespace Faforever.Qai.Core
 
             var cmds = _commands.FindCommands(output);
 
-            var command = cmds.FirstOrDefault();
+            var command = cmds.FirstOrDefault(match => {
+                var modType = match.Command.Module.Type;
+                if (modType.IsAssignableTo(typeof(DualCommandModule)))
+                    return true;
+
+                var inDiscord = baseContext is DiscordCommandContext;
+                var discordCommand = modType.IsAssignableTo(typeof(DiscordCommandModule));
+
+                return inDiscord == discordCommand;
+            });
 
             if (command == default)
             {
