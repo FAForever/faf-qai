@@ -22,7 +22,7 @@ namespace Faforever.Qai.Core.Commands.Context
             }
         }
 
-        protected override bool isPrivate => false;
+        protected override bool isPrivate => Channel.IsPrivate;
 
         public DiscordClient Client { get; private set; }
         public DiscordUser User { get; private set; }
@@ -40,21 +40,10 @@ namespace Faforever.Qai.Core.Commands.Context
 
         protected override async Task SendReplyAsync(object message, bool inPrivate = false)
         {
-            if (inPrivate)
-            {
-                var member = (DiscordMember)User;
-                if (message is DiscordEmbed embed)
-                    await member.SendMessageAsync(embed);
-                else
-                    await member.SendMessageAsync(message.ToString());
-            }
+            if (message is DiscordEmbed embed)
+                await Channel.SendMessageAsync(embed);
             else
-            {
-                if (message is DiscordEmbed embed)
-                    await Channel.SendMessageAsync(embed);
-                else
-                    await Channel.SendMessageAsync(message.ToString());
-            }
+                await Channel.SendMessageAsync(message.ToString());
         }
 
         public override Task SendActionAsync(string action)
@@ -78,6 +67,12 @@ namespace Faforever.Qai.Core.Commands.Context
 
             if(perms.Bot != Permissions.None)
             {
+                if(Guild is null)
+                {
+                    await ReplyAsync("Command needs to be run in a channel!", ReplyOption.InPrivate);
+                    return false;
+                }
+
                 var selfMember = await Guild.GetMemberAsync(Client.CurrentUser.Id);
                 if(!Channel.PermissionsFor(selfMember).HasPermission(perms.Bot))
                 {
