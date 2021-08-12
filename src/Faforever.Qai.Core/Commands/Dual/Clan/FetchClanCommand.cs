@@ -33,13 +33,14 @@ namespace Faforever.Qai.Core.Commands.Dual.Clan
         public override async Task ReplyAsync(DiscordCommandContext ctx, FetchClanResult data)
         {
             var embed = new DiscordEmbedBuilder();
-            embed.WithAuthor(data.Clan.Name, data.Clan.URL)
+            var desc = !string.IsNullOrEmpty(data.Clan.Description) ? data.Clan.Description : "-";
+
+            embed.WithTitle($"#{data.Clan.Id} {data.Clan.Name}")
+                .WithUrl(data.Clan.URL)
                 .WithColor(Context.DostyaRed)
-                .WithTitle($"ID: {data.Clan.Id}")
                 .AddField("Created", data.Clan.CreatedDate?.ToString("u"), true)
-                .AddField("URL", data.Clan.URL, true)
                 .AddField("Clan Size", data.Clan.Size.ToString(), true)
-                .AddField("Description", data.Clan.Description, false);
+                .AddField("Description", desc, false);
 
             var c = 0;
             foreach (var member in data.Members)
