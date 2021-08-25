@@ -22,11 +22,11 @@ namespace Faforever.Qai.Irc
         private readonly RelayService _relay;
         private readonly IServiceProvider _services;
         private readonly string[] _channels;
-        private readonly IPlayerService _playerService;
         private StandardIrcClient _client;
+        private Thread _heartbeatThread;
 
         public QaIrc(IrcConfiguration config, IrcRegistrationInfo userInfo, ILogger<QaIrc> logger,
-            QCommandsHandler commandHandler, RelayService relay, IPlayerService playerService, IServiceProvider services)
+            QCommandsHandler commandHandler, RelayService relay, IServiceProvider services)
         {
             _hostname = config.Connection;
             _userInfo = userInfo;
@@ -36,14 +36,17 @@ namespace Faforever.Qai.Irc
             _relay.DiscordMessageReceived += BounceToIRC;
             _services = services;
             _channels = config.Channels;
-            _playerService = playerService;
 
             InitializeClient();
         }
 
         public void Run()
         {
+            connecting = true;
             _client.Connect(_hostname, false, _userInfo);
+            
+            _heartbeatThread = new Thread(HeartbeatThread);
+            _heartbeatThread.Start();
         }
 
         public void Dispose()
@@ -53,6 +56,9 @@ namespace Faforever.Qai.Irc
 
         private void DisposeClient()
         {
+            if (_client == null)
+                return;
+
             if (_client.IsConnected)
                 _client.Quit(1000, "I'm outta here");
 
@@ -61,7 +67,9 @@ namespace Faforever.Qai.Irc
             _client.ConnectFailed -= OnClientConnectFailed;
             _client.Disconnected -= OnClientDisconnected;
             _client.Registered -= OnClientRegistered;
+            _client.Error += OnError;
             _client.Dispose();
+            _client = null;
         }
 
         private void InitializeClient()
@@ -72,6 +80,7 @@ namespace Faforever.Qai.Irc
             _client.ConnectFailed += OnClientConnectFailed;
             _client.Disconnected += OnClientDisconnected;
             _client.Registered += OnClientRegistered;
+            _client.Error += OnError;
         }
 
         private async void OnPrivateMessage(object receiver, IrcMessageEventArgs eventArgs)
@@ -109,7 +118,7 @@ namespace Faforever.Qai.Irc
 
         private void OnClientRegistered(object sender, EventArgs args)
         {
-            reconnecting = false;
+            connecting = false;
             IrcClient client = sender as IrcClient;
             _logger.Log(LogLevel.Information, "Client registered");
 
@@ -121,7 +130,7 @@ namespace Faforever.Qai.Irc
 
             client.LocalUser.JoinedChannel += (o, eventArgs) =>
             {
-                _logger.Log(LogLevel.Information, $"Join channel {eventArgs.Channel.Name}");
+                _logger.Log(LogLevel.Information, "Join channel {channel}", eventArgs.Channel.Name);
                 eventArgs.Channel.MessageReceived += OnChannelMessageReceived;
             };
 
@@ -131,42 +140,31 @@ namespace Faforever.Qai.Irc
             }
         }
 
-        private bool reconnecting;
+        private bool connecting;
         private void OnClientDisconnected(object sender, EventArgs args)
         {
             _logger.Log(LogLevel.Information, "client disconnected");
-
-            if(!reconnecting)
-                Task.Run(TryReconnect);
-        }
-
-        private async Task TryReconnect()
-        {
-            if(!_client.IsConnected)
-            {
-                reconnecting = true;
-                DisposeClient();
-                await Task.Delay(10 * 1000);
-                
-                InitializeClient();
-                _logger.Log(LogLevel.Information, "Trying to reconnect...");
-                _client.Connect(_hostname, false, _userInfo);
-            }
+            connecting = false;
         }
 
         private void OnClientConnectFailed(object sender, IrcErrorEventArgs args)
         {
             _logger.Log(LogLevel.Critical, args.Error, "connect failed");
-            if (reconnecting)
-                Task.Run(TryReconnect);
+            connecting = false;
+        }
+
+        private void OnError(object sender, IrcErrorEventArgs args)
+        {
+            _logger.Log(LogLevel.Information, args.Error, "Error!");
+
+            if (!_client.IsConnected)
+                connecting = false;
         }
 
         private void OnClientConnected(object sender, EventArgs args)
         {
-            reconnecting = false;
+            connecting = false;
             _logger.Log(LogLevel.Information, "client connected");
-
-            new Thread(PingThread).Start();
         }
 
         private void OnClientErrorMessageReceived(object sender, IrcErrorMessageEventArgs args)
@@ -181,15 +179,44 @@ namespace Faforever.Qai.Irc
             return Task.CompletedTask;
         }
 
-        private void PingThread()
+        private void TryReconnect()
         {
+            connecting = true;
+            _logger.Log(LogLevel.Information, "Trying to reconnect...");
+
+            DisposeClient();
+            InitializeClient();
+            _client.Connect(_hostname, false, _userInfo);
+        }
+
+        private void HeartbeatThread()
+        {
+            const int PING_INTERVAL = 60;
+
+            _logger.Log(LogLevel.Debug, "Heartbeat thread started");
             // Ping the server regulary to detect if the socket is dead
 
-            while (_client.IsConnected)
-            {
-                Thread.Sleep(60000);
+            DateTime nextPing = DateTime.Now.AddSeconds(PING_INTERVAL);
 
-                _client.Ping("irc.faforever.com");
+            while(true)
+            {
+                if(!_client.IsConnected)
+                {
+                    if (!connecting)
+                        TryReconnect();
+                }
+                else
+                {
+                    if (nextPing < DateTime.Now)
+                    {
+                        _logger.Log(LogLevel.Debug, "Pinging {_hostname}", _hostname);
+                        _client.Ping(_hostname);
+
+                        nextPing = DateTime.Now.AddSeconds(PING_INTERVAL);
+                    }
+                }
+
+                Thread.Sleep(1000);
             }
         }
     }
