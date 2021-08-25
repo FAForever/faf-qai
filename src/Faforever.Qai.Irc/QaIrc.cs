@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Faforever.Qai.Core;
@@ -164,6 +165,8 @@ namespace Faforever.Qai.Irc
         {
             reconnecting = false;
             _logger.Log(LogLevel.Information, "client connected");
+
+            new Thread(PingThread).Start();
         }
 
         private void OnClientErrorMessageReceived(object sender, IrcErrorMessageEventArgs args)
@@ -176,6 +179,18 @@ namespace Faforever.Qai.Irc
             _client.LocalUser.SendMessage(channel, $"{author}: {message}");
 
             return Task.CompletedTask;
+        }
+
+        private void PingThread()
+        {
+            // Ping the server regulary to detect if the socket is dead
+
+            while (_client.IsConnected)
+            {
+                Thread.Sleep(60000);
+
+                _client.Ping("irc.faforever.com");
+            }
         }
     }
 }
