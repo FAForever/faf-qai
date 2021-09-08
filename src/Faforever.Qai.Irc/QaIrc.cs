@@ -24,6 +24,7 @@ namespace Faforever.Qai.Irc
         private readonly string[] _channels;
         private StandardIrcClient _client;
         private Thread _heartbeatThread;
+        private DateTime? nextConnectAttempt = null;
 
         public QaIrc(IrcConfiguration config, IrcRegistrationInfo userInfo, ILogger<QaIrc> logger,
             QCommandsHandler commandHandler, RelayService relay, IServiceProvider services)
@@ -85,6 +86,18 @@ namespace Faforever.Qai.Irc
 
         private async void OnPrivateMessage(object receiver, IrcMessageEventArgs eventArgs)
         {
+            try
+            {
+                await HandleOnPrivateMessage(receiver, eventArgs);
+            }
+            catch(Exception e)
+            {
+                _logger.LogError(e, "Unhandled exception");
+            }
+        }
+
+        private async Task HandleOnPrivateMessage(object receiver, IrcMessageEventArgs eventArgs)
+        {
             IrcUser user = eventArgs.Source as IrcUser;
 
             var ctx = new IrcCommandContext(_client, eventArgs.Source.Name, user, eventArgs.Text, "!", _services);
@@ -93,6 +106,18 @@ namespace Faforever.Qai.Irc
         }
 
         private async void OnChannelMessageReceived(object sender, IrcMessageEventArgs eventArgs)
+        {
+            try
+            {
+                await ProcessOnChannelMessageReceived(sender, eventArgs);
+            }
+            catch(Exception e)
+            {
+                _logger.LogError(e, "Unhandled exception");
+            }
+        }
+
+        private async Task ProcessOnChannelMessageReceived(object sender, IrcMessageEventArgs eventArgs)
         {
             IrcChannel channel = sender as IrcChannel;
 
@@ -110,9 +135,7 @@ namespace Faforever.Qai.Irc
             }
 
             var ctx = new IrcCommandContext(_client, eventArgs.Source.Name, channeluser.User, eventArgs.Text, "!", _services, channel);
-
             await _commandHandler.MessageRecivedAsync(ctx, eventArgs.Text);
-
             await _relay.IRC_MessageReceived(channel.Name, eventArgs.Source.Name, eventArgs.Text);
         }
 
@@ -170,6 +193,9 @@ namespace Faforever.Qai.Irc
         private void OnClientErrorMessageReceived(object sender, IrcErrorMessageEventArgs args)
         {
             _logger.Log(LogLevel.Error, args.Message);
+
+            if (args.Message.Contains("Throttled"))
+                nextConnectAttempt = DateTime.Now.AddMinutes(1);
         }
 
         private Task BounceToIRC(string channel, string author, string message)
@@ -181,6 +207,10 @@ namespace Faforever.Qai.Irc
 
         private void TryReconnect()
         {
+            if (nextConnectAttempt != null && DateTime.Now < nextConnectAttempt)
+                return;
+
+            nextConnectAttempt = null;
             connecting = true;
             _logger.Log(LogLevel.Information, "Trying to reconnect...");
 
