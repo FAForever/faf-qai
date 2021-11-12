@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /build
 
 COPY ./Faforever.Qai.sln ./NuGet.config  ./
@@ -21,7 +21,7 @@ COPY ./tests ./tests
 RUN dotnet publish -c Release -o out
 #COPY ./src/Faforever.Qai/Database out/Database
 
-FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
 WORKDIR /app 
 COPY --from=build /build/out ./
 ENTRYPOINT ["dotnet", "Faforever.Qai.dll"]
