@@ -25,8 +25,10 @@ jobs:
           # The architecture (x86, x64) of the package.
           architecture: x64 # optional, default is x64
       - name: Install SonarCloud dotnet
+        if: ${{ false }}
         run: dotnet tool install --global dotnet-sonarscanner
       - name: Start SonarCloud analysis
+        if: ${{ false }}
         run: dotnet sonarscanner begin -k:FAForever_faf-qai -d:sonar.host.url="https://sonarcloud.io" -o:faforever -d:sonar.login=${{secrets.SONAR_TOKEN}} -d:sonar.branch.name=${GITHUB_REF##*/} -v:${GITHUB_RUN_NUMBER} -d:sonar.cs.opencover.reportsPaths=./testresults/*/coverage.opencover.xml
       - name: Install dependencies
         run: dotnet restore
@@ -35,6 +37,7 @@ jobs:
       - name: Test
         run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage" -r ./testresults -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
       - name: End SonarCloud analysis
+        if: ${{ false }}
         run: dotnet sonarscanner end -d:sonar.login=${{secrets.SONAR_TOKEN}}
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
