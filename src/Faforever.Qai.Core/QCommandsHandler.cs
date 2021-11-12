@@ -32,6 +32,7 @@ namespace Faforever.Qai.Core
             this._fafStaff = new(from child in config.GetSection("Roles:FafStaff").GetChildren()
                                  where ulong.TryParse(child.Value, out _)
                                  select ulong.Parse(child.Value));
+
             _commands.CommandExecuted += Commands_CommandExecuted;
             _commands.CommandExecutionFailed += Commands_CommandExecutionFailed;
         }
@@ -146,7 +147,7 @@ namespace Faforever.Qai.Core
             await baseContext.ReplyAsync($"Failed to parse an argument for command: {res?.Command.Name ?? "unkown"}\n{res?.FailureReason ?? ""}");
         }
 
-        private Task Commands_CommandExecutionFailed(CommandExecutionFailedEventArgs e)
+        private ValueTask Commands_CommandExecutionFailed(object sender, CommandExecutionFailedEventArgs e)
         {
             _logger.LogError(e.Result.Exception, $"Failed to execute command:\n{e.Result.FailureReason}");
 
@@ -154,14 +155,14 @@ namespace Faforever.Qai.Core
             if (e.Context is CustomCommandContext ctx)
                 ctx.ReplyAsync($"Command execution failed: {e.Result.FailureReason}", ReplyOption.InPrivate);
 
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
-        private Task Commands_CommandExecuted(CommandExecutedEventArgs e)
+        private ValueTask Commands_CommandExecuted(object sender, CommandExecutedEventArgs e)
         {
             _logger.LogInformation($"Executed command: {e.Result?.Command.Name ?? e.Context?.Command.Name}");
 
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
         private static Task Respond_ArgumentException()
