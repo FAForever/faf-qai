@@ -25,7 +25,7 @@ namespace Faforever.Qai.Core.Services
             _findPlayerOperation = findPlayerOperation;
         }
 
-        public Task<FetchPlayerStatsResult> FetchPlayerStats(string username)
+        public Task<FetchPlayerStatsResult?> FetchPlayerStats(string username)
         {
             return _playerStatsOperation.FetchPlayer(username);
         }

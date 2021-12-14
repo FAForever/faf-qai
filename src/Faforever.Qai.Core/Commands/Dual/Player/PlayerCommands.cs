@@ -88,7 +88,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
         [Command("searchplayer")]
         public async Task FindPlayerAsync(string searchTerm)
         {
-            FindPlayerResult? findPlayerResult = await _playerService.FindPlayer(searchTerm);
+            FindPlayerResult findPlayerResult = await _playerService.FindPlayer(searchTerm);
             if (findPlayerResult.Usernames.Count == 0)
                 await Context.ReplyAsync($"Found no players when searching for '{searchTerm}'");
             else
