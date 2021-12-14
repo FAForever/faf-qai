@@ -18,20 +18,25 @@ namespace Faforever.Qai.Core.Operations.Player
             this._api = api;
         }
 
-        public async Task<FetchPlayerStatsResult> FetchPlayer(string username)
+        public async Task<FetchPlayerStatsResult?> FetchPlayer(string username)
         {
             using Stream? stream =
                 await this._api.Client.GetStreamAsync(
                     $"/data/player?include=clanMembership.clan,globalRating,ladder1v1Rating,names,avatarAssignments.avatar&filter=login=={username}");
 
             using JsonDocument json = await JsonDocument.ParseAsync(stream);
-            JsonElement includedElement = json.RootElement.GetProperty("included");
+
+            var data = json.RootElement.GetProperty("data");
+            if(data.GetArrayLength() == 0)
+                return null;
 
             FetchPlayerStatsResult result = new FetchPlayerStatsResult
             {
                 Name = username,
                 Id = json.RootElement.GetProperty("data")[0].GetProperty("id").GetString() ?? ""
             };
+
+            JsonElement includedElement = json.RootElement.GetProperty("included");
 
             foreach (JsonElement element in includedElement.EnumerateArray())
             {

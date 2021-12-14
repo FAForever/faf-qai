@@ -26,7 +26,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
             FetchPlayerStatsResult? playerStats = await _playerService.FetchPlayerStats(username);
 
             if (playerStats is null)
-                await Context.ReplyAsync("No player found.");
+                await Context.ReplyAsync("No such player found.");
             else await ReplyAsync(playerStats);
 
         }
