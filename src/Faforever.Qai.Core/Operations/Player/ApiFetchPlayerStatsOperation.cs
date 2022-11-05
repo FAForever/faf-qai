@@ -26,7 +26,9 @@ namespace Faforever.Qai.Core.Operations.Player
 
             using JsonDocument json = await JsonDocument.ParseAsync(stream);
 
-            var data = json.RootElement.GetProperty("data");
+            if (!json.RootElement.TryGetProperty("data", out var data))
+                return null;
+            
             if(data.GetArrayLength() == 0)
                 return null;
 
