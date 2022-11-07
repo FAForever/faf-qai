@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -44,6 +45,10 @@ namespace Faforever.Qai.Irc
         public void Run()
         {
             connecting = true;
+            var hostEntry = Dns.GetHostEntry(_hostname);
+            var address = hostEntry.AddressList[0];
+            var port = 6667;
+            _logger.LogInformation("Connecting to IRC server {0} ({1}), port {2}", _hostname, address, port);
             _client.Connect(_hostname, false, _userInfo);
             
             _heartbeatThread = new Thread(HeartbeatThread);
