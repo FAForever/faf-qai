@@ -189,10 +189,15 @@ namespace Faforever.Qai
 
             // IRC Information Setup
             var user = Configuration["Config:Irc:User"];
+            var ircServer = Environment.GetEnvironmentVariable("IRC_SERVER");
+            if (string.IsNullOrEmpty(ircServer))
+                ircServer = Configuration["Config:Irc:Connection"];
+
             var pass = Environment.GetEnvironmentVariable("IRC_PASS");
+            
             IrcConfiguration ircConfig = new()
             {
-                Connection = Configuration["Config:Irc:Connection"],
+                Connection = ircServer,
                 Channels = Configuration["Config:Irc:Channels"].Split(',').Select(s => s.Trim()).ToArray(),
                 UserName = user,
                 NickName = user,
