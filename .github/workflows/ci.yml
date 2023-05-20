@@ -35,7 +35,7 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
       - name: Test
-        run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage" -r ./testresults -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+        run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage" --results-directory:./testresults -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
       - name: End SonarCloud analysis
         if: ${{ false }}
         run: dotnet sonarscanner end -d:sonar.login=${{secrets.SONAR_TOKEN}}
