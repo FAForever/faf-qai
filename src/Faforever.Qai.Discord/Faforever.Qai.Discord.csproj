@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="DSharpPlus" Version="4.2.0" />
-      <PackageReference Include="DSharpPlus.CommandsNext" Version="4.2.0" />
-      <PackageReference Include="DSharpPlus.Rest" Version="4.2.0" />
+      <PackageReference Include="DSharpPlus" Version="4.4.0" />
+      <PackageReference Include="DSharpPlus.CommandsNext" Version="4.4.0" />
+      <PackageReference Include="DSharpPlus.Rest" Version="4.4.0" />
     </ItemGroup>
 
     <ItemGroup>
