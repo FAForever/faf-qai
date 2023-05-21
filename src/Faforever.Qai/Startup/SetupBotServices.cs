@@ -102,8 +102,9 @@ namespace Faforever.Qai.Startup
                 .AddTransient<FafApiClient>();
 
             // Discord Information Setup
-            DiscordBotConfiguration discordConfig = new()
+            var discordConfig = new DiscordBotConfiguration()
             {
+                EnableSlashCommands = botConfig.Discord.SlashCommands,
                 Prefix = botConfig.BotPrefix,
                 Shards = 1,
                 Token = botConfig.Discord.Token,

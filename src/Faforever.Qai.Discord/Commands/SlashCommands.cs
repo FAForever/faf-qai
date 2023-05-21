@@ -68,6 +68,10 @@ namespace Faforever.Qai.Discord.Commands
         }
         */
     }
+
+    // Used to unregister slash commands
+    public class EmptySlashCommands : ApplicationCommandModule { }
+
 }
 
 #pragma warning restore IDE0060 // Remove unused parameter

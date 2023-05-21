@@ -31,6 +31,7 @@ namespace Faforever.Qai
 
         public class DiscordSettings
         {
+            public bool SlashCommands { get; set; }
             public string Callback { get; set; }
             public string Api { get; set; }
             public string Scope { get; set; }

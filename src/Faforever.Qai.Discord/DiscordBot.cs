@@ -93,19 +93,20 @@ namespace Faforever.Qai.Discord
                 await RegisterBotConfigurationAsync();
 
             // Create the Clients
+            var slash = await Client.UseSlashCommandsAsync(new SlashCommandsConfiguration { Services = _services });
 
-            var slash = await Client.UseSlashCommandsAsync(new SlashCommandsConfiguration
+            if (Config.EnableSlashCommands)
             {
-                Services = _services
-            });
-
-            slash.RegisterCommands<SlashCommands>();
-
-            Client.InteractionCreated += ReceiveSlashCommand;
+                slash.RegisterCommands<SlashCommands>();
+                Client.InteractionCreated += ReceiveSlashCommand;
+            }
+            else
+            {
+                slash.RegisterCommands<EmptySlashCommands>();
+            }
 
             // create the Commands Next module
             var commands = await Client.UseCommandsNextAsync(GetCommandsNextConfiguration());
-
             var assembly = Assembly.GetAssembly(typeof(DiscordBot));
 
             foreach (CommandsNextExtension c in commands.Values)
