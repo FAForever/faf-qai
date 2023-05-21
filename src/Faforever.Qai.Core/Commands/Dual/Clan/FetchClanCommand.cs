@@ -30,7 +30,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Clan
             else await ReplyAsync(data);
         }
 
-        public override async Task ReplyAsync(DiscordCommandContext ctx, FetchClanResult data)
+        public override async Task DiscordReplyAsync(DiscordCommandContext ctx, FetchClanResult data)
         {
             var embed = new DiscordEmbedBuilder();
             var desc = !string.IsNullOrEmpty(data.Clan.Description) ? data.Clan.Description : "-";
@@ -54,10 +54,10 @@ namespace Faforever.Qai.Core.Commands.Dual.Clan
                     embed.AddField(member.Username, member.JoinDate?.ToShortDateString(), true);
             }
 
-            await ctx.Channel.SendMessageAsync(embed);
+            await Context.ReplyAsync(embed);
         }
 
-        public override async Task ReplyAsync(IrcCommandContext ctx, FetchClanResult data)
+        public override async Task IrcReplyAsync(IrcCommandContext ctx, FetchClanResult data)
         {
             string res = $"Clan: {data.Clan.Name} ({data.Clan.URL}), Size: {data.Clan.Size}, Description: {data.Clan.Description?.Replace("\n", " ")}";
 

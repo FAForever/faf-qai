@@ -1,52 +1,65 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Faforever.Qai.Core.Commands.Authorization;
 using Faforever.Qai.Discord.Core.Structures.Configurations;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Faforever.Qai.Core.Commands.Context
 {
     public class DiscordCommandContext : CustomCommandContext
     {
-        public DiscordChannel Channel
-        {
-            get
-            {
-                return Message.Channel;
-            }
-        }
-
-        protected override bool isPrivate => Channel.IsPrivate;
-
+        public DiscordChannel Channel { get; private set; }
         public DiscordBotConfiguration Config { get; }
         public DiscordClient Client { get; private set; }
         public DiscordUser User { get; private set; }
-        public DiscordMessage Message { get; private set; }
-        public DiscordGuild Guild { get; private set; }
+        public DiscordInteraction? Interaction { get; }
+        public DiscordGuild Guild { get; }
+
+        protected override bool isPrivate => Channel.IsPrivate;
 
         public DiscordCommandContext(DiscordClient client, MessageCreateEventArgs args, DiscordBotConfiguration discordConfig, IServiceProvider services) : base(services)
         {
             Config = discordConfig;
             Client = client;
             Prefix = discordConfig.Prefix;
-            Message = args.Message;
+            Channel = args.Message.Channel;
             Guild = args.Guild;
             User = args.Author;
         }
 
+        public DiscordCommandContext(DiscordClient client, DiscordInteraction interaction, DiscordBotConfiguration discordConfig, IServiceProvider services) : base(services)
+        {
+            Config = discordConfig;
+            Client = client;
+            Prefix = discordConfig.Prefix;
+            Channel = interaction.Channel;
+            Guild = interaction.Guild;
+            User = interaction.User;
+            Interaction = interaction;
+        }
+
         protected override async Task SendReplyAsync(object message, bool inPrivate = false)
         {
-            if (message is DiscordEmbed embed)
-                await Channel.SendMessageAsync(embed);
+            if (Interaction != null)
+            {
+                DiscordEmbed? embed = message as DiscordEmbed;
+                embed ??= (message as DiscordEmbedBuilder)?.Build();
+                
+                if (embed != null)
+                    await Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+                else
+                    await Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().WithContent(message.ToString()));
+            }
             else
-                await Channel.SendMessageAsync(message.ToString());
+            {
+                if (message is DiscordEmbed embed)
+                    await Channel.SendMessageAsync(embed);
+                else
+                    await Channel.SendMessageAsync(message.ToString());
+            }
         }
 
         public override Task SendActionAsync(string action)

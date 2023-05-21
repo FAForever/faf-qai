@@ -8,7 +8,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Utility
 {
     public class AliveCommand : DualCommandModule
     {
-        [Command("alive", "respond")]
+        [Command("ping", "alive", "respond")]
         [Description("Sends a response message to the user. Differs depending on the command context.")]
         public async Task AliveCommandAsync()
         {

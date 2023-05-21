@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Converters;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-
+using DSharpPlus.SlashCommands;
 using Faforever.Qai.Core;
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Services;
@@ -93,8 +94,19 @@ namespace Faforever.Qai.Discord
 
             // Create the Clients
 
+            var slash = await Client.UseSlashCommandsAsync(new SlashCommandsConfiguration
+            {
+                Services = _services
+            });
+
+            slash.RegisterCommands<SlashCommands>();
+
+            Client.InteractionCreated += ReceiveSlashCommand;
+
             // create the Commands Next module
             var commands = await Client.UseCommandsNextAsync(GetCommandsNextConfiguration());
+
+            var assembly = Assembly.GetAssembly(typeof(DiscordBot));
 
             foreach (CommandsNextExtension c in commands.Values)
             {
@@ -102,8 +114,8 @@ namespace Faforever.Qai.Discord
                 c.CommandErrored += CommandResponder.RespondError;
                 c.CommandExecuted += CommandResponder.RespondSuccess;
 
-                // Get the assembly that contins the Discord Bot type, add thus all of its commands.
-                c.RegisterCommands(Assembly.GetAssembly(typeof(DiscordBot)));
+                // Get the assembly that contains the Discord Bot type, add thus all of its commands.
+                c.RegisterCommands(assembly!);
 
                 // Set the help formatter
                 c.SetHelpFormatter<HelpFormatter>();
@@ -147,6 +159,28 @@ namespace Faforever.Qai.Discord
         #endregion
 
         #region Command Events
+        private Task ReceiveSlashCommand(DiscordClient sender, InteractionCreateEventArgs args)
+        {
+            _ = Task.Run(async () =>
+            {
+                await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
+                var cmd = "!" + args.Interaction.Data.Name;
+
+                foreach (var option in args.Interaction.Data.Options ?? Array.Empty<DiscordInteractionDataOption>())
+                {
+                    if (option.Value != null)
+                        cmd += $" {option.Value}";
+                }
+
+                var ctx = new DiscordCommandContext(sender, args.Interaction, Config, _services);
+
+                await _commands.MessageRecivedAsync(ctx, cmd);
+            });
+
+            return Task.CompletedTask;
+        }
+
         private Task QMmands_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
         {
             if (e.Author.IsBot) return Task.CompletedTask; // ignore bots.

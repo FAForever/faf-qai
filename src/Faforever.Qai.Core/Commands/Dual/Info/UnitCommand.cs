@@ -30,13 +30,13 @@ namespace Faforever.Qai.Core.Commands.Dual.Info
             else await ReplyAsync(result);
         }
 
-        public override async Task ReplyAsync(IrcCommandContext ctx, UnitDatabaseSerachResult data)
+        public override async Task IrcReplyAsync(IrcCommandContext ctx, UnitDatabaseSerachResult data)
         {
             var desc = data.GeneralData.UnitName is not null ? $@"""{data.GeneralData.UnitName}"" {data.Description}" : data.Description;
             await ctx.ReplyAsync($"[{data.GeneralData.FactionName} - {data.Id}] {desc}: {data.GetUnitDatabaseUrl()}");
         }
 
-        public override async Task ReplyAsync(DiscordCommandContext ctx, UnitDatabaseSerachResult data)
+        public override async Task DiscordReplyAsync(DiscordCommandContext ctx, UnitDatabaseSerachResult data)
         {
             var embed = new DiscordEmbedBuilder();
             var desc = data.GeneralData.UnitName is not null ? $@"""{data.GeneralData.UnitName}"" {data.Description}" : data.Description;
@@ -47,7 +47,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Info
                 .WithUrl(data.GetUnitDatabaseUrl())
                 .WithColor(data.GetFactionColor());
 
-            await ctx.Channel.SendMessageAsync(embed: embed);
+            await Context.ReplyAsync(embed);
         }
     }
 }

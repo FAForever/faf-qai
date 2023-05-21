@@ -31,14 +31,14 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
 
         }
 
-        public override Task ReplyAsync(IrcCommandContext ctx, FetchPlayerStatsResult data)
+        public override Task IrcReplyAsync(IrcCommandContext ctx, FetchPlayerStatsResult data)
         {
             return Context.ReplyAsync($"found player '{data.Name}' with the following information:\n" +
                     $"1v1: rating '{data.LadderStats?.Rating.ToString("F0") ?? "0"}', ranked '{data.LadderStats?.Ranking ?? 0}'\n" +
                     $"Global: rating '{data.GlobalStats?.Rating.ToString("F0") ?? "0"}', ranked '{data.GlobalStats?.Ranking ?? 0}'");
         }
 
-        public override Task ReplyAsync(DiscordCommandContext ctx, FetchPlayerStatsResult data)
+        public override Task DiscordReplyAsync(DiscordCommandContext ctx, FetchPlayerStatsResult data)
         {
             List<string> toJoin;
 
@@ -51,7 +51,6 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
             {
                 toJoin = data.OldNames;
             }
-
 
             var embed = new DiscordEmbedBuilder()
                 .WithColor(Context.DostyaRed)
@@ -82,7 +81,9 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
                     $"URL       :: {data.Clan?.URL ?? "n/a"}\n" +
                     "```");
 
-            return ctx.Channel.SendMessageAsync(embed: embed);
+            
+            //return ctx.Channel.SendMessageAsync(embed: embed);
+            return Context.ReplyAsync(embed.Build());
         }
 
         [Command("searchplayer")]

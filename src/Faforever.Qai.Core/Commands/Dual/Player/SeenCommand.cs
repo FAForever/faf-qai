@@ -41,7 +41,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
             }
 
             if (!string.IsNullOrEmpty(subString))
-                reply = $"{seen.Username} " + subString.Substring(5);
+                reply = $"{seen.Username} {subString[5..]}";
             else
                 reply = $"{seen.Username} has never been seen";
 

@@ -20,7 +20,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Map
             _ladder = ladder;
         }
 
-        [Command("ladder", "pool", "ladderpool")]
+        [Command("pool", "ladder", "ladderpool")]
         [Description("Display the current ladder pool.")]
         public async Task FetchLadderPoolCommandAsync()
         {
@@ -31,7 +31,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Map
             else await ReplyAsync(data);
         }
 
-        public override async Task ReplyAsync(DiscordCommandContext ctx, IReadOnlyList<MapResult> data)
+        public override async Task DiscordReplyAsync(DiscordCommandContext ctx, IReadOnlyList<MapResult> data)
         {
             var embed = new DiscordEmbedBuilder();
             embed.WithTitle("Showing Current Ladder Pool (First 25 Results)")
@@ -47,10 +47,10 @@ namespace Faforever.Qai.Core.Commands.Dual.Map
                     break;
             }
 
-            await ctx.Channel.SendMessageAsync(embed);
+            await ctx.ReplyAsync(embed);
         }
 
-        public override async Task ReplyAsync(IrcCommandContext ctx, IReadOnlyList<MapResult> data)
+        public override async Task IrcReplyAsync(IrcCommandContext ctx, IReadOnlyList<MapResult> data)
         {
             string res = $"Ladder Pool (First 25 Results): ";
             List<string> stringData = new();

@@ -21,18 +21,14 @@ namespace Faforever.Qai.Core
 
         private readonly CommandService _commands;
         private readonly ILogger _logger;
-        private readonly HashSet<ulong> _fafStaff;
 
         public QCommandsHandler(CommandService commands, ILogger<QCommandsHandler> logger, IConfiguration config)
         {
             this._commands = commands;
             this._logger = logger;
-            this._fafStaff = new(from child in config.GetSection("Roles:FafStaff").GetChildren()
-                                 where ulong.TryParse(child.Value, out _)
-                                 select ulong.Parse(child.Value));
 
-            _commands.CommandExecuted += Commands_CommandExecuted;
-            _commands.CommandExecutionFailed += Commands_CommandExecutionFailed;
+            _commands.CommandExecuted += Commands_CommandExecuted!;
+            _commands.CommandExecutionFailed += Commands_CommandExecutionFailed!;
         }
 
         public async Task MessageRecivedAsync(CustomCommandContext baseContext, string message)
@@ -49,8 +45,6 @@ namespace Faforever.Qai.Core
 
             if (!CommandUtilities.HasPrefix(message, baseContext.Prefix, out string output))
                 return;
-
-            //var res = await _commands.ExecuteAsync(output, baseContext);
 
             var cmds = _commands.FindCommands(output);
 
@@ -158,14 +152,9 @@ namespace Faforever.Qai.Core
 
         private ValueTask Commands_CommandExecuted(object sender, CommandExecutedEventArgs e)
         {
-            _logger.LogInformation($"Executed command: {e.Result?.Command.Name ?? e.Context?.Command.Name}");
+            _logger.LogInformation("Executed command: {message}", e.Result?.Command.Name ?? e.Context?.Command.Name);
 
             return ValueTask.CompletedTask;
-        }
-
-        private static Task Respond_ArgumentException()
-        {
-            return Task.CompletedTask;
         }
     }
 }

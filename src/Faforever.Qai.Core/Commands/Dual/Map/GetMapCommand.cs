@@ -41,7 +41,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Map
             }
         }
 
-        public override async Task ReplyAsync(DiscordCommandContext ctx, MapResult data)
+        public override async Task DiscordReplyAsync(DiscordCommandContext ctx, MapResult data)
         {
             var embed = new DiscordEmbedBuilder();
             embed.WithTitle("Download map")
@@ -56,11 +56,11 @@ namespace Faforever.Qai.Core.Commands.Dual.Map
                 .AddField("Author", data.Author ?? "Unknown")
                 .WithImageUrl(data.PreviewUrl?.AbsoluteUri.Replace(" ", "%20"));
 
-            await ctx.Channel.SendMessageAsync(embed);
+            await Context.ReplyAsync(embed);
         }
 
-        public override async Task ReplyAsync(IrcCommandContext ctx, MapResult data)
-            => await ctx.ReplyAsync($"Map: {data.Title}, ID: {data.Id}, Size: {data.Size}," +
+        public override async Task IrcReplyAsync(IrcCommandContext ctx, MapResult data)
+            => await Context.ReplyAsync($"Map: {data.Title}, ID: {data.Id}, Size: {data.Size}," +
                 $" Players: {data.MaxPlayers}, Ranked: {data.Ranked}, Author: {data.Author}," +
                 $" Download: {data.DownloadUrl?.AbsoluteUri.Replace(" ", "%20")}," +
                 $" Preview: {data.PreviewUrl?.AbsoluteUri.Replace(" ", "%20")}");
