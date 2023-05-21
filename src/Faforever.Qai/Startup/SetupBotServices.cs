@@ -106,7 +106,8 @@ namespace Faforever.Qai.Startup
             {
                 Prefix = botConfig.BotPrefix,
                 Shards = 1,
-                Token = botConfig.Discord.Token
+                Token = botConfig.Discord.Token,
+                FafStaff = botConfig.Discord.Roles.FafStaff,
             };
 
             var dcfg = new DiscordConfiguration

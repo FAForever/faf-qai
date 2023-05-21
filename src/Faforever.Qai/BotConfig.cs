@@ -1,3 +1,5 @@
+using System;
+
 namespace Faforever.Qai
 {
     public class BotConfig
@@ -7,6 +9,7 @@ namespace Faforever.Qai
         public TwitchSettings Twitch { get; set; }
         public FafSettings Faf { get; set; }
         public DiscordSettings Discord { get; set; }
+        
         public string BotPrefix { get; set; } = "!";
         public string Host { get; set; }
 
@@ -35,6 +38,12 @@ namespace Faforever.Qai
             public string ClientSecret { get; set; }
             public string TokenEndpoint { get; set; }
             public string Token { get; set; }
+            public RolesSettings Roles { get; set; }
+        }
+
+        public class RolesSettings
+        {
+            public ulong[] FafStaff { get; set; } = Array.Empty<ulong>();
         }
 
         public class TwitchSettings
@@ -42,5 +51,7 @@ namespace Faforever.Qai
             public string ClientId { get; set; }
             public string ClientSecret { get; set; }
         }
+
+        
     }
 }

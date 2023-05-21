@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using System;
 
 namespace Faforever.Qai.Discord.Core.Structures.Configurations
 {
@@ -22,5 +23,9 @@ namespace Faforever.Qai.Discord.Core.Structures.Configurations
         /// </summary>
         [JsonProperty("shards")]
         public int Shards { get; set; }
+        /// <summary>
+        /// The roles that are considered FAF Staff.
+        /// </summary>
+        public ulong[] FafStaff { get; set; } = Array.Empty<ulong>();   
     }
 }

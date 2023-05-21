@@ -153,7 +153,7 @@ namespace Faforever.Qai.Discord
 
             _ = Task.Run(async () =>
             {
-                var ctx = new DiscordCommandContext(sender, e, Config.Prefix, _services);
+                var ctx = new DiscordCommandContext(sender, e, Config, _services);
 
                 await _commands.MessageRecivedAsync(ctx, e.Message.Content);
             });

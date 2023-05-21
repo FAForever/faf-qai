@@ -7,6 +7,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Faforever.Qai.Core.Commands.Authorization;
+using Faforever.Qai.Discord.Core.Structures.Configurations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,15 +25,17 @@ namespace Faforever.Qai.Core.Commands.Context
 
         protected override bool isPrivate => Channel.IsPrivate;
 
+        public DiscordBotConfiguration Config { get; }
         public DiscordClient Client { get; private set; }
         public DiscordUser User { get; private set; }
         public DiscordMessage Message { get; private set; }
         public DiscordGuild Guild { get; private set; }
 
-        public DiscordCommandContext(DiscordClient client, MessageCreateEventArgs args, string prefix, IServiceProvider services) : base(services)
+        public DiscordCommandContext(DiscordClient client, MessageCreateEventArgs args, DiscordBotConfiguration discordConfig, IServiceProvider services) : base(services)
         {
+            Config = discordConfig;
             Client = client;
-            Prefix = prefix;
+            Prefix = discordConfig.Prefix;
             Message = args.Message;
             Guild = args.Guild;
             User = args.Author;
@@ -83,11 +86,8 @@ namespace Faforever.Qai.Core.Commands.Context
 
             if(perms.FafStaff)
             {
-                var config = Services.GetService<IConfiguration>();
-                HashSet<ulong> fafStaff = new(from child in config?.GetSection("Roles:FafStaff").GetChildren()
-                                              where ulong.TryParse(child.Value, out _)
-                                              select ulong.Parse(child.Value));
-
+                var fafStaff = Config.FafStaff ?? Array.Empty<ulong>();
+                
                 if (!fafStaff.Contains(User.Id))
                     return false;
             }
