@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -72,10 +74,14 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
 
             var mapName = game.MapVersion != null ? $"{game.MapVersion.Map.DisplayName}" : "Unknown";
 
+            string? thumbnail = null;
+            if (game.MapVersion?.ThumbnailUrlLarge != null && Uri.TryCreate(game.MapVersion?.ThumbnailUrlLarge!, UriKind.Absolute, out var uri))
+                thumbnail = uri.AbsoluteUri;
+
             embed
                 .WithColor(Context.DostyaRed)
                 .WithTitle($"{game.Name} - Download replay #{game.Id}")
-                .WithThumbnail(game.MapVersion?.ThumbnailUrlLarge)
+                .WithThumbnail(thumbnail)
                 .AddField("Map:", mapName, true)
                 .AddField("Start Time", game.StartTime.ToString("u"), true)
                 .AddField("Duration", game.GameDuration.ToString() ?? "-", true)
