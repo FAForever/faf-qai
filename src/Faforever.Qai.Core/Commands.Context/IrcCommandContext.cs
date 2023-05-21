@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Faforever.Qai.Core.Commands.Authorization;
 using IrcDotNet;
-using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Context
 {

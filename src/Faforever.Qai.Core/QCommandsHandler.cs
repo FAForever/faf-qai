@@ -4,12 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using DSharpPlus;
-using DSharpPlus.Entities;
 using Faforever.Qai.Core.Commands;
 using Faforever.Qai.Core.Commands.Authorization;
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Commands.Context.Exceptions;
-using IrcDotNet;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 

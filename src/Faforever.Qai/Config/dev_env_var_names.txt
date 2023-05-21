@@ -1,3 +1,12 @@
+It's possible to override a config setting by setting an environment variable with the same name using double underscores instead of colon:
+For example, to override "Config:Irc:Password" you set the environment variable CONFIG__IRC__PASSWORD
+
+There is also legacy support for these environment variables:
+
+DISCORD_CLIENT_SECRET - Discord OAuth secret
 DISCORD_TOKEN - Discord bot token
-TWITCH_CLIENT_SECRET - Twitch API client secret for Twitch Streams Integration
+FAF_CLIENT_SECRET - FAF OAuth secret
+IRC_SERVER - IRC server
 IRC_PASS - IRC user password
+IRC_CHANNELS - IRC channels to join
+TWITCH_CLIENT_SECRET - Twitch API client secret for Twitch Streams Integration

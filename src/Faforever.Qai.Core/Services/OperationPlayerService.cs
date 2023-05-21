@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
-using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Models;
 using Faforever.Qai.Core.Operations.FafApi;
 using Faforever.Qai.Core.Operations.Player;
