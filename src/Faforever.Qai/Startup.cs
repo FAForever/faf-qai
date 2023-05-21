@@ -192,13 +192,18 @@ namespace Faforever.Qai
             var ircServer = Environment.GetEnvironmentVariable("IRC_SERVER");
             if (string.IsNullOrEmpty(ircServer))
                 ircServer = Configuration["Config:Irc:Connection"];
+            var channel = Environment.GetEnvironmentVariable("IRC_CHANNELS");
+            if (string.IsNullOrEmpty(channel))
+                channel = Configuration["Config:Irc:Channels"];
+            if (string.IsNullOrEmpty(channel))
+                channel = "aeolus,newbie";
 
             var pass = Environment.GetEnvironmentVariable("IRC_PASS");
             
             IrcConfiguration ircConfig = new()
             {
                 Connection = ircServer,
-                Channels = Configuration["Config:Irc:Channels"].Split(',').Select(s => s.Trim()).ToArray(),
+                Channels = channel.Split(',').Select(s => s.Trim()).ToArray(),
                 UserName = user,
                 NickName = user,
                 RealName = user,
