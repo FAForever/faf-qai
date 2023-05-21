@@ -53,7 +53,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Map
                 .AddField("Max Players", data.MaxPlayers.ToString(), true)
                 .AddField("Ranked", data.Ranked.ToString(), true)
                 .AddField("Created At", data.CreatedAt?.ToString("u"), true)
-                .AddField("Author", data.Author)
+                .AddField("Author", data.Author ?? "Unknown")
                 .WithImageUrl(data.PreviewUrl?.AbsoluteUri.Replace(" ", "%20"));
 
             await ctx.Channel.SendMessageAsync(embed);
