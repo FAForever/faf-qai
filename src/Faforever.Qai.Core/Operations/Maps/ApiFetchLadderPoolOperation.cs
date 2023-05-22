@@ -22,7 +22,7 @@ namespace Faforever.Qai.Core.Operations.Maps
         public async Task<IReadOnlyList<MapResult>?> FetchLadderPoolAsync()
         {
             string json = await _api.Client
-                .GetStringAsync("/data/ladder1v1Map?include=mapVersion.map");
+                .GetStringAsync("/data/mapPool?include=matchmakerQueueMapPool");
 
             var data = JObject.Parse(json);
 

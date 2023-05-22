@@ -110,6 +110,15 @@ namespace Faforever.Qai.Core.Operations.FafApi
             return this;
         }
 
+        public ApiQuery<T> Fields(string type, string fields)
+        {
+            var key = $"fields[{type}]={fields}";
+
+            args[key] = fields;
+
+            return this;
+        }
+
         public ApiQuery<T> Where<TValue>(string fieldName, TValue value) => Where(fieldName, WhereOp.Equals, value);
 
         private static string FormatValue<TValue>(TValue value)

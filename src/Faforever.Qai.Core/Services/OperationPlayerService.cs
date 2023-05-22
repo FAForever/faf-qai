@@ -101,6 +101,7 @@ namespace Faforever.Qai.Core.Services
         private async Task<IEnumerable<Player>?> AutocompletePlayerNameAsync(string searchTerm, int limit = 20)
         {
             var query = new ApiQuery<Player>()
+                .Fields("player", "login")
                 .Where("login", $"{searchTerm}*")
                 .Limit(limit);
 
