@@ -16,31 +16,9 @@ using System.IO;
 using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
-// Create a console logger
-using var loggerFactory = LoggerFactory.Create(builder =>
-{
-    builder.AddConsole();
-});
-
-ILogger logger = loggerFactory.CreateLogger("Startup");
-
-logger.LogWarning("IsDevelopment: {0}", builder.Environment.IsDevelopment());
-
-var config = builder.Configuration;
-foreach (var source in config.Sources)
-{
-    if (source is JsonConfigurationSource jsonSource)
-    {
-        var fileProvider = jsonSource.FileProvider as PhysicalFileProvider;
-        logger.LogWarning($"Json Configuration provider: {Path.Combine(fileProvider.Root, jsonSource.Path)}");
-    }
-        
-}
-
-
 var botConfig = builder.InitializeBotConfig();
-
 var services = builder.Services;
+
 services.AddLogging(options => options.AddConsole());
 services.SetupBotServices(botConfig);
 services.SetupApiAuth(botConfig);

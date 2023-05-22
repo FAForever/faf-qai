@@ -13,7 +13,7 @@ namespace Faforever.Qai.Validation
             RuleFor(x => x.BotPrefix).NotEmpty();
             RuleFor(x => x.Faf).SetValidator(new FafSettingsValidator());
             RuleFor(x => x.Discord).SetValidator(new DiscordSettingsValidator());
-            RuleFor(x => x.Host).NotEmpty();
+            //RuleFor(x => x.Host).NotEmpty();
         }
     }
 
