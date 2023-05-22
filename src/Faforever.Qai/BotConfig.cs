@@ -5,10 +5,10 @@ namespace Faforever.Qai
     public class BotConfig
     {
         public string DataSource { get; set; }
-        public IrcSettings Irc { get; set; }
-        public TwitchSettings Twitch { get; set; }
-        public FafSettings Faf { get; set; }
-        public DiscordSettings Discord { get; set; }
+        public IrcSettings Irc { get; set; } = new IrcSettings();
+        public TwitchSettings Twitch { get; set; } = new TwitchSettings();
+        public FafSettings Faf { get; set; } = new FafSettings();
+        public DiscordSettings Discord { get; set; } = new DiscordSettings();
         
         public string BotPrefix { get; set; } = "!";
         public string Host { get; set; }

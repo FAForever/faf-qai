@@ -175,8 +175,8 @@ namespace Faforever.Qai.Startup
         {
             return new()
             {
-                ClientId = config.Twitch.ClientId,
-                ClientSecret = config.Twitch.ClientSecret
+                ClientId = config.Twitch?.ClientId,
+                ClientSecret = config.Twitch?.ClientSecret
             };
         }
     }
