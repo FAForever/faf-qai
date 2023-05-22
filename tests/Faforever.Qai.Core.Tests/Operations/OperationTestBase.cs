@@ -5,6 +5,7 @@ using Faforever.Qai.Core.Operations.Clan;
 using Faforever.Qai.Core.Operations.Clients;
 using Faforever.Qai.Core.Operations.Content;
 using Faforever.Qai.Core.Operations.Maps;
+using Faforever.Qai.Core.Operations.PatchNotes;
 using Faforever.Qai.Core.Operations.Player;
 using Faforever.Qai.Core.Operations.Replays;
 using Faforever.Qai.Core.Operations.Units;
@@ -41,6 +42,7 @@ namespace Faforever.Qai.Core.Tests.Operations
 
             collection
                 .AddTransient<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()
+                .AddTransient<IFetchPatchNotesLinkOperation, FetchPatchNotesLinkOperation>()
                 .AddTransient<IFindPlayerOperation, ApiFindPlayerOperation>()
                 .AddTransient<ISearchUnitDatabaseOperation, UnitDbSearchUnitDatabaseOpeartion>()
                 .AddTransient<IPlayerService, OperationPlayerService>()

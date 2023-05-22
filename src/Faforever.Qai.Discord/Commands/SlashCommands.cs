@@ -5,6 +5,7 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using Faforever.Qai.Core.Operations.PatchNotes;
 using System.Threading.Tasks;
 
 namespace Faforever.Qai.Discord.Commands
@@ -50,6 +51,9 @@ namespace Faforever.Qai.Discord.Commands
 
         [SlashCommand("clan", "Get info about a clan")]
         public async Task ClanCommand(InteractionContext ctx, [Option("name", "Name of clan")] string name) { }
+
+        [SlashCommand("patchnotes", "Get link to patch notes")]
+        public async Task PatchNotesCommand(InteractionContext ctx, [Option("version", "Version number")][Autocomplete(typeof(FetchPatchNotesLinkOperation))] string? version = null) { }
 
         [SlashCommand("unit", "Search the Unit Database for a unit")]
         public async Task UnitCommand(InteractionContext ctx, [Option("name", "Name of the unit")] string name) {}

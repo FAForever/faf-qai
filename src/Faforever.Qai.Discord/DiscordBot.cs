@@ -98,7 +98,7 @@ namespace Faforever.Qai.Discord
             if (Config.EnableSlashCommands)
             {
                 slash.RegisterCommands<SlashCommands>();
-                Client.InteractionCreated += ReceiveSlashCommand;
+                Client.InteractionCreated += InteractionCreated;
             }
             else
             {
@@ -160,8 +160,11 @@ namespace Faforever.Qai.Discord
         #endregion
 
         #region Command Events
-        private Task ReceiveSlashCommand(DiscordClient sender, InteractionCreateEventArgs args)
+        private Task InteractionCreated(DiscordClient sender, InteractionCreateEventArgs args)
         {
+            if (args.Interaction.Type == InteractionType.AutoComplete)
+                return Task.CompletedTask;
+
             _ = Task.Run(async () =>
             {
                 await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);

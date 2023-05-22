@@ -8,6 +8,7 @@ using Faforever.Qai.Core.Operations.Clients;
 using Faforever.Qai.Core.Operations.Content;
 using Faforever.Qai.Core.Operations.FafApi;
 using Faforever.Qai.Core.Operations.Maps;
+using Faforever.Qai.Core.Operations.PatchNotes;
 using Faforever.Qai.Core.Operations.Player;
 using Faforever.Qai.Core.Operations.Replays;
 using Faforever.Qai.Core.Operations.Units;
@@ -52,6 +53,8 @@ namespace Faforever.Qai.Startup
             });
 
             services.AddHttpClient<TwitchClient>();
+
+            services.AddMemoryCache();
 
             var (botFunConfig, urlConfig) = GetJsonConfig();
             var twitchConfig = GetTwitchConfig(botConfig);
@@ -99,6 +102,7 @@ namespace Faforever.Qai.Startup
                 .AddTransient<IFetchReplayOperation, ApiFetchReplayOperation>()
                 .AddTransient<IFetchClanOperation, ApiFetchClanOperation>()
                 .AddTransient<IFetchTwitchStreamsOperation, FetchTwitchStreamsOperation>()
+                .AddTransient<IFetchPatchNotesLinkOperation, FetchPatchNotesLinkOperation>()
                 .AddTransient<FafApiClient>();
 
             // Discord Information Setup
