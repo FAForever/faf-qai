@@ -6,6 +6,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Faforever.Qai.Core.Operations.PatchNotes;
+using Faforever.Qai.Core.Services;
 using System.Threading.Tasks;
 
 namespace Faforever.Qai.Discord.Commands
@@ -23,7 +24,7 @@ namespace Faforever.Qai.Discord.Commands
         public async Task PingCommand(InteractionContext ctx) { }
 
         [SlashCommand("player", "Get info about a player")]
-        public async Task PlayerCommand(InteractionContext ctx, [Option("name", "Name of player")]string name) { }
+        public async Task PlayerCommand(InteractionContext ctx, [Option("name", "Name of player")][Autocomplete(typeof(OperationPlayerService))]string name) { }
 
         [SlashCommand("seen", "Find out when a player last was seen")]
         public async Task SeenPlayerCommand(InteractionContext ctx, [Option("name", "Name of player")] string name) { }
