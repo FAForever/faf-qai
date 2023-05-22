@@ -4,16 +4,42 @@ using Faforever.Qai.Irc;
 using Faforever.Qai.Startup;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using System;
+using System.IO;
 using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
+// Create a console logger
+using var loggerFactory = LoggerFactory.Create(builder =>
+{
+    builder.AddConsole();
+});
+
+ILogger logger = loggerFactory.CreateLogger("Startup");
+
+logger.LogWarning("IsDevelopment: {0}", builder.Environment.IsDevelopment());
+
+var config = builder.Configuration;
+foreach (var source in config.Sources)
+{
+    if (source is JsonConfigurationSource jsonSource)
+    {
+        var fileProvider = jsonSource.FileProvider as PhysicalFileProvider;
+        logger.LogWarning($"Json Configuration provider: {Path.Combine(fileProvider.Root, jsonSource.Path)}");
+    }
+        
+}
+
+
 var botConfig = builder.InitializeBotConfig();
 
-// add services
 var services = builder.Services;
 services.AddLogging(options => options.AddConsole());
 services.SetupBotServices(botConfig);
