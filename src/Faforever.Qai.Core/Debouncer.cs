@@ -16,7 +16,7 @@ namespace Faforever.Qai.Core
             _delay = delay;
         }
 
-        public async Task<T?> Debounce<T>(TKey key, Func<Task<T?>> action)
+        public async Task<T> Debounce<T>(TKey key, Func<Task<T>> action)
         {
             if (_dictionary.ContainsKey(key))
             {

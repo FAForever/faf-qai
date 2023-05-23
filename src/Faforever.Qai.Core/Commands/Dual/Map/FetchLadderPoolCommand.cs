@@ -1,17 +1,19 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
-
+using DSharpPlus.SlashCommands;
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Models;
+using Faforever.Qai.Core.Operations.FafApi;
 using Faforever.Qai.Core.Operations.Maps;
 
 using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Map
 {
-    public class FetchLadderPoolCommand : DualCommandModule<IReadOnlyList<MapResult>>
+    public class FetchLadderPoolCommand : DualCommandModule<MapPool>
     {
         private readonly IFetchLadderPoolOperation _ladder;
 
@@ -22,46 +24,55 @@ namespace Faforever.Qai.Core.Commands.Dual.Map
 
         [Command("pool", "ladder", "ladderpool")]
         [Description("Display the current ladder pool.")]
-        public async Task FetchLadderPoolCommandAsync()
+        public async Task FetchLadderPoolCommandAsync(string poolId)
         {
-            var data = await _ladder.FetchLadderPoolAsync();
+            var pools = await _ladder.FetchLadderPoolAsync() ?? new List<MapPool>();
+            var pool = pools.FirstOrDefault(p => p.Id.ToString() == poolId);
 
-            if (data is null || data.Count <= 0)
-                await Context.ReplyAsync("No map data found.");
-            else await ReplyAsync(data);
+            if (pool == null)
+            {
+                await ReplyAsync("No such map pool");
+                return;
+            }
+                
+
+            await ReplyAsync(pool);
         }
 
-        public override async Task DiscordReplyAsync(DiscordCommandContext ctx, IReadOnlyList<MapResult> data)
+        public override async Task DiscordReplyAsync(DiscordCommandContext ctx, MapPool pool)
         {
-            var embed = new DiscordEmbedBuilder();
-            embed.WithTitle("Showing Current Ladder Pool (First 25 Results)")
+            var embed = new DiscordEmbedBuilder()
+                .WithTitle($"{pool.MatchmakerQueueMapPool.Name}")
                 .WithColor(Context.DostyaRed)
-                .WithThumbnail(data[0].PreviewUrl?.AbsoluteUri.Replace(" ", "%20") ?? "");
+                .WithThumbnail(pool.MapVersions[0].ThumbnailUrlSmall.Replace(" ", "%20") ?? "");
 
             int i = 0;
-            foreach (var m in data)
+            foreach (var map in pool.MapVersions)
             {
-                embed.AddField(m.Title, m.Size, true);
-
                 if (i++ >= 25)
                     break;
+
+                embed.AddField(map.Map.DisplayName, map.Size, true);
             }
+
 
             await ctx.ReplyAsync(embed);
         }
 
-        public override async Task IrcReplyAsync(IrcCommandContext ctx, IReadOnlyList<MapResult> data)
+        public override async Task IrcReplyAsync(IrcCommandContext ctx, MapPool pool)
         {
-            string res = $"Ladder Pool (First 25 Results): ";
+            string res = $"{pool.MatchmakerQueueMapPool.Name} Ladder Pool: ";
             List<string> stringData = new();
             int i = 0;
-            foreach (var m in data)
+
+            foreach (var map in pool.MapVersions)
             {
-                stringData.Add($"{m.Title} ({m.Size})");
+                stringData.Add($"{map.Map.DisplayName} ({map.Size})");
 
                 if (i++ >= 25)
                     break;
             }
+
 
             res += string.Join(", ", stringData);
 

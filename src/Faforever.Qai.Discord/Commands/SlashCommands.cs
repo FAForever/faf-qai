@@ -7,6 +7,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Faforever.Qai.Core.Operations.PatchNotes;
 using Faforever.Qai.Core.Services;
+using Faforever.Qai.Discord.Commands.AutoComplete;
 using System.Threading.Tasks;
 
 namespace Faforever.Qai.Discord.Commands
@@ -24,7 +25,7 @@ namespace Faforever.Qai.Discord.Commands
         public async Task PingCommand(InteractionContext ctx) { }
 
         [SlashCommand("player", "Get info about a player")]
-        public async Task PlayerCommand(InteractionContext ctx, [Option("name", "Name of player")][Autocomplete(typeof(OperationPlayerService))]string name) { }
+        public async Task PlayerCommand(InteractionContext ctx, [Option("name", "Name of player")][Autocomplete(typeof(PlayerAutocomplete))]string name) { }
 
         [SlashCommand("seen", "Find out when a player last was seen")]
         public async Task SeenPlayerCommand(InteractionContext ctx, [Option("name", "Name of player")] string name) { }
@@ -35,8 +36,8 @@ namespace Faforever.Qai.Discord.Commands
         [SlashCommand("map", "Get a map from the map database.")]
         public async Task MapCommand (InteractionContext ctx, [Option("name", "Name of map")] string name) { }
 
-        [SlashCommand("pool", "Show the current maps in the ladder pool")]
-        public async Task PoolCommand(InteractionContext ctx) { }
+        [SlashCommand("pool", "Show the current maps in a matchmaker queue")]
+        public async Task PoolCommand(InteractionContext ctx, [Option("pool", "Name of matchmaker queue pool")][Autocomplete(typeof(MapPoolAutocomplete))] string pool) { }
 
         [SlashCommand("replay", "Get info about a replay")]
         public async Task ReplayCommand(InteractionContext ctx, [Option("gameId", "ID of game")] long gameId) { }

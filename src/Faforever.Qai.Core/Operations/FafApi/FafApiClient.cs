@@ -112,7 +112,7 @@ namespace Faforever.Qai.Core.Operations.FafApi
 
         public ApiQuery<T> Fields(string type, string fields)
         {
-            var key = $"fields[{type}]={fields}";
+            var key = $"fields[{type}]";
 
             args[key] = fields;
 
@@ -161,7 +161,7 @@ namespace Faforever.Qai.Core.Operations.FafApi
         public override string ToString()
         {
             if (!endpoints.TryGetValue(typeof(T), out string? endpoint))
-                endpoint = typeof(T).Name.ToLower();
+                endpoint = typeof(T).Name.ToCamelCase();
 
             if (!args.ContainsKey("include") && includes.TryGetValue(typeof(T), out var inc))
                 this.Include(inc);

@@ -164,4 +164,59 @@ namespace Faforever.Qai.Core.Operations.FafApi
         public DateTime ChangeTime { get; set; }
         public string Name { get; set; }
     }
+
+    public class MapPool
+    {
+        public int Id { get; set; }
+        public DateTime CreateTime { get; set; }
+        public DateTime UpdateDate { get; set; }
+        public string Name { get; set; }
+
+        public MatchmakerQueueMapPool MatchmakerQueueMapPool { get; set; }
+        public List<MapPoolAssignments> MapPoolAssignments { get; set; }
+        public List<MapVersion> MapVersions { get; set; }
+    }
+
+    public class MapPoolAssignments
+    {
+        public int Id { get; set; }
+        public string Type { get; set; }
+        public int Spawns { get; set; }
+        public int Size { get; set; }
+        public string Version { get; set; }
+    }
+
+    public class MatchmakerQueueMapPool
+    {
+        public int Id { get; set; }
+        public DateTime CreateTime { get; set; }
+        public DateTime UpdateTime { get; set; }
+        public int? MinRating { get; set; }
+        public int? MaxRating { get; set; }
+
+        public MatchmakerQueue MatchmakerQueue { get; set; }
+        public MapPool MapPool { get; set; }
+
+        public string Name => $"{this.MatchmakerQueue.TechnicalName} (rating: {this.MinRating}-{this.MaxRating})";
+    }
+
+    /*
+     * "createTime": "2021-12-12T20:21:21Z",
+"nameKey": "matchmaker_queue.tmm4v4_share_until_death.name",
+"params": "{\"GameOptions\":{\"Share\":\"ShareUntilDeath\"}}",
+"teamSize": 4,
+"technicalName": "tmm4v4_share_until_death",
+"updateTime": "2022-06-26T20:16:15Z"*/
+    public class MatchmakerQueue
+    {
+        public int Id { get; set; }
+        public DateTime CreateTime { get; set; }
+        public DateTime UpdateTime { get; set; }
+        public string NameKey { get; set; }
+        public string Params { get; set; }
+        public int TeamSize { get; set; }
+        public string TechnicalName { get; set; }
+
+        public MapPool MapPool { get; set; }
+    }
 }

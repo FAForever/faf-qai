@@ -1,28 +1,30 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-using Faforever.Qai.Core.Models;
-using Faforever.Qai.Core.Operations.Clients;
-
-using Newtonsoft.Json.Linq;
+using Faforever.Qai.Core.Operations.FafApi;
 
 namespace Faforever.Qai.Core.Operations.Maps
 {
     public class ApiFetchLadderPoolOperation : IFetchLadderPoolOperation
     {
-        private readonly ApiHttpClient _api;
+        private readonly FafApiClient _api;
 
-        public ApiFetchLadderPoolOperation(ApiHttpClient api)
+        public ApiFetchLadderPoolOperation(FafApiClient api)
         {
             _api = api;
         }
 
-        public async Task<IReadOnlyList<MapResult>?> FetchLadderPoolAsync()
+        public async Task<IEnumerable<MapPool>> FetchLadderPoolAsync()
         {
-            string json = await _api.Client
-                .GetStringAsync("/data/mapPool?include=matchmakerQueueMapPool");
+            var fafApiQuery = new ApiQuery<MapPool>()
+                .Include("mapPoolAssignments,mapVersions,mapVersions.map,matchmakerQueueMapPool,matchmakerQueueMapPool.matchmakerQueue");
+
+            var mapPools = await _api.GetAsync(fafApiQuery) ?? new List<MapPool>();
+
+            return mapPools.Where(mp => !mp.MatchmakerQueueMapPool.MatchmakerQueue.TechnicalName.Contains("tmm4v4_full_share")).ToArray();
+
+            /*
+            string json = await _api.Client.GetStringAsync("/data/mapPool?include=matchmakerQueueMapPool");
 
             var data = JObject.Parse(json);
 
@@ -57,8 +59,10 @@ namespace Faforever.Qai.Core.Operations.Maps
                     Version = map["attributes"]?["version"]?.ToObject<int>()
                 });
             }
+            
 
             return res;
+            */
         }
     }
 }
