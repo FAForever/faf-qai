@@ -9,7 +9,6 @@
       <PackageReference Include="DSharpPlus" Version="4.4.1" />
       <PackageReference Include="DSharpPlus.Rest" Version="4.4.1" />
       <PackageReference Include="DSharpPlus.SlashCommands" Version="4.4.1" />
-      <PackageReference Include="IrcDotNet" Version="0.7.0" />
       <PackageReference Include="JsonApiSerializer" Version="1.7.4" />
       <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.5" />
@@ -26,6 +25,10 @@
 
     <ItemGroup>
       <Folder Include="Migrations\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\IrcDotNet\IrcDotNet.csproj" />
     </ItemGroup>
 
 </Project>

@@ -42,6 +42,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faforever.Qai.Core.Tests", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faforever.Qai.Database.Setup", "src\Faforever.Qai.Database.Setup\Faforever.Qai.Database.Setup.csproj", "{D4412008-BE37-4891-A610-BDF1924C0ED1}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IrcDotNet", "src\IrcDotNet\IrcDotNet.csproj", "{91884287-451E-4FED-A3FB-88AF0CAAA1C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -124,6 +126,18 @@ Global
 		{D4412008-BE37-4891-A610-BDF1924C0ED1}.Release|x64.Build.0 = Release|Any CPU
 		{D4412008-BE37-4891-A610-BDF1924C0ED1}.Release|x86.ActiveCfg = Release|Any CPU
 		{D4412008-BE37-4891-A610-BDF1924C0ED1}.Release|x86.Build.0 = Release|Any CPU
+		{91884287-451E-4FED-A3FB-88AF0CAAA1C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91884287-451E-4FED-A3FB-88AF0CAAA1C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91884287-451E-4FED-A3FB-88AF0CAAA1C6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{91884287-451E-4FED-A3FB-88AF0CAAA1C6}.Debug|x64.Build.0 = Debug|Any CPU
+		{91884287-451E-4FED-A3FB-88AF0CAAA1C6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{91884287-451E-4FED-A3FB-88AF0CAAA1C6}.Debug|x86.Build.0 = Debug|Any CPU
+		{91884287-451E-4FED-A3FB-88AF0CAAA1C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91884287-451E-4FED-A3FB-88AF0CAAA1C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91884287-451E-4FED-A3FB-88AF0CAAA1C6}.Release|x64.ActiveCfg = Release|Any CPU
+		{91884287-451E-4FED-A3FB-88AF0CAAA1C6}.Release|x64.Build.0 = Release|Any CPU
+		{91884287-451E-4FED-A3FB-88AF0CAAA1C6}.Release|x86.ActiveCfg = Release|Any CPU
+		{91884287-451E-4FED-A3FB-88AF0CAAA1C6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -135,6 +149,7 @@ Global
 		{8077B7EF-EB33-4CA8-A2E1-E2577D22421E} = {B2EBCF82-642E-48F5-8CE8-9F7E960C99EF}
 		{B504807E-E699-4BFC-97E8-79FD110359D9} = {30AA2695-8241-4B9F-A48B-BF269E57A3E2}
 		{D4412008-BE37-4891-A610-BDF1924C0ED1} = {B2EBCF82-642E-48F5-8CE8-9F7E960C99EF}
+		{91884287-451E-4FED-A3FB-88AF0CAAA1C6} = {B2EBCF82-642E-48F5-8CE8-9F7E960C99EF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D4A2D98B-00C7-496C-98A8-D3E35BE61FFD}

@@ -5,12 +5,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="IrcDotNet" Version="0.7.0" />
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Faforever.Qai.Core\Faforever.Qai.Core.csproj" />
+      <ProjectReference Include="..\IrcDotNet\IrcDotNet.csproj" />
     </ItemGroup>
 
 </Project>
