@@ -4,15 +4,10 @@ using Faforever.Qai.Irc;
 using Faforever.Qai.Startup;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using System;
-using System.IO;
 using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -59,7 +54,6 @@ var ircBot = app.Services.GetRequiredService<QaIrc>();
 ircBot.Run();
 
 var discordBot = app.Services.GetRequiredService<DiscordBot>();
-
 await discordBot.InitializeAsync();
 await discordBot.StartAsync();
 

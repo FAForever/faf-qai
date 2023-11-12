@@ -40,6 +40,7 @@ namespace Faforever.Qai.Startup
                 ["DISCORD_TOKEN"] = value => botConfig.Discord.Token = value,
                 ["IRC_SERVER"] = value => botConfig.Irc.Connection = value,
                 ["IRC_CHANNELS"] = value => botConfig.Irc.Channels = value,
+                ["IRC_USER"] = value => botConfig.Irc.User = value,
                 ["IRC_PASS"] = value => botConfig.Irc.Password = value,
                 ["TWITCH_CLIENT_SECRET"] = value => botConfig.Twitch.ClientSecret = value
             };
