@@ -9,6 +9,7 @@ COPY ./src/Faforever.Qai.Core/Faforever.Qai.Core.csproj ./src/Faforever.Qai.Core
 COPY ./src/Faforever.Qai.Database.Setup/Faforever.Qai.Database.Setup.csproj ./src/Faforever.Qai.Database.Setup/Faforever.Qai.Database.Setup.csproj
 COPY ./src/Faforever.Qai.Discord/Faforever.Qai.Discord.csproj ./src/Faforever.Qai.Discord/Faforever.Qai.Discord.csproj
 COPY ./src/Faforever.Qai.Irc/Faforever.Qai.Irc.csproj ./src/Faforever.Qai.Irc/Faforever.Qai.Irc.csproj
+COPY ./src/IrcDotNet/IrcDotNet.csproj ./src/IrcDotNet/IrcDotNet.csproj
 
 COPY ./tests/Faforever.Qai.Core.Tests/Faforever.Qai.Core.Tests.csproj ./tests/Faforever.Qai.Core.Tests/Faforever.Qai.Core.Tests.csproj
 
