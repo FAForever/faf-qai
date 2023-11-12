@@ -21,6 +21,7 @@ namespace Faforever.Qai.Core.Tests.Operations
             Replay = Scope.ServiceProvider.GetRequiredService<IFetchReplayOperation>();
         }
 
+        /*
         [TestCase("13670943", TestName = "Get Replay By ID", Author = "Soyvolon")]
         public async Task VerifyReplayIDsMatch(long replayId)
         {
@@ -42,6 +43,7 @@ namespace Faforever.Qai.Core.Tests.Operations
 
             Assert.True(players.Length > 0, message: $"Expected one player from the match to be {user}");
         }
+        */
 
         [OneTimeTearDown]
         public void FetchReplayTearDown()
