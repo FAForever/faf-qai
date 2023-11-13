@@ -326,6 +326,11 @@ namespace IrcDotNet
         public event EventHandler<IrcProtocolErrorEventArgs> ProtocolError;
 
         /// <summary>
+        ///     Occurs when a sasl (numeric) message is received from the server.
+        /// </summary>
+        public event EventHandler<IrcSaslMessageEventArgs> SaslMessage;
+
+        /// <summary>
         ///     Occurs when an error message (ERROR command) is received from the server.
         /// </summary>
         public event EventHandler<IrcErrorMessageEventArgs> ErrorMessageReceived;
@@ -1796,6 +1801,13 @@ namespace IrcDotNet
         protected virtual void OnProtocolError(IrcProtocolErrorEventArgs e)
         {
             var handler = ProtocolError;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        public void OnSaslMessage(IrcSaslMessageEventArgs e)
+        {
+            var handler = SaslMessage;
             if (handler != null)
                 handler(this, e);
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Security.Cryptography.X509Certificates;
@@ -662,6 +662,18 @@ namespace IrcDotNet
         /// </summary>
         /// <value>The text of the error message.</value>
         public string Message { get; private set; }
+    }
+
+    public class IrcSaslMessageEventArgs : IrcEventArgs
+    {
+        public int Code { get; private set; }
+        public string Message { get; private set; }
+
+        public IrcSaslMessageEventArgs(IrcMessage ircMessage, int code, string errorMessage) : base(ircMessage)
+        {
+            this.Code = code;
+            this.Message = errorMessage;
+        }
     }
 
     /// <summary>

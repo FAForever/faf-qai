@@ -1282,9 +1282,11 @@ namespace IrcDotNet
         {
             Debug.Assert(message.Parameters[0] != null);
             Debug.Assert(message.Parameters[1] != null);
-            var saslMessage = message.Parameters[3];
+
+            OnSaslMessage(new IrcSaslMessageEventArgs(message, int.Parse(message.Command), message.Parameters[1]));
 
             SendMessageCapEnd();
         }
+       
     }
 }

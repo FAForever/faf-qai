@@ -73,7 +73,8 @@ namespace Faforever.Qai.Irc
             _client.ConnectFailed -= OnClientConnectFailed;
             _client.Disconnected -= OnClientDisconnected;
             _client.Registered -= OnClientRegistered;
-            _client.Error += OnError;
+            _client.Error -= OnError;
+            _client.SaslMessage -= OnSaslMessage;
             _client.Dispose();
             _client = null;
         }
@@ -87,6 +88,7 @@ namespace Faforever.Qai.Irc
             _client.Disconnected += OnClientDisconnected;
             _client.Registered += OnClientRegistered;
             _client.Error += OnError;
+            _client.SaslMessage += OnSaslMessage;
         }
 
         private async void OnPrivateMessage(object receiver, IrcMessageEventArgs eventArgs)
@@ -189,6 +191,13 @@ namespace Faforever.Qai.Irc
                 connecting = false;
         }
 
+        private void OnSaslMessage(object sender, IrcSaslMessageEventArgs e)
+        {
+            _logger.Log(LogLevel.Critical, "SASL Message: {errorMessage}", e.Message);
+            if (e.Code == 904)
+                nextConnectAttempt = DateTime.Now.AddSeconds(10);
+        }
+
         private void OnClientConnected(object sender, EventArgs args)
         {
             connecting = false;
@@ -199,7 +208,7 @@ namespace Faforever.Qai.Irc
         {
             _logger.Log(LogLevel.Error, args.Message);
 
-            if (args.Message.Contains("Throttled"))
+            if (args.Message.Contains("Throttled") || args.Message.Contains("connect too many times"))
                 nextConnectAttempt = DateTime.Now.AddMinutes(1);
         }
 
