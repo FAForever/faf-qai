@@ -105,8 +105,6 @@ namespace Faforever.Qai.Startup
                 .AddTransient<IFetchPatchNotesLinkOperation, FetchPatchNotesLinkOperation>()
                 .AddTransient<FafApiClient>();
 
-            Console.WriteLine("botConfig is " + JsonConvert.SerializeObject(botConfig));
-
             // Discord Information Setup
             var discordConfig = new DiscordBotConfiguration()
             {

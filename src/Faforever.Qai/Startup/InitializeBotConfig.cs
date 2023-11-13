@@ -17,6 +17,9 @@ namespace Faforever.Qai.Startup
 
             SetLegacyEnvironmentVariables(botConfig);
 
+            if (botConfig.Discord.Roles == null)
+                botConfig.Discord.Roles = new BotConfig.RolesSettings { FafStaff = new ulong[] { 133735496479145984 } };
+
             var validator = new BotConfigValidator();
             var validationResult = validator.Validate(botConfig);
 
