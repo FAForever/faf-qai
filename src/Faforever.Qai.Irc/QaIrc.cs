@@ -193,7 +193,7 @@ namespace Faforever.Qai.Irc
 
         private void OnSaslMessage(object sender, IrcSaslMessageEventArgs e)
         {
-            _logger.Log(LogLevel.Critical, "SASL Message: {errorMessage}", e.Message);
+            _logger.Log(LogLevel.Critical, "SASL Message: {message}", e.Message);
             if (e.Code == 904)
                 nextConnectAttempt = DateTime.Now.AddSeconds(10);
         }

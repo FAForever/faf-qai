@@ -28,6 +28,16 @@ namespace Faforever.Qai.Validation
         }
     }
 
+    public class FafApiSettingsValidator : AbstractValidator<BotConfig.FafApiSettings>
+    {
+        public FafApiSettingsValidator()
+        {
+            //RuleFor(x => x.ClientId).NotEmpty();
+            //RuleFor(x => x.ClientSecret).NotEmpty();
+            RuleFor(x => x.TokenEndpoint).NotEmpty().Must(UriValidator.IsValidUri).WithMessage("Invalid URL format");
+        }
+    }
+
     public class FafSettingsValidator : AbstractValidator<BotConfig.FafSettings>
     {
         public FafSettingsValidator()

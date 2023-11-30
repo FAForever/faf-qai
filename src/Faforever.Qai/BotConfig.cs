@@ -8,6 +8,7 @@ namespace Faforever.Qai
         public IrcSettings Irc { get; set; } = new IrcSettings();
         public TwitchSettings Twitch { get; set; } = new TwitchSettings();
         public FafSettings Faf { get; set; } = new FafSettings();
+        public FafApiSettings FafApi { get; set; } = new FafApiSettings();
         public DiscordSettings Discord { get; set; } = new DiscordSettings();
         
         public string BotPrefix { get; set; } = "!";
@@ -27,6 +28,14 @@ namespace Faforever.Qai
             public string ClientSecret { get; set; }
             public string Api { get; set; }
             public string Callback { get; set; }
+        }
+
+        public class FafApiSettings
+        {
+            public string ClientId { get; set; }
+            public string ClientSecret { get; set; }
+            public string Endpoint { get; set; }
+            public string TokenEndpoint { get; set; }
         }
 
         public class DiscordSettings

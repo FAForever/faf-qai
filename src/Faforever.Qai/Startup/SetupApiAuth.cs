@@ -33,7 +33,7 @@ namespace Faforever.Qai.Startup
                     options.CallbackPath = new PathString("/authorization-code/callback"); // local auth endpoint
                     options.AccessDeniedPath = new PathString("/api/link/denied");
 
-                    // Other FAF OAtuh configuration settings
+                    // Other FAF OAuth configuration settings
                     options.ClientId = botConfig.Faf.ClientId;
                     options.ClientSecret = botConfig.Faf.ClientSecret;
                     options.TokenEndpoint = $"{apiUrl}oauth/token";

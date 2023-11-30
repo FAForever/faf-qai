@@ -1,10 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
-
 using Faforever.Qai.Core.Operations.Replays;
-
 using Microsoft.Extensions.DependencyInjection;
-
 using NUnit.Framework;
 
 namespace Faforever.Qai.Core.Tests.Operations
@@ -21,8 +18,7 @@ namespace Faforever.Qai.Core.Tests.Operations
             Replay = Scope.ServiceProvider.GetRequiredService<IFetchReplayOperation>();
         }
 
-        /*
-        [TestCase("13670943", TestName = "Get Replay By ID", Author = "Soyvolon")]
+        [TestCase("9066822", TestName = "Get Replay By ID", Author = "Crotalus_Bureus")]
         public async Task VerifyReplayIDsMatch(long replayId)
         {
             var res = await Replay.FetchReplayAsync(replayId);
@@ -30,7 +26,7 @@ namespace Faforever.Qai.Core.Tests.Operations
             Assert.AreEqual(res.Id, replayId, message: $"Expected {replayId} got {res.Id}");
         }
 
-        [TestCase("Soyvolon", TestName = "Get Last Replay For User", Author = "Soyvolon")]
+        [TestCase("Crotalus_Bureus", TestName = "Get Last Replay For User", Author = "Crotalus_Bureus")]
         public async Task GetLastReplayOfMember(string user)
         {
             var res = await Replay.FetchLastReplayAsync(user);
@@ -43,7 +39,6 @@ namespace Faforever.Qai.Core.Tests.Operations
 
             Assert.True(players.Length > 0, message: $"Expected one player from the match to be {user}");
         }
-        */
 
         [OneTimeTearDown]
         public void FetchReplayTearDown()

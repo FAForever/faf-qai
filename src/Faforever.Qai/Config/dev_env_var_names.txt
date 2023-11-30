@@ -6,6 +6,7 @@ There is also legacy support for these environment variables:
 DISCORD_CLIENT_SECRET - Discord OAuth secret
 DISCORD_TOKEN - Discord bot token
 FAF_CLIENT_SECRET - FAF OAuth secret
+FAFAPI_CLIENT_SECRET - client_secret to get token for API service access
 IRC_SERVER - IRC server
 IRC_PASS - IRC user password
 IRC_CHANNELS - IRC channels to join

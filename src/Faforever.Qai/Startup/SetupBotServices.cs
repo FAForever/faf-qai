@@ -3,6 +3,7 @@ using Faforever.Qai.Core;
 using Faforever.Qai.Core.Commands.Arguments.Converters;
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Database;
+using Faforever.Qai.Core.Http;
 using Faforever.Qai.Core.Operations.Clan;
 using Faforever.Qai.Core.Operations.Clients;
 using Faforever.Qai.Core.Operations.Content;
@@ -40,12 +41,16 @@ namespace Faforever.Qai.Startup
             if (!Directory.Exists("Database"))
                 Directory.CreateDirectory("Database");
 #endif
-
             // HTTP Client Mapping
             services.AddHttpClient<ApiHttpClient>(client =>
             {
-                client.BaseAddress = new Uri(botConfig.Faf.Api);
-            });
+                client.BaseAddress = new Uri(botConfig.FafApi.Endpoint);
+            })
+            .AddHttpMessageHandler(() => new OAuthHandler(new OAuthHandlerSettings()
+            {
+                ClientId = botConfig.FafApi.ClientId,
+                ClientSecret = botConfig.FafApi.ClientSecret,
+            }));
 
             services.AddHttpClient<UnitClient>(client =>
             {

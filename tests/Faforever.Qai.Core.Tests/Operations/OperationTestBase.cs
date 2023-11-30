@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-
+using Faforever.Qai.Core.Http;
 using Faforever.Qai.Core.Operations.Clan;
 using Faforever.Qai.Core.Operations.Clients;
 using Faforever.Qai.Core.Operations.Content;
@@ -56,7 +56,10 @@ namespace Faforever.Qai.Core.Tests.Operations
             collection.AddHttpClient<ApiHttpClient>(client =>
             {
                 client.BaseAddress = new($"{config["Config:Faf:Api"]}");
-            });
+            }).AddHttpMessageHandler(() => new OAuthHandler(new() {
+                ClientId = config["Config:FafApi:ClientId"],
+                ClientSecret = config["Config:FafApi:ClientSecret"]
+            }));
 
             collection.AddHttpClient<UnitClient>(client =>
             {
