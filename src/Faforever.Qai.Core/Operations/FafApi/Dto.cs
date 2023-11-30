@@ -148,6 +148,11 @@ namespace Faforever.Qai.Core.Operations.FafApi
         }
     }
 
+    public class PlayerExtended : Player
+    {
+        public List<ClanMembership> ClanMembership { get; set; } = new List<ClanMembership>();
+    }
+
     public class Player
     {
         public int Id { get; set; }
@@ -156,7 +161,6 @@ namespace Faforever.Qai.Core.Operations.FafApi
         public DateTime UpdateTime { get; set; }
         public string UserAgent { get; set; }
         public List<NameRecord> Names { get; set; } = new List<NameRecord>();
-        public List<ClanMembership> ClanMembership { get; set; } = new List<ClanMembership>();
     }
 
     public class NameRecord
@@ -233,7 +237,7 @@ namespace Faforever.Qai.Core.Operations.FafApi
         public int WonGames { get; set; }
 
         public Leaderboard Leaderboard { get; set; }
-        public Player Player { get; set; }
+        public PlayerExtended Player { get; set; }
     }
 
     public class Leaderboard

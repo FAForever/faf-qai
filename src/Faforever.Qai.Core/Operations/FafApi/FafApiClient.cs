@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http;
 using System.Security.Cryptography;
@@ -94,6 +95,18 @@ namespace Faforever.Qai.Core.Operations.FafApi
         public ApiQuery<T> Include(string s)
         {
             args["include"] = s;
+            return this;
+        }
+        
+        public ApiQuery<T> WhereOr(IEnumerable<KeyValuePair<string, string>> kv)
+        {
+            var expr = string.Join(",", kv.Select(x => $"{x.Key}=={FormatValue(x.Value)}"));
+
+            if (args.ContainsKey("filter"))
+                args["filter"] += $";({expr})";
+            else
+                args["filter"] = $"({expr})";
+
             return this;
         }
 

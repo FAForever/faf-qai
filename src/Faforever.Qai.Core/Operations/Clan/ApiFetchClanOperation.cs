@@ -2,87 +2,58 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 using Faforever.Qai.Core.Models;
-using Faforever.Qai.Core.Operations.Clients;
-
+using Faforever.Qai.Core.Operations.FafApi;
 using Newtonsoft.Json.Linq;
 
 namespace Faforever.Qai.Core.Operations.Clan
 {
     public class ApiFetchClanOperation : IFetchClanOperation
     {
-        private readonly ApiHttpClient _api;
+        private readonly FafApiClient _api;
 
-        public ApiFetchClanOperation(ApiHttpClient api)
+        public ApiFetchClanOperation(FafApiClient api)
         {
             _api = api;
         }
 
-        public async Task<FetchClanResult?> FetchClanAsync(string clan)
+        public async Task<FetchClanResult?> FetchClanAsync(string clanName)
         {
-            string data = await _api.Client
-                .GetStringAsync($"https://api.faforever.com/data/clan?include=" +
-                $"memberships.player&fields[player]=login&fields[clanMembership]=createTime,player&fields[clan]=" +
-                $"name,description,websiteUrl,createTime,tag,leader&filter=tag=='{clan}'");
-
-            var json = JObject.Parse(data);
-
-            if (json["data"]?.Count() <= 0)
+            var orFilter = new Dictionary<string, string>()
             {
-                data = await _api.Client
-                    .GetStringAsync($"https://api.faforever.com/data/clan?include=" +
-                    $"memberships.player&fields[player]=login&fields[clanMembership]=createTime,player&fields[clan]=" +
-                    $"name,description,websiteUrl,createTime,tag,leader&filter=name=='{clan}'");
+                ["tag"] = clanName,
+                ["name"] = clanName
+            };
 
-                json = JObject.Parse(data);
-            }
+            var query = new ApiQuery<FafApi.Clan>()
+                .WhereOr(orFilter)
+                .Include("founder,leader,memberships.player,memberships.clan,memberships.player");
 
-            JToken? clanRes = json["data"]?.First;
+            var s = query.ToString();
+            var clans = await _api.GetAsync(query);
+            var clan = clans?.FirstOrDefault();
+            if (clan is null)
+                return null;
 
-            if (clanRes is null) return null;
-
-            JToken? attr = clanRes["attributes"];
-
-            if (attr is null) return null;
-
-            FetchClanResult res = new()
+            var result = new FetchClanResult()
             {
                 Clan = new()
                 {
-                    CreatedDate = attr["createTime"]?.ToObject<DateTime>(),
-                    Description = attr["description"]?.ToString(),
-                    Name = attr["name"]?.ToString(),
-                    Tag = attr["tag"]?.ToString(),
-                    URL = attr["websiteUrl"]?.ToString(),
-                    Id = clanRes["id"]?.ToObject<long>()
-                }
+                    CreatedDate = clan.CreateTime,
+                    Description = clan.Description,
+                    Name = clan.Name,
+                    Tag = clan.Tag,
+                    URL = clan.WebsiteUrl,
+                    Id = clan.Id
+                },
+                Members = clan.Memberships.Select(m => new ShortPlayerData()
+                {
+                    JoinDate = m.CreateTime,
+                    Username = m.Player.Login
+                }).ToList()
             };
 
-            List<JToken>? memberships = json["included"]?.Where(x => x["type"]?.ToString() == "clanMembership")?.ToList();
-            List<JToken>? players = json["included"]?.Where(x => x["type"]?.ToString() == "player")?.ToList();
-
-            if (memberships is not null && players is not null)
-            {
-                foreach (var member in memberships)
-                {
-                    var p = players.FirstOrDefault(x => x["id"]?.ToObject<long>()
-                        == member["relationships"]?["player"]?["data"]?["id"]?.ToObject<long>());
-
-                    if (p is not null)
-                    {
-                        res.Members.Add(new()
-                        {
-                            JoinDate = member["attributes"]?["createTime"]?.ToObject<DateTime>(),
-                            Username = p["attributes"]?["login"]?.ToString()
-                        });
-                    }
-                }
-
-                res.Clan.Size = res.Members.Count;
-            }
-
-            return res;
+            return result;
         }
     }
 }
