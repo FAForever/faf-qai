@@ -58,8 +58,8 @@ namespace Faforever.Qai.Core.Operations.PatchNotes
         {
             var links = new List<PatchNoteLink>();
 
-            // Regex pattern for extracting all href values
-            string hrefPattern = @"href=""([^""]*)""";
+            // Regex pattern for extracting href values that end with /<number>.html
+            string hrefPattern = @"href=""([^""]*/\d+\.html)""";
 
             MatchCollection matches = Regex.Matches(html, hrefPattern);
 
@@ -67,12 +67,12 @@ namespace Faforever.Qai.Core.Operations.PatchNotes
             {
                 var hrefValue = match.Groups[1].Value;
 
-                // Assuming that all patch note links are html files and starts with a number
-                if (!string.IsNullOrEmpty(hrefValue) && char.IsDigit(hrefValue[0]) && hrefValue.EndsWith(".html"))
+                // Check if the hrefValue ends with /<number>.html
+                if (!string.IsNullOrEmpty(hrefValue))
                 {
-                    var version = hrefValue.Split('.')[0]; // Extract version from the link
+                    var version = hrefValue.Split('/').Last().Split('.')[0]; // Extract version from the link
                     if (int.TryParse(version, out var versionInt))
-                        links.Add(new PatchNoteLink { Version = version, Url = PatchNotesUrl + '/' + hrefValue });
+                        links.Add(new PatchNoteLink { Version = version, Url = PatchNotesUrl + hrefValue });
                 }
             }
 

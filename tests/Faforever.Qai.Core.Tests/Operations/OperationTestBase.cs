@@ -4,6 +4,7 @@ using Faforever.Qai.Core.Http;
 using Faforever.Qai.Core.Operations.Clan;
 using Faforever.Qai.Core.Operations.Clients;
 using Faforever.Qai.Core.Operations.Content;
+using Faforever.Qai.Core.Operations.FafApi;
 using Faforever.Qai.Core.Operations.Maps;
 using Faforever.Qai.Core.Operations.PatchNotes;
 using Faforever.Qai.Core.Operations.Player;
@@ -25,8 +26,9 @@ namespace Faforever.Qai.Core.Tests.Operations
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            ServiceCollection collection = new();
-            collection.AddSingleton<IConfiguration>((x) =>
+            ServiceCollection services = new();
+
+            services.AddSingleton<IConfiguration>((x) =>
             {
                 return new ConfigurationBuilder()
                     .SetBasePath(Directory.GetParent(AppContext.BaseDirectory).FullName)
@@ -38,22 +40,26 @@ namespace Faforever.Qai.Core.Tests.Operations
                         .Build();
             });
 
-            var config = collection.BuildServiceProvider().GetRequiredService<IConfiguration>();
+            var config = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
 
-            collection
+            services.AddMemoryCache();
+
+            services
                 .AddTransient<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()
                 .AddTransient<IFetchPatchNotesLinkOperation, FetchPatchNotesLinkOperation>()
                 .AddTransient<IFindPlayerOperation, ApiFindPlayerOperation>()
                 .AddTransient<ISearchUnitDatabaseOperation, UnitDbSearchUnitDatabaseOpeartion>()
                 .AddTransient<IPlayerService, OperationPlayerService>()
+                .AddTransient<GameService>()
                 .AddTransient<ISearchMapOperation, ApiSearchMapOperation>()
                 .AddTransient<IFetchLadderPoolOperation, ApiFetchLadderPoolOperation>()
                 .AddTransient<IFetchReplayOperation, ApiFetchReplayOperation>()
                 .AddTransient<IFetchClanOperation, ApiFetchClanOperation>()
-                .AddTransient<IFetchTwitchStreamsOperation, FetchTwitchStreamsOperation>();
+                .AddTransient<IFetchTwitchStreamsOperation, FetchTwitchStreamsOperation>()
+                .AddTransient<FafApiClient>();
 
             // HTTP Client Mapping
-            collection.AddHttpClient<ApiHttpClient>(client =>
+            services.AddHttpClient<ApiHttpClient>(client =>
             {
                 client.BaseAddress = new($"{config["Config:Faf:Api"]}");
             }).AddHttpMessageHandler(() => new OAuthHandler(new() {
@@ -61,14 +67,14 @@ namespace Faforever.Qai.Core.Tests.Operations
                 ClientSecret = config["Config:FafApi:ClientSecret"]
             }));
 
-            collection.AddHttpClient<UnitClient>(client =>
+            services.AddHttpClient<UnitClient>(client =>
             {
                 client.BaseAddress = new Uri(UnitDbUtils.UnitApi);
             });
 
-            collection.AddHttpClient<TwitchClient>();
+            services.AddHttpClient<TwitchClient>();
 
-            Services = collection.BuildServiceProvider();
+            Services = services.BuildServiceProvider();
         }
 
         [OneTimeTearDown]

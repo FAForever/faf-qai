@@ -1,3 +1,4 @@
+using Faforever.Qai.Core.Operations.FafApi;
 using System;
 using System.Collections.Generic;
 
@@ -9,7 +10,7 @@ namespace Faforever.Qai.Core.Models
         public string Id { get; set; } = default!;
         public GameStatistics? LadderStats { get; set; } = null;
         public GameStatistics? GlobalStats { get; set; } = null;
-        public FAFClan? Clan { get; set; } = null;
+        public Clan? Clan { get; set; } = null;
         public List<string> OldNames { get; set; } = new List<string>();
         public ReplayData? ReplayData { get; set; } = null;
     }
@@ -18,7 +19,7 @@ namespace Faforever.Qai.Core.Models
     {
         public short Ranking { get; set; }
         public decimal Rating { get; set; }
-        public short GamesPlayed { get; set; }
+        public int GamesPlayed { get; set; }
     }
 
     public class FAFClan

@@ -77,8 +77,8 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
 
             if (!(data.Clan is null))
                 embed.AddField($"Clan: {data.Clan?.Name}", "```http\n" +
-                    $"Clan Size :: {data.Clan?.Size ?? 0}\n" +
-                    $"URL       :: {data.Clan?.URL ?? "n/a"}\n" +
+                    $"Clan Size :: {0}\n" +
+                    $"URL       :: {data.Clan?.WebsiteUrl ?? "n/a"}\n" +
                     "```");
 
             

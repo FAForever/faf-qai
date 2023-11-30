@@ -155,7 +155,8 @@ namespace Faforever.Qai.Core.Operations.FafApi
         public string Login { get; set; }
         public DateTime UpdateTime { get; set; }
         public string UserAgent { get; set; }
-        public List<NameRecord> Names { get; set; }
+        public List<NameRecord> Names { get; set; } = new List<NameRecord>();
+        public List<ClanMembership> ClanMembership { get; set; } = new List<ClanMembership>();
     }
 
     public class NameRecord
@@ -218,5 +219,57 @@ namespace Faforever.Qai.Core.Operations.FafApi
         public string TechnicalName { get; set; }
 
         public MapPool MapPool { get; set; }
+    }
+
+    public class LeaderboardRating
+    {
+        public int Id { get; set; }
+        public DateTime CreateTime { get; set; }
+        public DateTime UpdateTime { get; set; }
+        public decimal? Deviation { get; set; }
+        public decimal? Mean { get; set; }
+        public decimal? Rating { get; set; }
+        public int TotalGames { get; set; }
+        public int WonGames { get; set; }
+
+        public Leaderboard Leaderboard { get; set; }
+        public Player Player { get; set; }
+    }
+
+    public class Leaderboard
+    {
+        public int Id { get; set; }
+        public DateTime CreateTime { get; set; }
+        public DateTime UpdateTime { get; set; }
+        public string DescriptionKey { get; set; }
+        public string NameKey { get; set; }
+        public string TechnicalName { get; set; }
+    }
+
+    public class Clan
+    {
+        public int Id { get; set; }
+        public DateTime CreateTime { get; set; }
+        public DateTime UpdateTime { get; set; }
+        public string Description { get; set; }
+        public string Name { get; set; }
+        public string Tag { get; set; }
+        public string TagColor { get; set; }
+        public string WebsiteUrl { get; set; }
+        [Obsolete("Use WebsiteUrl instead.")]
+        public string URL => WebsiteUrl;
+        public bool RequiresInvitation { get; set; }
+        public Player Founder { get; set; }
+        public Player Leader { get; set; }
+        public List<ClanMembership> Memberships { get; set; } = new List<ClanMembership>();
+    }
+
+    public class ClanMembership
+    {
+        public int Id { get; set; }
+        public DateTime CreateTime { get; set; }
+        public DateTime UpdateTime { get; set; }
+        public Clan Clan { get; set; }
+        public Player Player { get; set; }
     }
 }

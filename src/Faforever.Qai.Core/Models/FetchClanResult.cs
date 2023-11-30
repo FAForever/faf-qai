@@ -1,3 +1,4 @@
+using Faforever.Qai.Core.Operations.FafApi;
 using System;
 using System.Collections.Generic;
 
