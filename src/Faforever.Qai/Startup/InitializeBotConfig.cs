@@ -39,6 +39,7 @@ namespace Faforever.Qai.Startup
         {
             var environmentVariableMap = new Dictionary<string, Action<string>> {
                 ["FAF_CLIENT_SECRET"] = value => botConfig.Faf.ClientSecret = value,
+                ["FAFAPI_CLIENT_ID"] = value => botConfig.FafApi.ClientId = value,
                 ["FAFAPI_CLIENT_SECRET"] = value => botConfig.FafApi.ClientSecret = value,
                 ["DISCORD_CLIENT_SECRET"] = value => botConfig.Discord.ClientSecret = value,
                 ["DISCORD_TOKEN"] = value => botConfig.Discord.Token = value,
