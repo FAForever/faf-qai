@@ -50,6 +50,7 @@ namespace Faforever.Qai.Startup
             {
                 ClientId = botConfig.FafApi.ClientId,
                 ClientSecret = botConfig.FafApi.ClientSecret,
+                TokenEndpoint = botConfig.FafApi.TokenEndpoint
             }));
 
             services.AddHttpClient<UnitClient>(client =>
