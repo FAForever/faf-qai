@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using System;
 
 namespace Faforever.Qai.Discord.Core.Structures.Configurations

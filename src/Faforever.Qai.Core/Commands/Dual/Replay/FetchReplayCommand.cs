@@ -41,6 +41,8 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
         public async Task FetchTopReplaysAsync(string? mapName = null)
         {
             var games = await _gameService.FetchTopRatedGames(mapName, FafMod.Faf);
+            if (games is null || !games.Any())
+                await ReplyAsync("No replays found!");
 
             foreach (var game in games)
                 await RespondToUser(game);
@@ -50,6 +52,8 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
         public async Task FetchTopLadderReplaysAsync(string? mapName = null)
         {
             var games = await _gameService.FetchTopRatedGames(mapName, FafMod.Ladder1v1);
+            if (games is null || !games.Any())
+                await ReplyAsync("No replays found!");
 
             foreach (var game in games)
                 await RespondToUser(game);

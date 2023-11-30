@@ -214,7 +214,7 @@ namespace Faforever.Qai.Irc
 
         private Task BounceToIRC(string channel, string author, string message)
         {
-            _client.LocalUser.SendMessage(channel, $"{author}: {message}");
+            _client.LocalUser?.SendMessage(channel, $"{author}: {message}");
 
             return Task.CompletedTask;
         }
