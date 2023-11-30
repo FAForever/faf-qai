@@ -1,16 +1,13 @@
 using System.Threading.Tasks;
-
 using DSharpPlus.Entities;
-
 using Faforever.Qai.Core.Commands.Context;
-using Faforever.Qai.Core.Models;
 using Faforever.Qai.Core.Operations.Maps;
 
 using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Map
 {
-    public class GetMapCommand : DualCommandModule<MapResult>
+    public class GetMapCommand : DualCommandModule<Operations.FafApi.Map>
     {
         private readonly ISearchMapOperation _map;
 
@@ -41,28 +38,34 @@ namespace Faforever.Qai.Core.Commands.Dual.Map
             }
         }
 
-        public override async Task DiscordReplyAsync(DiscordCommandContext ctx, MapResult data)
+        public override async Task DiscordReplyAsync(DiscordCommandContext ctx, Operations.FafApi.Map data)
         {
             var embed = new DiscordEmbedBuilder();
+            var version = data.LatestVersion;
+
             embed.WithTitle("Download map")
                 .WithColor(Context.DostyaRed)
-                .WithUrl(data.DownloadUrl?.AbsoluteUri.Replace(" ", "%20"))
-                .WithAuthor($"{data.Title} (ID #{data.Id})")
-                .WithDescription(data.Description)
-                .AddField("Size", data.Size, true)
-                .AddField("Max Players", data.MaxPlayers.ToString(), true)
-                .AddField("Ranked", data.Ranked.ToString(), true)
-                .AddField("Created At", data.CreatedAt?.ToString("u"), true)
-                .AddField("Author", data.Author ?? "Unknown")
-                .WithImageUrl(data.PreviewUrl?.AbsoluteUri.Replace(" ", "%20"));
+                .WithUrl(version.DownloadUrl?.AbsoluteUri.Replace(" ", "%20"))
+                .WithAuthor($"{version.Id} (ID #{data.Id})")
+                .WithDescription(version.Description)
+                .AddField("Size", version.Size, true)
+                .AddField("Max Players", version.MaxPlayers.ToString(), true)
+                .AddField("Ranked", version.Ranked.ToString(), true)
+                .AddField("Created At", version.CreateTime.ToString("u"), true)
+                .AddField("Author", data.Author?.Login ?? "Unknown")
+                .WithImageUrl(version.ThumbnailUrlLarge?.AbsoluteUri.Replace(" ", "%20"));
 
             await Context.ReplyAsync(embed);
         }
 
-        public override async Task IrcReplyAsync(IrcCommandContext ctx, MapResult data)
-            => await Context.ReplyAsync($"Map: {data.Title}, ID: {data.Id}, Size: {data.Size}," +
-                $" Players: {data.MaxPlayers}, Ranked: {data.Ranked}, Author: {data.Author}," +
-                $" Download: {data.DownloadUrl?.AbsoluteUri.Replace(" ", "%20")}," +
-                $" Preview: {data.PreviewUrl?.AbsoluteUri.Replace(" ", "%20")}");
+        public override async Task IrcReplyAsync(IrcCommandContext ctx, Operations.FafApi.Map data)
+        { 
+            var latest = data.LatestVersion;
+
+            await Context.ReplyAsync($"Map: {data.DisplayName}, ID: {data.Id}, Size: {latest.Size}," +
+                $" Players: {latest.MaxPlayers}, Ranked: {latest.Ranked}, Author: {data.Author}," +
+                $" Download: {latest.DownloadUrl?.AbsoluteUri.Replace(" ", "%20")}," +
+                $" Preview: {latest.ThumbnailUrlLarge?.AbsoluteUri.Replace(" ", "%20")}");
+        }
     }
 }

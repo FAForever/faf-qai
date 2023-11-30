@@ -44,7 +44,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Map
             var embed = new DiscordEmbedBuilder()
                 .WithTitle($"{pool.MatchmakerQueueMapPool.Name}")
                 .WithColor(Context.DostyaRed)
-                .WithThumbnail(pool.MapVersions[0].ThumbnailUrlSmall.Replace(" ", "%20") ?? "");
+                .WithThumbnail(pool.MapVersions[0].ThumbnailUrlLarge?.ToString().Replace(" ", "%20") ?? "");
 
             int i = 0;
             foreach (var map in pool.MapVersions)

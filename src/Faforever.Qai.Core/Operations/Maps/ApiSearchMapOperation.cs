@@ -4,35 +4,42 @@ using System.Threading.Tasks;
 
 using Faforever.Qai.Core.Models;
 using Faforever.Qai.Core.Operations.Clients;
+using Faforever.Qai.Core.Operations.FafApi;
 using Newtonsoft.Json.Linq;
 
 namespace Faforever.Qai.Core.Operations.Maps
 {
     public class ApiSearchMapOperation : ISearchMapOperation
     {
-        private readonly ApiHttpClient _api;
+        private readonly FafApiClient _api;
 
-        public ApiSearchMapOperation(ApiHttpClient api)
+        public ApiSearchMapOperation(FafApiClient api)
         {
             _api = api;
         }
 
-        public async Task<MapResult?> GetMapAsync(string map)
+        public async Task<Map?> GetMapAsync(string map)
         {
-            string data =
-                await this._api.Client.GetStringAsync(
-                    $"/data/map?page[size]=1&include=versions,author&filter=displayName==\"{map}\"");
+            var query = new ApiQuery<Map>()
+                .Include("versions,author")
+                .Where("displayName", map)
+                .Sort("-gamesPlayed");
 
-            return ParseStringData(data);
+            var maps = await this._api.GetAsync(query);
+
+            return maps.FirstOrDefault();
         }
 
-        public async Task<MapResult?> GetMapAsync(int mapId)
+        public async Task<Map?> GetMapAsync(int mapId)
         {
-            string data =
-                await this._api.Client.GetStringAsync(
-                    $"/data/map?page[size]=1&include=versions,author&filter=id=={mapId}");
+            var query = new ApiQuery<Map>()
+                .Include("versions,author")
+                .Where("id", mapId)
+                .Sort("-gamesPlayed");
 
-            return ParseStringData(data);
+            var maps = await this._api.GetAsync(query);
+
+            return maps.FirstOrDefault();
         }
 
         private MapResult? ParseStringData(string data)

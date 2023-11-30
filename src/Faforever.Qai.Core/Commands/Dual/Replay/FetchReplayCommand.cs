@@ -75,8 +75,8 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
             var mapName = game.MapVersion != null ? $"{game.MapVersion.Map.DisplayName}" : "Unknown";
 
             string? thumbnail = null;
-            if (game.MapVersion?.ThumbnailUrlLarge != null && Uri.TryCreate(game.MapVersion?.ThumbnailUrlLarge!, UriKind.Absolute, out var uri))
-                thumbnail = uri.AbsoluteUri;
+            if (game.MapVersion?.ThumbnailUrlLarge != null)
+                thumbnail = game.MapVersion.ThumbnailUrlLarge.AbsoluteUri;
 
             embed
                 .WithColor(Context.DostyaRed)

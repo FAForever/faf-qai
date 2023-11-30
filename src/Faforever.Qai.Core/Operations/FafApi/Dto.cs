@@ -36,15 +36,15 @@ namespace Faforever.Qai.Core.Operations.FafApi
         public int Id { get; set; }
         public DateTime CreateTime { get; set; }
         public string Description { get; set; }
-        public string DownloadUrl { get; set; }
+        public Uri DownloadUrl { get; set; }
         public string Filename { get; set; }
         public string FolderName { get; set; }
         public short Height { get; set; }
         public bool Hidden { get; set; }
         public byte MaxPlayers { get; set; }
         public bool Ranked { get; set; }
-        public string ThumbnailUrlLarge { get; set; }
-        public string ThumbnailUrlSmall { get; set; }
+        public Uri ThumbnailUrlLarge { get; set; }
+        public Uri ThumbnailUrlSmall { get; set; }
         public DateTime UpdateTime { get; set; }
         public short Version { get; set; }
         public short Width { get; set; }
@@ -64,8 +64,9 @@ namespace Faforever.Qai.Core.Operations.FafApi
         public string MapType { get; set; }
         public int NumberOfReviews { get; set; }
         public DateTime UpdateTime { get; set; }
-
+        public MapVersion LatestVersion { get; set; }
         public MapStatistics Statistics { get; set; }
+        public Player Author { get; set; }
     }
 
     public class MapStatistics
