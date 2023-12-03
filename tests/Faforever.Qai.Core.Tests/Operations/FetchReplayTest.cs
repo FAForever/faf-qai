@@ -33,8 +33,8 @@ namespace Faforever.Qai.Core.Tests.Operations
 
             Assert.NotNull(res);
 
-            var players = (from data in res.PlayerData
-                           where data.Name.ToLower() == user.ToLower()
+            var players = (from data in res.PlayerStats
+                           where data.Player.Login.ToLower() == user.ToLower()
                            select data).ToArray();
 
             Assert.True(players.Length > 0, message: $"Expected one player from the match to be {user}");
