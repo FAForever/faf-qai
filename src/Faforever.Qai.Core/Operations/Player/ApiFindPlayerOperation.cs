@@ -1,9 +1,8 @@
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
-
+using Faforever.Qai.Core.Clients;
 using Faforever.Qai.Core.Models;
-using Faforever.Qai.Core.Operations.Clients;
 
 namespace Faforever.Qai.Core.Operations.Player
 {

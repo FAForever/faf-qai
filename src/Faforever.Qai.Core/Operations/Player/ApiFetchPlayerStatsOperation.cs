@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
 
+using System.Threading.Tasks;
+using Faforever.Qai.Core.Constants;
 using Faforever.Qai.Core.Models;
-using Faforever.Qai.Core.Operations.Clients;
+
 using Faforever.Qai.Core.Operations.FafApi;
 
 namespace Faforever.Qai.Core.Operations.Player
@@ -52,6 +51,21 @@ namespace Faforever.Qai.Core.Operations.Player
             return result;
         }
 
+        public async Task<LeaderboardRatingJournal[]> FetchRatingHistory(string username, FafLeaderboard leaderboard)
+        {
+            var query = new ApiQuery<LeaderboardRatingJournal>()
+               .Where("leaderboard.id", (int)leaderboard)
+               .Where("gamePlayerStats.player.login", username)
+               .Sort("-createTime");
+
+            var ratingHistory = await this._api.GetAsync(query);
+            var first = ratingHistory.FirstOrDefault();
+            if (first is null)
+                return Array.Empty<LeaderboardRatingJournal>();
+
+            return ratingHistory.ToArray();
+        }
+
         private void SetGameStatistics(FetchPlayerStatsResult result, IEnumerable<LeaderboardRating> ratings)
         {
             foreach (var rating in ratings ?? Enumerable.Empty<LeaderboardRating>())
@@ -69,79 +83,5 @@ namespace Faforever.Qai.Core.Operations.Player
                     result.GlobalStats = stats;
             }
         }
-
-        /*
-        public async Task<FetchPlayerStatsResult?> FetchPlayer(string username)
-        {
-            using Stream? stream =
-                await this._api.Client.GetStreamAsync(
-                    $"/data/player?include=clanMembership.clan,globalRating,ladder1v1Rating,names,avatarAssignments.avatar&filter=login=={username}");
-
-            using JsonDocument json = await JsonDocument.ParseAsync(stream);
-
-            if (!json.RootElement.TryGetProperty("data", out var data))
-                return null;
-            
-            if(data.GetArrayLength() == 0)
-                return null;
-
-            FetchPlayerStatsResult result = new FetchPlayerStatsResult
-            {
-                Name = username,
-                Id = json.RootElement.GetProperty("data")[0].GetProperty("id").GetString() ?? ""
-            };
-
-            if(json.RootElement.TryGetProperty("included", out var includedElement))
-            {
-                foreach (JsonElement element in includedElement.EnumerateArray())
-                {
-                    var typeElement = element.GetProperty("type");
-                    var attributes = element.GetProperty("attributes");
-                    switch (typeElement.GetString())
-                    {
-                        case "ladder1v1Rating":
-                            var ladder = new GameStatistics
-                            {
-                                Ranking = attributes.GetProperty("ranking").GetInt16(),
-                                Rating = attributes.GetProperty("rating").GetDecimal(),
-                                GamesPlayed = attributes.GetProperty("numberOfGames").GetInt16()
-                            };
-                            result.LadderStats = ladder;
-                            break;
-                        case "globalRating":
-                            var global = new GameStatistics
-                            {
-                                Ranking = attributes.GetProperty("ranking").GetInt16(),
-                                Rating = attributes.GetProperty("rating").GetDecimal(),
-                                GamesPlayed = attributes.GetProperty("numberOfGames").GetInt16()
-                            };
-                            result.GlobalStats = global;
-                            break;
-                        case "clan":
-                            var clan = new FAFClan
-                            {
-                                Name = attributes.GetProperty("name").GetString(),
-                                Size = element.GetProperty("relationships")
-                                    .GetProperty("memberships")
-                                    .GetProperty("data")
-                                    .GetArrayLength(),
-                                URL = attributes.GetProperty("websiteUrl").GetString()
-                            };
-                            result.Clan = clan;
-                            break;
-                        case "nameRecord":
-                            var name = attributes.GetProperty("name").GetString();
-                            if (name is not null)
-                                result.OldNames.Add(name);
-                            break;
-                    }
-                }
-            }
-
-            
-
-            return result;
-        }
-        */
     }
 }

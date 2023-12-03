@@ -1,6 +1,6 @@
 using System.Net.Http;
 
-namespace Faforever.Qai.Core.Operations.Clients
+namespace Faforever.Qai.Core.Clients
 {
     public class ApiHttpClient
     {
@@ -8,7 +8,7 @@ namespace Faforever.Qai.Core.Operations.Clients
 
         public ApiHttpClient(HttpClient client)
         {
-            this.Client = client;
+            Client = client;
         }
     }
 }

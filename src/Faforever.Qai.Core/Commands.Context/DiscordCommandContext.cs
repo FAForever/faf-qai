@@ -43,11 +43,13 @@ namespace Faforever.Qai.Core.Commands.Context
 
         protected override async Task SendReplyAsync(object message, bool inPrivate = false)
         {
+            if (message is DiscordEmbedBuilder builder)
+                message = builder.Build();
+
             if (Interaction != null)
             {
-                DiscordEmbed? embed = message as DiscordEmbed;
-                embed ??= (message as DiscordEmbedBuilder)?.Build();
-                
+                var embed = message as DiscordEmbed;
+
                 if (embed != null)
                     await Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
                 else
@@ -62,9 +64,9 @@ namespace Faforever.Qai.Core.Commands.Context
             }
         }
 
-        public override Task SendActionAsync(string action)
+        public override async Task SendActionAsync(string action)
         {
-            return Task.CompletedTask;
+            await Channel.SendMessageAsync($"*{action}*");
         }
 
         public async override Task<bool> CheckPermissionsAsync(CommandRequirements required)

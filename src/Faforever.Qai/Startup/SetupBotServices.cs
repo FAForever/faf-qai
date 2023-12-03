@@ -1,11 +1,11 @@
 using DSharpPlus;
 using Faforever.Qai.Core;
+using Faforever.Qai.Core.Clients;
 using Faforever.Qai.Core.Commands.Arguments.Converters;
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Database;
 using Faforever.Qai.Core.Http;
 using Faforever.Qai.Core.Operations.Clan;
-using Faforever.Qai.Core.Operations.Clients;
 using Faforever.Qai.Core.Operations.Content;
 using Faforever.Qai.Core.Operations.FafApi;
 using Faforever.Qai.Core.Operations.Maps;

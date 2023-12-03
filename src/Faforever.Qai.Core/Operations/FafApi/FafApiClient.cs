@@ -1,5 +1,5 @@
+using Faforever.Qai.Core.Clients;
 using Faforever.Qai.Core.Extensions;
-using Faforever.Qai.Core.Operations.Clients;
 using JsonApiSerializer;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
@@ -50,7 +50,14 @@ namespace Faforever.Qai.Core.Operations.FafApi
 
             if (!useCache || (DateTime.Now - lastWrite).TotalSeconds > CACHE_TIMEOUT)
             {
-                json = await client.GetStringAsync(uri);
+                var response = await client.GetAsync(uri);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var cause = await response.Content.ReadAsStringAsync();
+                }
+                    
+                json = await response.Content.ReadAsStringAsync();
+                //json = await client.GetStringAsync(uri);
 
                 if (useCache)
                 {

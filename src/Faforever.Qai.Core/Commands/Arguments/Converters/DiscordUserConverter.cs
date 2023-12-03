@@ -16,7 +16,7 @@ namespace Faforever.Qai.Core.Commands.Arguments.Converters
         {
             if (context is DiscordCommandContext ctx)
             {
-                var id = GetDiscordUserId(parameter, value);
+                var id = ParseDiscordUserId(value);
 
                 if (id is null) return TypeParserResult<DiscordUser>.Failed("Failed to parse a valid ID.");
 

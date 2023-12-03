@@ -1,10 +1,9 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-
 using Newtonsoft.Json.Linq;
 
-namespace Faforever.Qai.Core.Operations.Clients
+namespace Faforever.Qai.Core.Clients
 {
     public class TwitchClient
     {
@@ -25,7 +24,7 @@ namespace Faforever.Qai.Core.Operations.Clients
                 isRepeat = true;
             }
 
-            HttpRequestMessage msg = new HttpRequestMessage()
+            var msg = new HttpRequestMessage()
             {
                 RequestUri = new Uri($"https://api.twitch.tv/helix/streams?game_id={gameId}")
             };
@@ -36,9 +35,7 @@ namespace Faforever.Qai.Core.Operations.Clients
             var request = await _client.SendAsync(msg);
 
             if (request.IsSuccessStatusCode)
-            {
                 return await request.Content.ReadAsStringAsync();
-            }
             else if (!isRepeat)
             {
                 await RefreshBearerToken();
@@ -60,7 +57,7 @@ namespace Faforever.Qai.Core.Operations.Clients
             {
                 var resJson = await res.Content.ReadAsStringAsync();
 
-                JObject json = JObject.Parse(resJson);
+                var json = JObject.Parse(resJson);
                 BearerToken = json["access_token"]?.ToString();
             }
             else BearerToken = null;

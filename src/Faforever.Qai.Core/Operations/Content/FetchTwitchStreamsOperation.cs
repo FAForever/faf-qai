@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
-
+using Faforever.Qai.Core.Clients;
 using Faforever.Qai.Core.Models;
-using Faforever.Qai.Core.Operations.Clients;
 
 using Newtonsoft.Json;
 

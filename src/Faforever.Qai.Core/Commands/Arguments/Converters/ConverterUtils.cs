@@ -22,7 +22,7 @@ namespace Faforever.Qai.Core.Commands.Arguments.Converters
             return null;
         }
 
-        public static ulong? GetDiscordUserId(Parameter p, string v)
+        public static ulong? ParseDiscordUserId(string v)
         {
             var valToParse = v;
 
@@ -41,6 +41,24 @@ namespace Faforever.Qai.Core.Commands.Arguments.Converters
             }
 
             return null;
+        }
+
+        public static async Task<DiscordMember?> GetDiscordMember(string str, DiscordCommandContext ctx)
+        {
+            DiscordMember? member = null;
+            var id = ParseDiscordUserId(str);
+
+            if (id is not null) {
+                member = await GetDiscordMember(id.Value, ctx);
+            }
+            else
+            {
+                var members = await ctx.Guild.SearchMembersAsync(str);
+                if (members != null && members.Count > 0)
+                    member = members[0];
+            }
+
+            return member;
         }
 
         public static async Task<DiscordMember?> GetDiscordMember(ulong id, DiscordCommandContext ctx)

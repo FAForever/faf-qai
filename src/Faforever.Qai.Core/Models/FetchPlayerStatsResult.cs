@@ -15,6 +15,13 @@ namespace Faforever.Qai.Core.Models
         public ReplayData? ReplayData { get; set; } = null;
     }
 
+    public class FetchRatingHistoryResult
+    {
+        public string PlayerId { get; set; }
+        public List<LeaderboardRatingJournal> RatingHistory { get; set; } = new List<LeaderboardRatingJournal>();
+    }
+
+
     public struct GameStatistics
     {
         public short Ranking { get; set; }

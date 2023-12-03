@@ -1,12 +1,7 @@
 using System.Threading.Tasks;
-
 using DSharpPlus.Entities;
-
 using Faforever.Qai.Core.Commands.Context;
-
 using Qmmands;
-
-using static Faforever.Qai.Core.Commands.Arguments.Converters.ConverterUtils;
 
 namespace Faforever.Qai.Core.Commands.Arguments.Converters
 {
@@ -16,11 +11,10 @@ namespace Faforever.Qai.Core.Commands.Arguments.Converters
         {
             if (context is DiscordCommandContext ctx)
             {
-                var id = GetDiscordUserId(parameter, value);
-
+                var id = ConverterUtils.ParseDiscordUserId(value);
                 if (id is null) return TypeParserResult<DiscordMember>.Failed("Failed to parse a valid ID.");
 
-                var user = await GetDiscordMember(id.Value, ctx);
+                var user = await ConverterUtils.GetDiscordMember(id.Value, ctx);
 
                 if (user is null) return TypeParserResult<DiscordMember>.Failed($"Failed to get a valid DiscordMember from {id.Value}.");
 

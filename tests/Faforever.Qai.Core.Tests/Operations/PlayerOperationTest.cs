@@ -34,5 +34,25 @@ namespace Faforever.Qai.Core.Tests.Operations
             Assert.NotNull(res);
             Assert.AreEqual(user, res.Name);
         }
+
+        [TestCase("Crotalus_Bureus", TestName = "Get player rating history", Author = "Crotalus_Bureus")]
+        [Ignore("This is a test for the chart generation, disabled to reduce calls to API")]
+        public async Task GetPlayerRatingHistory(string user)
+        {
+            var res = await playerService.GetRatingHistory(user, Constants.FafLeaderboard.Global);
+
+            Assert.NotNull(res);
+            Assert.Greater(res.Length, 0);
+        }
+
+        [TestCase("Crotalus_Bureus", TestName = "Generate rating chart", Author = "Crotalus_Bureus")]
+        [Ignore("This is a test for the chart generation, disabled to reduce calls to API")]
+        public async Task GenerateRatingChart(string user)
+        {
+            var res = await playerService.GenerateRatingChart(user, Constants.FafLeaderboard.Global);
+
+            Assert.NotNull(res);
+            Assert.Greater(res.Length, 0);
+        }
     }
 }

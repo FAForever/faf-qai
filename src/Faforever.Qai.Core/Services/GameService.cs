@@ -55,7 +55,7 @@ namespace Faforever.Qai.Core.Services
             if (mapName == null)
             {
                 if (mod == FafMod.Faf)
-                    query.Where("playerStats.player.globalRating.rating", WhereOp.GreaterThan, "2000");
+                    query.Where("playerStats.beforeMean", WhereOp.GreaterThan, "2000");
 
                 query.Where("startTime", WhereOp.GreaterThan, DateTime.Now.AddDays(-7));
             }
@@ -68,7 +68,8 @@ namespace Faforever.Qai.Core.Services
             if (mod != null)
                 query.Where("featuredMod.id", (int)mod);
 
-            var games = await _api.GetAsync(query);
+            
+            IEnumerable<Game> games = await _api.GetAsync(query);
 
             return games.Where(g => g.PlayerStats.Count > 1).OrderByDescending(g => g.AverageRating()).Take(3).ToList();
         }

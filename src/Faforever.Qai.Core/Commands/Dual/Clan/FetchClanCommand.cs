@@ -34,12 +34,13 @@ namespace Faforever.Qai.Core.Commands.Dual.Clan
         {
             var embed = new DiscordEmbedBuilder();
             var desc = !string.IsNullOrEmpty(data.Clan.Description) ? data.Clan.Description : "-";
+            var size = data.Clan.Size ?? data.Members.Count;
 
             embed.WithTitle($"#{data.Clan.Id} {data.Clan.Name}")
                 .WithUrl(data.Clan.URL)
                 .WithColor(Context.DostyaRed)
                 .AddField("Created", data.Clan.CreatedDate?.ToString("u"), true)
-                .AddField("Clan Size", data.Clan.Size.ToString(), true)
+                .AddField("Clan Size", size.ToString(), true)
                 .AddField("Description", desc, false);
 
             var c = 0;

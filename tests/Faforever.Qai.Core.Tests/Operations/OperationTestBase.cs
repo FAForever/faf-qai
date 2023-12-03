@@ -1,8 +1,9 @@
 using System;
 using System.IO;
+using Faforever.Qai.Core.Clients;
+using Faforever.Qai.Core.Clients.QuickChart;
 using Faforever.Qai.Core.Http;
 using Faforever.Qai.Core.Operations.Clan;
-using Faforever.Qai.Core.Operations.Clients;
 using Faforever.Qai.Core.Operations.Content;
 using Faforever.Qai.Core.Operations.FafApi;
 using Faforever.Qai.Core.Operations.Maps;
@@ -56,7 +57,8 @@ namespace Faforever.Qai.Core.Tests.Operations
                 .AddTransient<IFetchReplayOperation, ApiFetchReplayOperation>()
                 .AddTransient<IFetchClanOperation, ApiFetchClanOperation>()
                 .AddTransient<IFetchTwitchStreamsOperation, FetchTwitchStreamsOperation>()
-                .AddTransient<FafApiClient>();
+                .AddTransient<FafApiClient>()
+                .AddTransient<QuickChartClient>();
 
             // HTTP Client Mapping
             services.AddHttpClient<ApiHttpClient>(client =>

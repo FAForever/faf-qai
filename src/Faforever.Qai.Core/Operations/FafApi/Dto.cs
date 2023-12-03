@@ -241,6 +241,24 @@ namespace Faforever.Qai.Core.Operations.FafApi
         public PlayerExtended Player { get; set; }
     }
 
+    public class LeaderboardRatingJournal
+    {
+        public int Id { get; set; }
+        public DateTime CreateTime { get; set; }
+        public DateTime UpdateTime { get; set; }
+        public decimal? DeviationBefore { get; set; }
+        public decimal? MeanBefore { get; set; }
+        public decimal? DeviationAfter { get; set; }
+        public decimal? MeanAfter { get; set; }
+
+        public decimal BeforeRating => (MeanBefore ?? 0) - (DeviationBefore ?? 0) * 3;
+        public decimal AfterRating => (MeanAfter ?? 0) - (DeviationAfter ?? 0) * 3;
+
+        public Leaderboard Leaderboard { get; set; }
+        public PlayerStats PlayerStats { get; set; }
+
+    }
+
     public class Leaderboard
     {
         public int Id { get; set; }

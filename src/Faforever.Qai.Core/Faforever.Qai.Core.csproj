@@ -25,6 +25,8 @@
 
     <ItemGroup>
       <Folder Include="Migrations\" />
+      <Folder Include="Operations\Chart\" />
+      <Folder Include="Operations\Clients\" />
     </ItemGroup>
 
     <ItemGroup>
