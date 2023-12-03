@@ -1,6 +1,7 @@
 using DSharpPlus;
 using Faforever.Qai.Core;
 using Faforever.Qai.Core.Clients;
+using Faforever.Qai.Core.Clients.QuickChart;
 using Faforever.Qai.Core.Commands.Arguments.Converters;
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Database;
@@ -109,7 +110,8 @@ namespace Faforever.Qai.Startup
                 .AddTransient<IFetchClanOperation, ApiFetchClanOperation>()
                 .AddTransient<IFetchTwitchStreamsOperation, FetchTwitchStreamsOperation>()
                 .AddTransient<IFetchPatchNotesLinkOperation, FetchPatchNotesLinkOperation>()
-                .AddTransient<FafApiClient>();
+                .AddTransient<FafApiClient>()
+                .AddTransient<QuickChartClient>();
 
             // Discord Information Setup
             var discordConfig = new DiscordBotConfiguration()

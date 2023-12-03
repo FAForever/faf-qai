@@ -128,7 +128,6 @@ namespace Faforever.Qai.Core.Services
             req.Chart.Options.Scales.Volume.Max = maxGamesPlayed * 7;
 
             var chartBytes = await _qcClient.GetChartAsync(req);
-            File.WriteAllBytes(@"C:\temp\chart.png", chartBytes);
 
             return chartBytes;
         }

@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
 
 using Faforever.Qai.Core.Commands.Context;
+using Faforever.Qai.Core.Constants;
 using Faforever.Qai.Core.Models;
 using Faforever.Qai.Core.Services;
 
@@ -38,8 +41,10 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
                     $"Global: rating '{data.GlobalStats?.Rating.ToString("F0") ?? "0"}', ranked '{data.GlobalStats?.Ranking ?? 0}'");
         }
 
-        public override Task DiscordReplyAsync(DiscordCommandContext ctx, FetchPlayerStatsResult data)
+        public override async Task DiscordReplyAsync(DiscordCommandContext ctx, FetchPlayerStatsResult data)
         {
+            var getChartTask = _playerService.GenerateRatingChart(data.Name, FafLeaderboard.Global);
+
             List<string> toJoin;
 
             if (data.OldNames.Count > 5)
@@ -51,11 +56,11 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
             {
                 toJoin = data.OldNames;
             }
-
+            const string dateFormat = "yyyy-MM-dd HH:mm:ss";
             var embed = new DiscordEmbedBuilder()
                 .WithColor(Context.DostyaRed)
                 .WithTitle(data.Name)
-                .WithDescription($"**ID: {data.Id}**")
+                .WithDescription($"**ID: {data.Id}**, Last seen: {data.LastSeen.ToString(dateFormat)}")
                 .WithColor(DiscordColor.Red);
 
             if (toJoin.Count != 0)
@@ -81,9 +86,15 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
                     $"URL       :: {data.Clan?.WebsiteUrl ?? "n/a"}\n" +
                     "```");
 
+            await Context.ReplyAsync(embed.Build());
+
+            var chartBytes = await getChartTask;
             
-            //return ctx.Channel.SendMessageAsync(embed: embed);
-            return Context.ReplyAsync(embed.Build());
+            var msgBuilder = new DiscordMessageBuilder()
+                .WithContent("Here is a chart of their rating history:")
+                .AddFile("chart.png", new MemoryStream(chartBytes));
+
+            await msgBuilder.SendAsync(ctx.Channel);
         }
 
         [Command("searchplayer")]

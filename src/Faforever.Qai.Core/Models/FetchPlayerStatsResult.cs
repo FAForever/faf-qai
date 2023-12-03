@@ -8,6 +8,7 @@ namespace Faforever.Qai.Core.Models
     {
         public string Name { get; set; } = default!;
         public string Id { get; set; } = default!;
+        public DateTime LastSeen { get; set; } = default!;
         public GameStatistics? LadderStats { get; set; } = null;
         public GameStatistics? GlobalStats { get; set; } = null;
         public Clan? Clan { get; set; } = null;

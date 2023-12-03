@@ -39,7 +39,8 @@ namespace Faforever.Qai.Core.Operations.Player
             var result = new FetchPlayerStatsResult
             {
                 Name = username,
-                Id = player.Id.ToString()
+                Id = player.Id.ToString(),
+                LastSeen = player.UpdateTime,
             };
 
             SetGameStatistics(result, playerRatings);
