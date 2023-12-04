@@ -254,8 +254,10 @@ namespace Faforever.Qai.Core.Operations.FafApi
         public decimal BeforeRating => (MeanBefore ?? 0) - (DeviationBefore ?? 0) * 3;
         public decimal AfterRating => (MeanAfter ?? 0) - (DeviationAfter ?? 0) * 3;
 
+        public DateTime ScoreTime => GamePlayerStats?.ScoreTime ?? CreateTime;
+
         public Leaderboard Leaderboard { get; set; }
-        public PlayerStats PlayerStats { get; set; }
+        public PlayerStats GamePlayerStats { get; set; }
 
     }
 

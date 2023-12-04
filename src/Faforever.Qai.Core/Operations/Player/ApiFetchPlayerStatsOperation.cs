@@ -55,6 +55,7 @@ namespace Faforever.Qai.Core.Operations.Player
         public async Task<LeaderboardRatingJournal[]> FetchRatingHistory(string username, FafLeaderboard leaderboard)
         {
             var query = new ApiQuery<LeaderboardRatingJournal>()
+               .Include("gamePlayerStats")
                .Where("leaderboard.id", (int)leaderboard)
                .Where("gamePlayerStats.player.login", username)
                .Sort("-createTime");

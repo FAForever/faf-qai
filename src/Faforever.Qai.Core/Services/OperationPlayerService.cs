@@ -93,10 +93,10 @@ namespace Faforever.Qai.Core.Services
 
             // Group by week
             var groupedData = ratingHistory
-                .OrderBy(r => r.CreateTime)
-                .GroupBy(r => new { r.CreateTime.Year, Week = CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(r.CreateTime, CalendarWeekRule.FirstDay, DayOfWeek.Monday) })
+                .OrderBy(r => r.ScoreTime)
+                .GroupBy(r => new { r.ScoreTime.Year, Week = CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(r.ScoreTime, CalendarWeekRule.FirstDay, DayOfWeek.Monday) })
                 .Select(g => new {
-                    WeekStart = g.Min(r => r.CreateTime),
+                    WeekStart = g.Min(r => r.ScoreTime),
                     RatingData = g,
                     GamesPlayed = g.Count()
                 });
