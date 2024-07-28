@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <VersionPrefix>0.7.0</VersionPrefix>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>IrcDotNet</AssemblyName>
   </PropertyGroup>
 
