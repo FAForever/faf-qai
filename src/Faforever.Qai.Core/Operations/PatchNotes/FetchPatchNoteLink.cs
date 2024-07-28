@@ -1,13 +1,12 @@
-using DSharpPlus;
-using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
-using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text.RegularExpressions;
+using System.Text.Json;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Faforever.Qai.Core.Operations.PatchNotes
 {
@@ -19,8 +18,8 @@ namespace Faforever.Qai.Core.Operations.PatchNotes
     public class FetchPatchNotesLinkOperation : IFetchPatchNotesLinkOperation, IAutocompleteProvider
     {
         private const string CacheKey = "PatchNotesLinks";
-        private const string PatchNotesUrl = "http://patchnotes.faforever.com";
-        private IMemoryCache _cache;
+        private const string PatchNotesJsonUrl = "https://patchnotes.faforever.com/assets/data/patches.json";
+        private readonly IMemoryCache _cache;
 
         public FetchPatchNotesLinkOperation(IMemoryCache cache)
         {
@@ -30,64 +29,70 @@ namespace Faforever.Qai.Core.Operations.PatchNotes
         public async Task<PatchNoteLink?> GetPatchNotesLinkAsync(string? version = null)
         {
             var links = await GetLinks();
-
             if (!links.Any())
                 return null;
 
-            var link = !string.IsNullOrEmpty(version) ? links.FirstOrDefault(x => x.Version == version) : links.FirstOrDefault();
+            var link = !string.IsNullOrEmpty(version)
+                ? links.FirstOrDefault(x => x.Version == version)
+                : links.FirstOrDefault();
 
             return link;
         }
 
         private async Task<List<PatchNoteLink>> GetLinks()
         {
-            var links = await _cache.GetOrCreateAsync(CacheKey, async entry =>
+            return await _cache.GetOrCreateAsync(CacheKey, async entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromHours(1);
-
                 using var httpClient = new HttpClient();
-                var body = await httpClient.GetStringAsync(PatchNotesUrl);
-
-                return ExtractPatchNoteLinks(body);
-            });
-
-            return links ?? new List<PatchNoteLink>();
+                var json = await httpClient.GetStringAsync(PatchNotesJsonUrl);
+                return ParsePatchNoteLinks(json);
+            }) ?? new List<PatchNoteLink>();
         }
 
-        private static List<PatchNoteLink> ExtractPatchNoteLinks(string html)
+        private static List<PatchNoteLink> ParsePatchNoteLinks(string json)
         {
             var links = new List<PatchNoteLink>();
-
-            // Regex pattern for extracting href values that end with /<number>.html
-            string hrefPattern = @"href=""([^""]*/\d+\.html)""";
-
-            MatchCollection matches = Regex.Matches(html, hrefPattern);
-
-            foreach (Match match in matches)
+            var options = new JsonSerializerOptions
             {
-                var hrefValue = match.Groups[1].Value;
+                PropertyNameCaseInsensitive = true
+            };
+            var patchData = JsonSerializer.Deserialize<PatchData>(json, options);
 
-                // Check if the hrefValue ends with /<number>.html
-                if (!string.IsNullOrEmpty(hrefValue))
-                {
-                    var version = hrefValue.Split('/').Last().Split('.')[0]; // Extract version from the link
-                    if (int.TryParse(version, out var versionInt))
-                        links.Add(new PatchNoteLink { Version = version, Url = PatchNotesUrl + hrefValue });
-                }
+            if (patchData != null)
+            {
+                links.AddRange(ParsePatchCategory(patchData.Balance));
+                links.AddRange(ParsePatchCategory(patchData.Game));
             }
 
-            return links;
+            return [.. links.OrderByDescending(l => l.Version)];
         }
 
+        private static IEnumerable<PatchNoteLink> ParsePatchCategory(List<PatchInfo>? patchInfos)
+        {
+            if (patchInfos == null) yield break;
+
+            foreach (var patch in patchInfos)
+            {
+                yield return new PatchNoteLink
+                {
+                    Version = patch.Patch,
+                    Url = $"https://patchnotes.faforever.com/{patch.Link}",
+                    Date = DateTime.TryParse(patch.Date.TrimStart('-', ' '), out var date) ? date : default
+                };
+            }
+        }
 
         public async Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext ctx)
         {
-           var choices = new List<DiscordAutoCompleteChoice>();
+            var choices = new List<DiscordAutoCompleteChoice>();
             var links = await GetLinks();
             var optionValue = ctx.OptionValue?.ToString();
 
-            foreach (var link in links.Where(l => string.IsNullOrEmpty(optionValue) || l.Version.ToString().Contains(optionValue)))
-                choices.Add(new DiscordAutoCompleteChoice(link.Version.ToString(), link.Version));
+            foreach (var link in links.Where(l => string.IsNullOrEmpty(optionValue) || l.Version.Contains(optionValue)))
+            {
+                choices.Add(new DiscordAutoCompleteChoice($"{link.Version} ({link.Date:yyyy-MM-dd})", link.Version));
+            }
 
             return choices;
         }
@@ -97,5 +102,19 @@ namespace Faforever.Qai.Core.Operations.PatchNotes
     {
         public string Version { get; set; } = default!;
         public string Url { get; set; } = default!;
+        public DateTime Date { get; set; }
+    }
+
+    public class PatchData
+    {
+        public List<PatchInfo> Balance { get; set; } = [];
+        public List<PatchInfo> Game { get; set; } = [];
+    }
+
+    public class PatchInfo
+    {
+        public string Patch { get; set; } = string.Empty;
+        public string Link { get; set; } = string.Empty;
+        public string Date { get; set; } = string.Empty;
     }
 }
