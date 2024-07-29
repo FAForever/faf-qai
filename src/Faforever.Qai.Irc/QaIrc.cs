@@ -253,10 +253,10 @@ namespace Faforever.Qai.Irc
             {
                 while (true)
                 {
-                    if (!_client.IsConnected)
+                    if (_client == null || !_client.IsConnected)
                     {
                         _logger.LogDebug("Client is not connected");
-                        if (!connecting)
+                        if (_client == null || !connecting)
                         {
                             _logger.LogInformation("Attempting to reconnect");
                             TryReconnect();
