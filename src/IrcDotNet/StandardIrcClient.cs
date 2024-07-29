@@ -571,10 +571,14 @@ namespace IrcDotNet
         /// <returns>A string that represents this instance.</returns>
         public override string ToString()
         {
-            if (!IsDisposed && IsConnected)
-                return string.Format("{0}@{1}", LocalUser.UserName,
-                    ServerName ?? socket.RemoteEndPoint.ToString());
-            return "(Not connected)";
+            if (IsDisposed) return "(Disposed)";
+            if (!IsConnected) return "(Not connected)";
+
+            var username = LocalUser?.UserName ?? "Unknown";
+            var serverInfo = ServerName ??
+                (socket?.RemoteEndPoint?.ToString() ?? "Unknown");
+
+            return $"{username}@{serverInfo}";
         }
 
 #if !SILVERLIGHT
