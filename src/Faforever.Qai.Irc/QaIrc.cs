@@ -51,6 +51,7 @@ namespace Faforever.Qai.Irc
             _logger.LogInformation("Connecting to IRC server {0} ({1}), port {2}", _hostname, address, port);
             _client.Connect(_hostname, false, _userInfo);
             
+            _logger.Log(LogLevel.Debug, "Starting heartbeat thread...");
             _heartbeatThread = new Thread(HeartbeatThread);
             _heartbeatThread.Start();
         }
@@ -173,7 +174,7 @@ namespace Faforever.Qai.Irc
         private bool connecting;
         private void OnClientDisconnected(object sender, EventArgs args)
         {
-            _logger.Log(LogLevel.Information, "client disconnected");
+            _logger.Log(LogLevel.Critical, "client disconnected");
             connecting = false;
         }
 
@@ -193,7 +194,7 @@ namespace Faforever.Qai.Irc
 
         private void OnSaslMessage(object sender, IrcSaslMessageEventArgs e)
         {
-            _logger.Log(LogLevel.Critical, "SASL Message: {message}", e.Message);
+            _logger.Log(LogLevel.Information, "SASL Message: {message}", e.Message);
             if (e.Code == 904)
                 nextConnectAttempt = DateTime.Now.AddSeconds(10);
         }
@@ -237,30 +238,41 @@ namespace Faforever.Qai.Irc
         {
             const int PING_INTERVAL = 60;
 
-            _logger.Log(LogLevel.Debug, "Heartbeat thread started");
-            // Ping the server regulary to detect if the socket is dead
+            _logger.LogInformation("Heartbeat thread started");
+            // Ping the server regularly to detect if the socket is dead
 
             DateTime nextPing = DateTime.Now.AddSeconds(PING_INTERVAL);
 
-            while(true)
+            try
             {
-                if(!_client.IsConnected)
+                while (true)
                 {
-                    if (!connecting)
-                        TryReconnect();
-                }
-                else
-                {
-                    if (nextPing < DateTime.Now)
+                    if (!_client.IsConnected)
                     {
-                        _logger.Log(LogLevel.Debug, "Pinging {_hostname}", _hostname);
-                        _client.Ping(_hostname);
-
-                        nextPing = DateTime.Now.AddSeconds(PING_INTERVAL);
+                        _logger.LogDebug("Client is not connected");
+                        if (!connecting)
+                        {
+                            _logger.LogInformation("Attempting to reconnect");
+                            TryReconnect();
+                        }
                     }
-                }
+                    else
+                    {
+                        if (nextPing < DateTime.Now)
+                        {
+                            _logger.LogDebug("Pinging {_hostname}", _hostname);
+                            _client.Ping(_hostname);
 
-                Thread.Sleep(1000);
+                            nextPing = DateTime.Now.AddSeconds(PING_INTERVAL);
+                        }
+                    }
+
+                    Thread.Sleep(1000);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception in heartbeat thread");
             }
         }
     }
