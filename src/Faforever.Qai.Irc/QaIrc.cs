@@ -52,8 +52,7 @@ namespace Faforever.Qai.Irc
             try
             {
                 _client.Connect(_hostname, false, _userInfo);
-
-                _logger.LogDebug("Starting heartbeat thread...");
+                _logger.LogInformation("Starting heartbeat thread...");
                 _heartbeatThread = new Thread(HeartbeatThread);
                 _heartbeatThread.Start();
             }
@@ -140,7 +139,7 @@ namespace Faforever.Qai.Irc
             if (channel is not null)
                 logMessage += $" in channel '{channel.Name}'";
 
-            _logger.LogDebug(logMessage);
+            _logger.LogInformation(logMessage);
 
             var channeluser = channel.GetChannelUser(eventArgs.Source as IrcUser);
 
@@ -267,7 +266,7 @@ namespace Faforever.Qai.Irc
                     {
                         if (nextPing < DateTime.Now)
                         {
-                            _logger.LogDebug("Pinging {_hostname}", _hostname);
+                            _logger.LogInformation("Pinging {_hostname}", _hostname);
                             _client.Ping(_hostname);
 
                             nextPing = DateTime.Now.AddSeconds(PING_INTERVAL);
