@@ -49,11 +49,18 @@ namespace Faforever.Qai.Irc
             var address = hostEntry.AddressList[0];
             var port = 6667;
             _logger.LogInformation("Connecting to IRC server {0} ({1}), port {2}", _hostname, address, port);
-            _client.Connect(_hostname, false, _userInfo);
-            
-            _logger.Log(LogLevel.Debug, "Starting heartbeat thread...");
-            _heartbeatThread = new Thread(HeartbeatThread);
-            _heartbeatThread.Start();
+            try
+            {
+                _client.Connect(_hostname, false, _userInfo);
+
+                _logger.LogDebug("Starting heartbeat thread...");
+                _heartbeatThread = new Thread(HeartbeatThread);
+                _heartbeatThread.Start();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error connecting to IRC server");
+            }
         }
 
         public void Dispose()
@@ -133,7 +140,7 @@ namespace Faforever.Qai.Irc
             if (channel is not null)
                 logMessage += $" in channel '{channel.Name}'";
 
-            _logger.Log(LogLevel.Debug, logMessage);
+            _logger.LogDebug(logMessage);
 
             var channeluser = channel.GetChannelUser(eventArgs.Source as IrcUser);
 
@@ -151,17 +158,17 @@ namespace Faforever.Qai.Irc
         {
             connecting = false;
             IrcClient client = sender as IrcClient;
-            _logger.Log(LogLevel.Information, "Client registered");
+            _logger.LogInformation("Client registered");
 
             if (client == null) return;
 
-            _logger.Log(LogLevel.Information, client.WelcomeMessage);
+            _logger.LogInformation(client.WelcomeMessage);
 
             _client.LocalUser.MessageReceived += OnPrivateMessage;
 
             client.LocalUser.JoinedChannel += (o, eventArgs) =>
             {
-                _logger.Log(LogLevel.Information, "Join channel {channel}", eventArgs.Channel.Name);
+                _logger.LogInformation("Join channel {channel}", eventArgs.Channel.Name);
                 eventArgs.Channel.MessageReceived += OnChannelMessageReceived;
             };
 
@@ -174,19 +181,19 @@ namespace Faforever.Qai.Irc
         private bool connecting;
         private void OnClientDisconnected(object sender, EventArgs args)
         {
-            _logger.Log(LogLevel.Critical, "client disconnected");
+            _logger.LogCritical("client disconnected");
             connecting = false;
         }
 
         private void OnClientConnectFailed(object sender, IrcErrorEventArgs args)
         {
-            _logger.Log(LogLevel.Critical, args.Error, "connect failed");
+            _logger.LogCritical(args.Error, "connect failed");
             connecting = false;
         }
 
         private void OnError(object sender, IrcErrorEventArgs args)
         {
-            _logger.Log(LogLevel.Information, args.Error, "Error!");
+            _logger.LogInformation(args.Error, "Error!");
 
             if (!_client.IsConnected)
                 connecting = false;
@@ -194,7 +201,7 @@ namespace Faforever.Qai.Irc
 
         private void OnSaslMessage(object sender, IrcSaslMessageEventArgs e)
         {
-            _logger.Log(LogLevel.Information, "SASL Message: {message}", e.Message);
+            _logger.LogInformation("SASL Message: {message}", e.Message);
             if (e.Code == 904)
                 nextConnectAttempt = DateTime.Now.AddSeconds(10);
         }
@@ -202,12 +209,12 @@ namespace Faforever.Qai.Irc
         private void OnClientConnected(object sender, EventArgs args)
         {
             connecting = false;
-            _logger.Log(LogLevel.Information, "client connected");
+            _logger.LogInformation("client connected");
         }
 
         private void OnClientErrorMessageReceived(object sender, IrcErrorMessageEventArgs args)
         {
-            _logger.Log(LogLevel.Error, args.Message);
+            _logger.LogError(args.Message);
 
             if (args.Message.Contains("Throttled") || args.Message.Contains("connect too many times"))
                 nextConnectAttempt = DateTime.Now.AddMinutes(1);
@@ -227,7 +234,7 @@ namespace Faforever.Qai.Irc
 
             nextConnectAttempt = null;
             connecting = true;
-            _logger.Log(LogLevel.Information, "Trying to reconnect...");
+            _logger.LogInformation("Trying to reconnect...");
 
             DisposeClient();
             InitializeClient();
