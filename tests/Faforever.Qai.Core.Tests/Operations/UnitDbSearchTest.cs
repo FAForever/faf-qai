@@ -5,6 +5,7 @@ using Faforever.Qai.Core.Operations.Units;
 using Microsoft.Extensions.DependencyInjection;
 
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace Faforever.Qai.Core.Tests.Operations
 {
@@ -40,7 +41,7 @@ namespace Faforever.Qai.Core.Tests.Operations
         public async Task SearchForInvalidUnit(string unitId)
         {
             var res = await Search.SearchUnitDatabase(unitId);
-            Assert.IsNull(res, message: $"Expected null got {res?.Id}");
+            Assert.That(res, Is.Null, $"Expected null got {res?.Id}");
         }
 
         [OneTimeTearDown]

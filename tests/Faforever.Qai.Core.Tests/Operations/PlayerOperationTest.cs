@@ -1,6 +1,7 @@
 using Faforever.Qai.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System.Threading.Tasks;
 
 namespace Faforever.Qai.Core.Tests.Operations
@@ -29,7 +30,7 @@ namespace Faforever.Qai.Core.Tests.Operations
             var res = await playerService.FindPlayer(user);
 
             Assert.That(res, Is.Not.Null);
-            Assert.Contains(user, res.Usernames);
+            Assert.That(res.Usernames, Does.Contain(user));
         }
 
         [TestCase("Crotalus_Bureus", TestName = "Get player stats", Author = "Crotalus_Bureus")]
@@ -48,7 +49,7 @@ namespace Faforever.Qai.Core.Tests.Operations
             var res = await playerService.GetRatingHistory(user, Constants.FafLeaderboard.Global);
 
             Assert.That(res, Is.Not.Null);
-            Assert.Greater(res.Length, 0);
+            Assert.That(res.Length, Is.GreaterThan(0));
         }
 
         [TestCase("Crotalus_Bureus", TestName = "Generate rating chart", Author = "Crotalus_Bureus")]
@@ -58,7 +59,7 @@ namespace Faforever.Qai.Core.Tests.Operations
             var res = await playerService.GenerateRatingChart(user, Constants.FafLeaderboard.Global);
 
             Assert.That(res, Is.Not.Null);
-            Assert.Greater(res.Length, 0);
+            Assert.That(res.Length, Is.GreaterThan(0));
         }
     }
 }

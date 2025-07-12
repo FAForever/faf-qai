@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Faforever.Qai.Core.Operations.Replays;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace Faforever.Qai.Core.Tests.Operations
 {
@@ -37,7 +38,7 @@ namespace Faforever.Qai.Core.Tests.Operations
                            where data.Player.Login.ToLower() == user.ToLower()
                            select data).ToArray();
 
-            Assert.True(players.Length > 0, message: $"Expected one player from the match to be {user}");
+            Assert.That(players.Length > 0, Is.True, $"Expected one player from the match to be {user}");
         }
 
         [OneTimeTearDown]

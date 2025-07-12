@@ -2,6 +2,7 @@ using Faforever.Qai.Core.Operations.Maps;
 using Faforever.Qai.Core.Operations.PatchNotes;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System.Threading.Tasks;
 
 namespace Faforever.Qai.Core.Tests.Operations
@@ -30,7 +31,7 @@ namespace Faforever.Qai.Core.Tests.Operations
             var res = await operation.FetchLadderPoolAsync();
 
             Assert.That(res, Is.Not.Null);
-            Assert.IsNotEmpty(res);
+            Assert.That(res, Is.Not.Empty);
         }
     }
 }

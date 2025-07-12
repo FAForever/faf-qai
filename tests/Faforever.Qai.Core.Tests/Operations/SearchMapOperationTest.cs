@@ -1,6 +1,7 @@
 using Faforever.Qai.Core.Operations.Maps;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System.Threading.Tasks;
 
 namespace Faforever.Qai.Core.Tests.Operations
@@ -29,7 +30,7 @@ namespace Faforever.Qai.Core.Tests.Operations
             var res = await operation.GetMapAsync(mapName);
 
             Assert.That(res, Is.Not.Null);
-            Assert.IsNotEmpty(res.DisplayName);
+            Assert.That(res.DisplayName, Is.Not.Empty);
         }
     }
 }
