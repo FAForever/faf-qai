@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -35,7 +35,7 @@ namespace IrcDotNet
             Name = name;
             type = IrcChannelType.Unspecified;
             modes = new HashSet<char>();
-            Modes = new ReadOnlySet<char>(modes);
+            Modes = new Collections.ReadOnlySet<char>(modes);
             users = new Collection<IrcChannelUser>();
             Users = new IrcChannelUserCollection(this, users);
         }
@@ -78,7 +78,7 @@ namespace IrcDotNet
         ///     Gets a read-only collection of the modes the channel currently has.
         /// </summary>
         /// <value>The current modes of the channel.</value>
-        public ReadOnlySet<char> Modes { get; }
+        public Collections.ReadOnlySet<char> Modes { get; }
 
         /// <summary>
         ///     Gets a collection of all channel users currently in the channel.
