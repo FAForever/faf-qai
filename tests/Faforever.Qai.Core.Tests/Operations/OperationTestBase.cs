@@ -49,7 +49,7 @@ namespace Faforever.Qai.Core.Tests.Operations
 
             services
                 .AddTransient<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()
-                .AddTransient<IFetchPatchNotesLinkOperation, FetchPatchNotesLinkOperation>()
+                .AddTransient<IFetchPatchNotesLinkOperation, FetchHtmlPatchNotesOperation>()
                 .AddTransient<IFindPlayerOperation, ApiFindPlayerOperation>()
                 .AddTransient<ISearchUnitDatabaseOperation, UnitDbSearchUnitDatabaseOpeartion>()
                 .AddTransient<IPlayerService, OperationPlayerService>()

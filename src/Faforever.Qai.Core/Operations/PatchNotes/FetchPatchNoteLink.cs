@@ -10,11 +10,6 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Faforever.Qai.Core.Operations.PatchNotes
 {
-    public interface IFetchPatchNotesLinkOperation
-    {
-        Task<PatchNoteLink?> GetPatchNotesLinkAsync(string? version = null);
-    }
-
     public class FetchPatchNotesLinkOperation : IFetchPatchNotesLinkOperation, IAutocompleteProvider
     {
         private const string CacheKey = "PatchNotesLinks";
