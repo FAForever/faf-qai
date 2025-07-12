@@ -22,8 +22,8 @@ namespace Faforever.Qai.Core.Tests.Operations
         public async Task VerifyReplayIDsMatch(long replayId)
         {
             var res = await Replay.FetchReplayAsync(replayId);
-            Assert.NotNull(res);
-            Assert.AreEqual(res.Id, replayId, message: $"Expected {replayId} got {res.Id}");
+            Assert.That(res, Is.Not.Null);
+            Assert.That(replayId, Is.EqualTo(res.Id), $"Expected {replayId} got {res.Id}");
         }
 
         [TestCase("Crotalus_Bureus", TestName = "Get Last Replay For User", Author = "Crotalus_Bureus")]
@@ -31,7 +31,7 @@ namespace Faforever.Qai.Core.Tests.Operations
         {
             var res = await Replay.FetchLastReplayAsync(user);
 
-            Assert.NotNull(res);
+            Assert.That(res, Is.Not.Null);
 
             var players = (from data in res.PlayerStats
                            where data.Player.Login.ToLower() == user.ToLower()

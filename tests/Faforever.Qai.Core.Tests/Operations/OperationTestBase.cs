@@ -20,9 +20,11 @@ using NUnit.Framework;
 
 namespace Faforever.Qai.Core.Tests.Operations
 {
-    public class OperationTestBase
+    public abstract class OperationTestBase
     {
+#pragma warning disable NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method
         protected IServiceProvider Services { get; private set; }
+#pragma warning restore NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -77,12 +79,6 @@ namespace Faforever.Qai.Core.Tests.Operations
             services.AddHttpClient<TwitchClient>();
 
             Services = services.BuildServiceProvider();
-        }
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-        {
-
         }
     }
 }

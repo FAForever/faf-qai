@@ -18,12 +18,18 @@ namespace Faforever.Qai.Core.Tests.Operations
             operation = scope.ServiceProvider.GetRequiredService<IFetchLadderPoolOperation>();
         }
 
+        [OneTimeTearDown]
+        public void FetchReplayTearDown()
+        {
+            scope?.Dispose();
+        }
+
         [TestCase(TestName = "Fetch patch notes")]
         public async Task FetchPatchNotes()
         {
             var res = await operation.FetchLadderPoolAsync();
 
-            Assert.NotNull(res);
+            Assert.That(res, Is.Not.Null);
             Assert.IsNotEmpty(res);
         }
     }

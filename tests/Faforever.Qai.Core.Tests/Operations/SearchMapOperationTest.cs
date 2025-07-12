@@ -17,12 +17,18 @@ namespace Faforever.Qai.Core.Tests.Operations
             operation = scope.ServiceProvider.GetRequiredService<ISearchMapOperation>();
         }
 
+        [OneTimeTearDown]
+        public void FetchReplayTearDown()
+        {
+            scope?.Dispose();
+        }
+
         [TestCase("DualGap_fix_adaptive", TestName = "Fetch map by name")]
         public async Task GetMapByName(string mapName)
         {
             var res = await operation.GetMapAsync(mapName);
 
-            Assert.NotNull(res);
+            Assert.That(res, Is.Not.Null);
             Assert.IsNotEmpty(res.DisplayName);
         }
     }

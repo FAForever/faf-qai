@@ -17,12 +17,18 @@ namespace Faforever.Qai.Core.Tests.Operations
             playerService = scope.ServiceProvider.GetRequiredService<IPlayerService>();
         }
 
+        [OneTimeTearDown]
+        public void FetchReplayTearDown()
+        {
+            scope?.Dispose();
+        }
+
         [TestCase("Crotalus_Bureus", TestName = "Find user with name", Author = "Crotalus_Bureus")]
         public async Task FindPlayer(string user)
         {
             var res = await playerService.FindPlayer(user);
 
-            Assert.NotNull(res);
+            Assert.That(res, Is.Not.Null);
             Assert.Contains(user, res.Usernames);
         }
 
@@ -31,8 +37,8 @@ namespace Faforever.Qai.Core.Tests.Operations
         {
             var res = await playerService.FetchPlayerStats(user);
 
-            Assert.NotNull(res);
-            Assert.AreEqual(user, res.Name);
+            Assert.That(res, Is.Not.Null);
+            Assert.That(res.Name, Is.EqualTo(user));
         }
 
         [TestCase("Crotalus_Bureus", TestName = "Get player rating history", Author = "Crotalus_Bureus")]
@@ -41,7 +47,7 @@ namespace Faforever.Qai.Core.Tests.Operations
         {
             var res = await playerService.GetRatingHistory(user, Constants.FafLeaderboard.Global);
 
-            Assert.NotNull(res);
+            Assert.That(res, Is.Not.Null);
             Assert.Greater(res.Length, 0);
         }
 
@@ -51,7 +57,7 @@ namespace Faforever.Qai.Core.Tests.Operations
         {
             var res = await playerService.GenerateRatingChart(user, Constants.FafLeaderboard.Global);
 
-            Assert.NotNull(res);
+            Assert.That(res, Is.Not.Null);
             Assert.Greater(res.Length, 0);
         }
     }

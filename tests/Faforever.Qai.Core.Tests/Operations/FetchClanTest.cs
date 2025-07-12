@@ -17,13 +17,19 @@ namespace Faforever.Qai.Core.Tests.Operations
             operation = scope.ServiceProvider.GetRequiredService<IFetchClanOperation>();
         }
 
+        [OneTimeTearDown]
+        public void FetchReplayTearDown()
+        {
+            scope?.Dispose();
+        }
+
         [TestCase("DAD", TestName = "Fetch clan")]
         public async Task FetchPatchNotes(string clanName)
         {
             var res = await operation.FetchClanAsync(clanName);
 
-            Assert.NotNull(res);
-            Assert.AreEqual(res.Clan.Tag, "DAD");
+            Assert.That(res, Is.Not.Null);
+            Assert.That(res.Clan.Tag, Is.EqualTo("DAD"));
         }
     }
 }

@@ -19,13 +19,19 @@ namespace Faforever.Qai.Core.Tests.Operations
             operation = scope.ServiceProvider.GetRequiredService<IFetchPatchNotesLinkOperation>();
         }
 
+        [OneTimeTearDown]
+        public void FetchReplayTearDown()
+        {
+            scope?.Dispose();
+        }
+
         [TestCase(TestName = "Fetch patch notes")]
         public async Task FetchPatchNotes()
         {
             var res = await operation.GetPatchNotesLinkAsync();
 
-            Assert.NotNull(res);
-            Assert.NotNull(res.Url);
+            Assert.That(res, Is.Not.Null);
+            Assert.That(res.Url, Is.Not.Null);
         }
     }
 }

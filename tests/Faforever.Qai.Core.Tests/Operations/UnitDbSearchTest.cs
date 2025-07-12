@@ -25,7 +25,7 @@ namespace Faforever.Qai.Core.Tests.Operations
         public async Task SearchForUnitByStringTest(string unit, string expectedUnitId)
         {
             var res = await Search.SearchUnitDatabase(unit);
-            Assert.AreEqual(res.Id, expectedUnitId, message: $"Got {res.Id} expected {expectedUnitId}");
+            Assert.That(expectedUnitId, Is.EqualTo(res.Id), $"Got {res.Id} expected {expectedUnitId}");
         }
 
         [TestCase("XSL0111", TestName = "Test Get Ythisah", Author = "Soyvolon")]
@@ -33,7 +33,7 @@ namespace Faforever.Qai.Core.Tests.Operations
         public async Task SearchForUnitByUnitID(string unitId)
         {
             var res = await Search.SearchUnitDatabase(unitId);
-            Assert.AreEqual(res.Id, unitId, message: $"Got {res.Id} expected {unitId}");
+            Assert.That(unitId, Is.EqualTo(res.Id), $"Got {res.Id} expected {unitId}");
         }
 
         [TestCase("abcdefg", TestName = "Test Serach Invalid Unit", Author = "Soyvolon")]
