@@ -170,7 +170,6 @@ namespace Faforever.Qai.Core.Services
             public DiscordIdAlreadyLinkedException() : base() { }
             public DiscordIdAlreadyLinkedException(string? message) : base(message) { }
             public DiscordIdAlreadyLinkedException(string? message, Exception? innerException) : base(message, innerException) { }
-            public DiscordIdAlreadyLinkedException(SerializationInfo info, StreamingContext context) : base(info, context) { }
         }
 
         /// <summary>
@@ -181,7 +180,6 @@ namespace Faforever.Qai.Core.Services
             public FafIdAlreadyLinkedException() : base() { }
             public FafIdAlreadyLinkedException(string? message) : base(message) { }
             public FafIdAlreadyLinkedException(string? message, Exception? innerException) : base(message, innerException) { }
-            public FafIdAlreadyLinkedException(SerializationInfo info, StreamingContext context) : base(info, context) { }
         }
 
         /// <summary>
@@ -192,7 +190,6 @@ namespace Faforever.Qai.Core.Services
             public TokenNotFoundException() : base() { }
             public TokenNotFoundException(string? message) : base(message) { }
             public TokenNotFoundException(string? message, Exception? innerException) : base(message, innerException) { }
-            public TokenNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context) { }
         }
     }
 }

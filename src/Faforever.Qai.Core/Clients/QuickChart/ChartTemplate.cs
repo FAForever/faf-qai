@@ -62,7 +62,7 @@ public static class ChartTemplate
                 },
                 Data = new ChartData
                 {
-                    Datasets = new ChartDataSet[] {
+                    Datasets = [
                             new CandleStickChartDataSet {
                                 Type = "candlestick",
                                 //Label = "Rating",
@@ -106,7 +106,7 @@ public static class ChartTemplate
                                 PointHitRadius = 5,
                                 Data = Array.Empty<DataPoint>()
                             }
-                        }
+                        ]
                 }
             }
         };

@@ -18,7 +18,7 @@ namespace Faforever.Qai.Core.Models
 
     public class FetchRatingHistoryResult
     {
-        public string PlayerId { get; set; }
+        public required string PlayerId { get; set; }
         public List<LeaderboardRatingJournal> RatingHistory { get; set; } = new List<LeaderboardRatingJournal>();
     }
 

@@ -11,13 +11,13 @@ public class QuickChartRequest
     public long Height { get; set; }
     public double? DevicePixelRatio { get; set; }
     public string? Format { get; set; }
-    public ChartDefinition? Chart { get; set; }
+    public required ChartDefinition Chart { get; set; }
 }
 
 public class ChartDefinition
 {
     public ChartOptions? Options { get; set; }
-    public ChartData? Data { get; set; }
+    public required ChartData Data { get; set; }
 }
 
 public class ChartData
@@ -57,9 +57,9 @@ public class BarChartDataSet : ChartDataSet
 public class CandleStickChartDataSet : ChartDataSet
 {
     public CandleStickColor? Color { get; set; }
-    public CandleStickColor? BorderColor { get; set; }
+    public new CandleStickColor? BorderColor { get; set; }
     //public CandleStickDataPoint[] Data { get; set; } = Array.Empty<CandleStickDataPoint>();
-    public string? BackgroundColor { get; set; }
+    public new string? BackgroundColor { get; set; }
 }
 
 public class CandleStickColor
@@ -115,7 +115,7 @@ public class Interaction
 public class Plugins
 {
     public Title? Title { get; set; }
-    public Legend Legend { get; internal set; }
+    public Legend? Legend { get; internal set; }
 }
 
 public class Title
@@ -138,7 +138,7 @@ public class Scales
 
 public class Volume
 {
-    public string Type { get; set; }
+    public string? Type { get; set; }
     public bool BeginAtZero { get; set; }
     public string? Position { get; set; }
     public decimal? Max { get; set; }

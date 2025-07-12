@@ -16,12 +16,11 @@ namespace Faforever.Qai.Core
             _delay = delay;
         }
 
-        public async Task<T> Debounce<T>(TKey key, Func<Task<T>> action)
+        public async Task<T?> Debounce<T>(TKey key, Func<Task<T>> action)
         {
-            if (_dictionary.ContainsKey(key))
+            if (_dictionary.TryGetValue(key, out CancellationTokenSource? value))
             {
-                // Cancel the previous action related to this key
-                _dictionary[key].Cancel();
+                value.Cancel();
             }
 
             // Create a new cancellation token source for this key

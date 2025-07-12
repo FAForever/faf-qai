@@ -28,7 +28,7 @@ namespace Faforever.Qai.Discord.Commands.AutoComplete
 
             var choices = await _debouncer.Debounce(key, () => FetchLadderPoolChoices(ctx.OptionValue?.ToString()));
 
-            return choices;
+            return choices ?? [];
         }
 
         private async Task<IEnumerable<DiscordAutoCompleteChoice>> FetchLadderPoolChoices(string? searchTerm)

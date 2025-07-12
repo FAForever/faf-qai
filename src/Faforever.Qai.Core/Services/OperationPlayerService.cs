@@ -125,7 +125,8 @@ namespace Faforever.Qai.Core.Services
             req.Chart.Data.Datasets[0].Data = globalRatingData.ToArray();
             req.Chart.Data.Datasets[1].Data = globalGamesPlayed.ToArray();
             req.Chart.Data.Datasets[2].Data = averageRating.ToArray();
-            req.Chart.Options.Scales.Volume.Max = maxGamesPlayed * 7;
+            if (req.Chart.Options?.Scales?.Volume is not null)
+                req.Chart.Options.Scales.Volume.Max = maxGamesPlayed * 7;
 
             var chartBytes = await _qcClient.GetChartAsync(req);
 

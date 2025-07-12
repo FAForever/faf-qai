@@ -93,7 +93,7 @@ namespace Faforever.Qai.Core.Operations.FafApi
             { WhereOp.LessThan, "=lt=" }
         };
 
-        Dictionary<string, string> args = new();
+        Dictionary<string, string> args = [];
 
         public ApiQuery()
         {
@@ -186,7 +186,12 @@ namespace Faforever.Qai.Core.Operations.FafApi
             if (!args.ContainsKey("include") && includes.TryGetValue(typeof(T), out var inc))
                 this.Include(inc);
 
-            return QueryHelpers.AddQueryString(endpoint, args);
+            var result = endpoint;
+            foreach (var kvp in args)
+            {
+                result = QueryHelpers.AddQueryString(result, kvp.Key, kvp.Value);
+            }
+            return result;
         }
     }
 
