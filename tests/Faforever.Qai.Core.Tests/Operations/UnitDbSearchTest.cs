@@ -9,6 +9,7 @@ using NUnit.Framework.Legacy;
 
 namespace Faforever.Qai.Core.Tests.Operations
 {
+    [TestFixture, Ignore("Disabling UnitDbSearch tests due to API returning 403")]
     public class UnitDbSearchTest : OperationTestBase
     {
         private ISearchUnitDatabaseOperation Search { get; set; }
