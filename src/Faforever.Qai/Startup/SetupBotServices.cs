@@ -99,6 +99,7 @@ namespace Faforever.Qai.Startup
                 .AddSingleton<IUrlService>(new UrlService(urlConfig))
                 .AddSingleton<DiscordEventHandler>()
                 .AddSingleton<AccountLinkService>()
+                .AddSingleton<ICommandDiscoveryService, CommandDiscoveryService>()
                 .AddTransient<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()
                 .AddTransient<IFindPlayerOperation, ApiFindPlayerOperation>()
                 .AddTransient<ISearchUnitDatabaseOperation, UnitDbSearchUnitDatabaseOpeartion>()

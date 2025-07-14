@@ -26,7 +26,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Info
         }
 
         [Command("wiki")]
-        [Description("Search for a specifik wiki url")]
+        [Description("Search for a specific wiki url")]
         public async Task WikiCommandAsync([Remainder] string search)
         {
             var result = _urlService.FindWikiUrl(search);
