@@ -138,9 +138,7 @@ namespace Faforever.Qai.Core.Operations.FafApi
 
             // Add quotes for string values but prevent double-quoting
             if (value is string && !stringValue.StartsWith('"') && !stringValue.EndsWith('"'))
-            {
                 stringValue = $"\"{stringValue}\"";
-            }
 
             // URL encoding is handled by QueryHelpers.AddQueryString in ToString() method
             return stringValue;
