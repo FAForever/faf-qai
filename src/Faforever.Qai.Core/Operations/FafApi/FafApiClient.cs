@@ -93,7 +93,7 @@ namespace Faforever.Qai.Core.Operations.FafApi
 
         public ApiQuery<T> WhereOr(IEnumerable<KeyValuePair<string, string>> kv)
         {
-            var expr = string.Join(",", kv.Select(x => $"{x.Key}=={FormatValue(x.Value, WhereOp.Equals)}"));
+            var expr = string.Join(",", kv.Select(x => $"{x.Key}=={FormatValue(x.Value, WhereOp.Equals, null)}"));
             if (args.ContainsKey("filter"))
                 args["filter"] += $";({expr})";
             else
@@ -103,7 +103,7 @@ namespace Faforever.Qai.Core.Operations.FafApi
         public ApiQuery<T> Where<TValue>(string fieldName, WhereOp op, TValue value)
         {
             var opStr = opStrings[op];
-            var expr = $"{fieldName}{opStr}{FormatValue(value, op)}";
+            var expr = $"{fieldName}{opStr}{FormatValue(value, op, fieldName)}";
             if (args.ContainsKey("filter"))
                 args["filter"] += $";{expr}";
             else
@@ -117,7 +117,7 @@ namespace Faforever.Qai.Core.Operations.FafApi
             return this;
         }
         public ApiQuery<T> Where<TValue>(string fieldName, TValue value) => Where(fieldName, WhereOp.Equals, value);
-        private static string FormatValue<TValue>(TValue value, WhereOp op)
+        private static string FormatValue<TValue>(TValue value, WhereOp op, string? fieldName)
         {
             if (value is DateTime dt)
                 return dt.ToIso8601();
@@ -136,12 +136,16 @@ namespace Faforever.Qai.Core.Operations.FafApi
                 _ => stringValue
             };
 
-            // Add quotes for string values but prevent double-quoting
-            if (value is string && !stringValue.StartsWith('"') && !stringValue.EndsWith('"'))
-                stringValue = $"\"{stringValue}\"";
+            if (fieldName == "displayName") {
+                // Add quotes for displayName field (fixes map search with spaces)
+                if (value is string && !stringValue.StartsWith('"') && !stringValue.EndsWith('"'))
+                {
+                    stringValue = $"\"{stringValue}\"";
+                }
+                return stringValue;
+            }
 
-            // URL encoding is handled by QueryHelpers.AddQueryString in ToString() method
-            return stringValue;
+            return HttpUtility.UrlEncode(stringValue);
         }
         public ApiQuery<T> Where<TValue>(Expression<Func<T, TValue>> expr, WhereOp opStr, TValue value)
         {
