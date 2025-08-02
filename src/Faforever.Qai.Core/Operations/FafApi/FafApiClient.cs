@@ -136,7 +136,14 @@ namespace Faforever.Qai.Core.Operations.FafApi
                 _ => stringValue
             };
 
-            return HttpUtility.UrlEncode(stringValue);
+            // Add quotes for string values but prevent double-quoting
+            if (value is string && !stringValue.StartsWith('"') && !stringValue.EndsWith('"'))
+            {
+                stringValue = $"\"{stringValue}\"";
+            }
+
+            // URL encoding is handled by QueryHelpers.AddQueryString in ToString() method
+            return stringValue;
         }
         public ApiQuery<T> Where<TValue>(Expression<Func<T, TValue>> expr, WhereOp opStr, TValue value)
         {
