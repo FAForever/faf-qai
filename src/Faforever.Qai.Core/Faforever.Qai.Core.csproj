@@ -11,16 +11,16 @@
       <PackageReference Include="DSharpPlus.Rest" Version="4.5.1" />
       <PackageReference Include="DSharpPlus.SlashCommands" Version="4.5.1" />
       <PackageReference Include="JsonApiSerializer" Version="2.0.1" />
-      <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="9.0.7" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.7" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.7" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.7">
+      <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="9.0.8" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.8" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.8">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.7" />
+      <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.8" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-      <PackageReference Include="System.Net.Http.Json" Version="9.0.7" />
+      <PackageReference Include="System.Net.Http.Json" Version="9.0.8" />
       <PackageReference Include="Qmmands" Version="5.0.2" />
     </ItemGroup>
 
@@ -31,6 +31,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.8" />
       <ProjectReference Include="..\IrcDotNet\IrcDotNet.csproj" />
     </ItemGroup>
 
