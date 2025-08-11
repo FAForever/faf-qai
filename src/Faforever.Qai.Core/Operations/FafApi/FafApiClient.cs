@@ -132,7 +132,7 @@ namespace Faforever.Qai.Core.Operations.FafApi
                 _ => stringValue
             };
 
-            if (fieldName == "displayName")
+            if (string.Equals(fieldName, "displayName", StringComparison.OrdinalIgnoreCase))
             {
                 // Add quotes for displayName field (fixes map search with spaces)
                 if (value is string && !stringValue.StartsWith('"') && !stringValue.EndsWith('"'))
@@ -148,8 +148,7 @@ namespace Faforever.Qai.Core.Operations.FafApi
             if (expr.Body is not MemberExpression body)
                 throw new ArgumentException($"Should be a member expression", nameof(expr));
             // mapVersion.id = 4871 seems to crash api
-            Where(body.Member.Name.ToLower(), opStr, value);
-            return this;
+            return Where(body.Member.Name.ToLower(), opStr, value);
         }
         public ApiQuery<T> Limit(int n)
         {
