@@ -19,19 +19,16 @@ namespace Faforever.Qai.Core.Operations.FafApi
     {
         Task<IEnumerable<T>> GetAsync<T>(ApiQuery<T> query, bool useCache = false);
     }
-    public class FafApiClient : IFafApiClient
+    public class FafApiClient(ApiHttpClient client) : IFafApiClient
     {
-        readonly HttpClient client;
+        readonly HttpClient client = client.Client;
         const string cacheDir = @"fafcache";
         private const int CACHE_TIMEOUT = 60 * 60;
-        public FafApiClient(ApiHttpClient client)
-        {
-            this.client = client.Client;
-        }
+
         private static string GetCacheFile(string s)
         {
             var hash = MD5.HashData(Encoding.UTF8.GetBytes(s));
-            return Path.Combine(cacheDir, BitConverter.ToString(hash).Replace("-", ""));
+            return Path.Combine(cacheDir, Convert.ToHexString(hash));
         }
         public async Task<IEnumerable<T>> GetAsync<T>(ApiQuery<T> query, bool useCache = false)
         {
@@ -48,7 +45,6 @@ namespace Faforever.Qai.Core.Operations.FafApi
                 }
 
                 json = await response.Content.ReadAsStringAsync();
-                //json = await client.GetStringAsync(uri);
                 if (useCache)
                 {
                     Directory.CreateDirectory(cacheDir);
@@ -59,20 +55,20 @@ namespace Faforever.Qai.Core.Operations.FafApi
             {
                 json = await File.ReadAllTextAsync(cacheFile);
             }
-            return JsonConvert.DeserializeObject<T[]>(json, new JsonApiSerializerSettings()) ?? Array.Empty<T>();
+            return JsonConvert.DeserializeObject<T[]>(json, new JsonApiSerializerSettings()) ?? [];
         }
     }
     public class ApiQuery<T>
     {
-        static Dictionary<Type, string> endpoints = new()
+        static readonly Dictionary<Type, string> endpoints = new()
         {
             { typeof(Game), "game" }
         };
-        static Dictionary<Type, string> includes = new()
+        static readonly Dictionary<Type, string> includes = new()
         {
             { typeof(Game), "playerStats,playerStats.player,playerStats.player.names,host,host.names,mapVersion,mapVersion.map,mapVersion.map.statistics,featuredMod" }
         };
-        static Dictionary<WhereOp, string> opStrings = new()
+        static readonly Dictionary<WhereOp, string> opStrings = new()
         {
             { WhereOp.Equals, "==" },
             { WhereOp.GreaterThan, "=gt=" },
@@ -81,7 +77,7 @@ namespace Faforever.Qai.Core.Operations.FafApi
             { WhereOp.StartsWith, "==" },
             { WhereOp.EndsWith, "==" }
         };
-        Dictionary<string, string> args = [];
+        readonly Dictionary<string, string> args = [];
         public ApiQuery()
         {
         }
