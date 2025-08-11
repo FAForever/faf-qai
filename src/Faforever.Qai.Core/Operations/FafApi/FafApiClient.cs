@@ -136,16 +136,16 @@ namespace Faforever.Qai.Core.Operations.FafApi
                 _ => stringValue
             };
 
-            if (fieldName == "displayName") {
+            if (fieldName == "displayName")
+            {
                 // Add quotes for displayName field (fixes map search with spaces)
                 if (value is string && !stringValue.StartsWith('"') && !stringValue.EndsWith('"'))
                 {
                     stringValue = $"\"{stringValue}\"";
                 }
-                return stringValue;
             }
 
-            return HttpUtility.UrlEncode(stringValue);
+            return stringValue;
         }
         public ApiQuery<T> Where<TValue>(Expression<Func<T, TValue>> expr, WhereOp opStr, TValue value)
         {
