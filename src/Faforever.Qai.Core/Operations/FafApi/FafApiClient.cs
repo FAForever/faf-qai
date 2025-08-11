@@ -132,16 +132,16 @@ namespace Faforever.Qai.Core.Operations.FafApi
                 _ => stringValue
             };
 
-            if (string.Equals(fieldName, "displayName", StringComparison.OrdinalIgnoreCase))
-            {
-                // Add quotes for displayName field (fixes map search with spaces)
-                if (value is string && !stringValue.StartsWith('"') && !stringValue.EndsWith('"'))
-                {
-                    stringValue = $"\"{stringValue}\"";
-                }
-            }
+            // Auto-quote if the value contains spaces or special RSQL characters and isn't already quoted
+            if (value is string && !stringValue.StartsWith('"') && !stringValue.EndsWith('"') && NeedsQuoting(stringValue))
+                stringValue = $"\"{stringValue}\"";
 
             return stringValue;
+        }
+        private static bool NeedsQuoting(string value)
+        {
+            // RSQL typically needs quotes for values with spaces, commas, semicolons, parentheses
+            return value.Any(c => c == ' ' || c == ',' || c == ';' || c == '(' || c == ')' || c == '=');
         }
         public ApiQuery<T> Where<TValue>(Expression<Func<T, TValue>> expr, WhereOp opStr, TValue value)
         {
