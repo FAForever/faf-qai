@@ -14,6 +14,7 @@ using Faforever.Qai.Core.Operations.PatchNotes;
 using Faforever.Qai.Core.Operations.Player;
 using Faforever.Qai.Core.Operations.Replays;
 using Faforever.Qai.Core.Operations.Units;
+using Faforever.Qai.Core.Operations.Games;
 using Faforever.Qai.Core.Services;
 using Faforever.Qai.Core.Services.BotFun;
 using Faforever.Qai.Core.Structures.Configurations;
@@ -111,6 +112,8 @@ namespace Faforever.Qai.Startup
                 .AddTransient<IFetchClanOperation, ApiFetchClanOperation>()
                 .AddTransient<IFetchTwitchStreamsOperation, FetchTwitchStreamsOperation>()
                 .AddTransient<IFetchPatchNotesLinkOperation, FetchPatchNotesLinkOperation>()
+                .AddTransient<IFetchCurrentGameOperation, ApiFetchCurrentGameOperation>()
+                .AddTransient<IChatGroupService, ChatGroupService>()
                 .AddTransient<FafApiClient>()
                 .AddTransient<QuickChartClient>();
 
