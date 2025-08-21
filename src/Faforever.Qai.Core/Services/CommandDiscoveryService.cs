@@ -4,9 +4,11 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Caching.Memory;
 using Faforever.Qai.Core.Commands;
+using Faforever.Qai.Core.Commands.Authorization;
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Models;
 using Qmmands;
+using DSharpPlus;
 
 namespace Faforever.Qai.Core.Services;
 
@@ -55,7 +57,91 @@ public class CommandDiscoveryService(IMemoryCache cache) : ICommandDiscoveryServ
     public List<CommandCategory> GetAvailableCommands(CustomCommandContext context)
     {
         var allCommands = GetAllCommands();
-        return allCommands;
+        var filteredCategories = new List<CommandCategory>();
+
+        foreach (var category in allCommands)
+        {
+            var availableCommands = new List<CommandInfo>();
+            
+            foreach (var command in category.Commands)
+            {
+                if (IsCommandAvailableInContext(command, context))
+                {
+                    availableCommands.Add(command);
+                }
+            }
+
+            if (availableCommands.Count > 0)
+            {
+                filteredCategories.Add(new CommandCategory
+                {
+                    Name = category.Name,
+                    Commands = availableCommands
+                });
+            }
+        }
+
+        return filteredCategories;
+    }
+
+    private static bool IsCommandAvailableInContext(CommandInfo command, CustomCommandContext context)
+    {
+        // Check if command is available in current context (Discord vs IRC)
+        if (!IsCommandAvailableForPlatform(command, context))
+            return false;
+
+        // Check permissions
+        if (!HasRequiredPermissions(command, context))
+            return false;
+
+        return true;
+    }
+
+    private static bool IsCommandAvailableForPlatform(CommandInfo command, CustomCommandContext context)
+    {
+        // Discord context - show dual and discord commands
+        if (context is DiscordCommandContext)
+        {
+            return command.ModuleType.IsSubclassOf(typeof(DualCommandModule)) ||
+                   command.ModuleType.IsSubclassOf(typeof(DiscordCommandModule));
+        }
+        
+        // IRC context - show dual and IRC commands
+        if (context is IrcCommandContext)
+        {
+            return command.ModuleType.IsSubclassOf(typeof(DualCommandModule)) ||
+                   command.ModuleType.IsSubclassOf(typeof(IrcCommandModule));
+        }
+
+        // Unknown context - show dual commands only
+        return command.ModuleType.IsSubclassOf(typeof(DualCommandModule));
+    }
+
+    private static bool HasRequiredPermissions(CommandInfo command, CustomCommandContext context)
+    {
+        var method = command.Method;
+        
+        // Check RequireFafStaff attribute - hide these commands for now
+        var fafStaffAttr = method.GetCustomAttribute<RequireFafStaffAttribute>();
+        if (fafStaffAttr != null)
+        {
+            return false; // Hide commands that require FAF staff permissions
+        }
+
+        // Check permission attributes - hide commands with specific permissions
+        var permissionAttrs = method.GetCustomAttributes(typeof(IPermissionsAttribute), true)
+            .Cast<IPermissionsAttribute>();
+        
+        foreach (var permAttr in permissionAttrs)
+        {
+            // Hide any command that has Discord or IRC permission requirements
+            if (permAttr.DiscordPermissions.HasValue || permAttr.IRCPermissions.HasValue)
+            {
+                return false;
+            }
+        }
+
+        return true; // Show command only if it has no permission requirements
     }
 
     private static List<CommandCategory> DiscoverCommands()
@@ -63,12 +149,15 @@ public class CommandDiscoveryService(IMemoryCache cache) : ICommandDiscoveryServ
         var categories = new Dictionary<string, CommandCategory>();
         var commandModuleTypes = Assembly.GetExecutingAssembly()
             .GetTypes()
-            .Where(t => t.IsSubclassOf(typeof(DualCommandModule)) && !t.IsAbstract)
+            .Where(t => (t.IsSubclassOf(typeof(DualCommandModule)) || 
+                        t.IsSubclassOf(typeof(DiscordCommandModule)) || 
+                        t.IsSubclassOf(typeof(IrcCommandModule))) && 
+                        !t.IsAbstract)
             .ToList();
 
         foreach (var moduleType in commandModuleTypes)
         {
-            var categoryName = GetCategoryFromNamespace(moduleType.Namespace);
+            var categoryName = GetCategoryFromModuleType(moduleType);
             
             if (!categories.ContainsKey(categoryName))
                 categories[categoryName] = new CommandCategory { Name = categoryName };
@@ -92,7 +181,9 @@ public class CommandDiscoveryService(IMemoryCache cache) : ICommandDiscoveryServ
                         Description = descriptionAttr?.Value ?? "No description available",
                         Usage = GenerateUsage(method, name),
                         Category = categoryName,
-                        Aliases = aliases
+                        Aliases = aliases,
+                        ModuleType = moduleType,
+                        Method = method
                     };
 
                     categories[categoryName].Commands.Add(commandInfo);
@@ -103,19 +194,45 @@ public class CommandDiscoveryService(IMemoryCache cache) : ICommandDiscoveryServ
         return categories.Values.OrderBy(c => c.Name).ToList();
     }
 
-    private static string GetCategoryFromNamespace(string? namespaceName)
+    private static string GetCategoryFromModuleType(Type moduleType)
+    {
+        // Determine platform-specific categorization
+        if (moduleType.IsSubclassOf(typeof(DiscordCommandModule)))
+        {
+            return GetCategoryFromNamespace(moduleType.Namespace, "Discord");
+        }
+        else if (moduleType.IsSubclassOf(typeof(IrcCommandModule)))
+        {
+            return GetCategoryFromNamespace(moduleType.Namespace, "IRC");
+        }
+        else if (moduleType.IsSubclassOf(typeof(DualCommandModule)))
+        {
+            return GetCategoryFromNamespace(moduleType.Namespace, null);
+        }
+
+        return "General";
+    }
+
+    private static string GetCategoryFromNamespace(string? namespaceName, string? platformPrefix)
     {
         if (string.IsNullOrEmpty(namespaceName))
-            return "General";
+            return platformPrefix ?? "General";
 
         var parts = namespaceName.Split('.');
         if (parts.Length >= 2)
         {
             var lastPart = parts[^1]; // Get last part (e.g., "Fun", "Player", etc.)
-            return lastPart;
+            
+            // Skip "Commands" if it exists in the path
+            if (lastPart.Equals("Commands", StringComparison.OrdinalIgnoreCase) && parts.Length >= 3)
+            {
+                lastPart = parts[^2];
+            }
+            
+            return platformPrefix != null ? $"{platformPrefix} {lastPart}" : lastPart;
         }
 
-        return "General";
+        return platformPrefix ?? "General";
     }
 
     private static string GenerateUsage(MethodInfo method, string commandName)

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Faforever.Qai.Core.Models
 {
@@ -9,6 +11,8 @@ namespace Faforever.Qai.Core.Models
         public string Usage { get; set; } = string.Empty;
         public string Category { get; set; } = string.Empty;
         public List<string> Aliases { get; set; } = new List<string>();
+        public Type ModuleType { get; set; } = null!;
+        public MethodInfo Method { get; set; } = null!;
     }
 
     public class CommandCategory

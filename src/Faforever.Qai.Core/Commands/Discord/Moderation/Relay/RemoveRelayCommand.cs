@@ -44,6 +44,7 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
 
         [Command("removerelay", "delrelay")]
         [Description("Removes a registered relay from your server by Discord channel")]
+        [RequirePermissions(Permissions.ManageChannels)]
         [Priority(2)]
         public async Task RemoveRelayCommandAsync(
             [Description("Discord Channel to remove relay for.")]
