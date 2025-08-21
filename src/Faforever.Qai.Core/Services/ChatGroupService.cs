@@ -9,6 +9,7 @@ using Faforever.Qai.Core.Database.Entities;
 using Faforever.Qai.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using FuzzySharp;
 
 namespace Faforever.Qai.Core.Services
 {
@@ -27,8 +28,8 @@ namespace Faforever.Qai.Core.Services
 
             try
             {
-                // Resolve Discord IDs for all players
-                await ResolvePlayerDiscordIds(game);
+                // Resolve Discord IDs for all players, now with fallback.
+                await ResolvePlayerDiscordIds(game, context);
 
                 // Create Discord voice channels
                 result = await CreateDiscordVoiceChannels(game, context);
@@ -44,13 +45,17 @@ namespace Faforever.Qai.Core.Services
             }
         }
 
-        private async Task ResolvePlayerDiscordIds(CurrentGameResult game)
+        private async Task ResolvePlayerDiscordIds(CurrentGameResult game, DiscordCommandContext context)
         {
+            _logger.LogInformation("Starting player resolution for {PlayerCount} players", game.Players.Count);
+            
             var playerFafIds = game.Players.Select(p => p.FafId).ToList();
             
             var accountLinks = await _database.AccountLinks
                 .Where(link => playerFafIds.Contains(link.FafId))
                 .ToListAsync();
+
+            _logger.LogInformation("Found {LinkCount} account links from database", accountLinks.Count);
 
             foreach (var player in game.Players)
             {
@@ -58,8 +63,83 @@ namespace Faforever.Qai.Core.Services
                 if (link != null)
                 {
                     player.DiscordId = link.DiscordId;
+                    _logger.LogDebug("Player {PlayerName} resolved via account link to Discord ID {DiscordId}", 
+                        player.Username, link.DiscordId);
                 }
             }
+
+            // Fallback to fuzzy matching for unresolved players
+            var unresolvedPlayers = game.Players.Where(p => p.DiscordId == null).ToList();
+            if (unresolvedPlayers.Any())
+            {
+                _logger.LogInformation("Starting fuzzy matching for {UnresolvedCount} unresolved players: {Players}", 
+                    unresolvedPlayers.Count, string.Join(", ", unresolvedPlayers.Select(p => p.Username)));
+
+                var guildMembers = await context.Guild.GetAllMembersAsync();
+                _logger.LogDebug("Retrieved {MemberCount} guild members for fuzzy matching", guildMembers.Count);
+
+                foreach (var player in unresolvedPlayers)
+                {
+                    _logger.LogDebug("Attempting fuzzy match for player {PlayerName}", player.Username);
+
+                    // Use FuzzySharp for fuzzy matching
+                    var candidateMatches = guildMembers
+                        .Select(m => new { 
+                            Member = m, 
+                            DisplayNameScore = Fuzz.Ratio(player.Username.ToLower(), m.DisplayName.ToLower()),
+                            UsernameScore = Fuzz.Ratio(player.Username.ToLower(), m.Username.ToLower())
+                        })
+                        .Select(x => new {
+                            x.Member,
+                            Score = Math.Max(x.DisplayNameScore, x.UsernameScore), // Take the better of the two scores
+                            DisplayNameScore = x.DisplayNameScore,
+                            UsernameScore = x.UsernameScore
+                        })
+                        .Where(x => x.Score > 50) // Only consider matches above 50% to reduce noise in logs
+                        .OrderByDescending(x => x.Score)
+                        .Take(3) // Log top 3 candidates for debugging
+                        .ToList();
+
+                    var bestMatch = candidateMatches.FirstOrDefault();
+
+                    if (candidateMatches.Any())
+                    {
+                        _logger.LogDebug("Top fuzzy match candidates for {PlayerName}: {Candidates}", 
+                            player.Username,
+                            string.Join("; ", candidateMatches.Select(c => 
+                                $"{c.Member.DisplayName} (score: {c.Score}, display: {c.DisplayNameScore}, username: {c.UsernameScore})")));
+                    }
+                    else
+                    {
+                        _logger.LogDebug("No fuzzy match candidates found for {PlayerName} above 50% threshold", player.Username);
+                    }
+
+                    // Use a threshold of 75 to avoid incorrect matches
+                    if (bestMatch != null && bestMatch.Score > 75)
+                    {
+                        player.DiscordId = bestMatch.Member.Id;
+                        _logger.LogInformation("Fuzzy matched player {PlayerName} to Discord user {DiscordDisplayName} ({DiscordUsername}) with score {Score}", 
+                            player.Username, bestMatch.Member.DisplayName, bestMatch.Member.Username, bestMatch.Score);
+                    }
+                    else if (bestMatch != null)
+                    {
+                        _logger.LogWarning("Best fuzzy match for {PlayerName} was {DiscordDisplayName} with score {Score}, but threshold is 75", 
+                            player.Username, bestMatch.Member.DisplayName, bestMatch.Score);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("No fuzzy match found for player {PlayerName}", player.Username);
+                    }
+                }
+            }
+            else
+            {
+                _logger.LogInformation("All players resolved via account links, no fuzzy matching needed");
+            }
+
+            var resolvedCount = game.Players.Count(p => p.DiscordId != null);
+            _logger.LogInformation("Player resolution completed: {ResolvedCount}/{TotalCount} players resolved", 
+                resolvedCount, game.Players.Count);
         }
 
         private async Task<ChatGroupResult> CreateDiscordVoiceChannels(CurrentGameResult game, DiscordCommandContext context)
