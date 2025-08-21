@@ -88,13 +88,24 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
 
             await Context.ReplyAsync(embed.Build());
 
-            var chartBytes = await getChartTask;
-            
-            var msgBuilder = new DiscordMessageBuilder()
-                .WithContent("Here is a chart of their rating history:")
-                .AddFile("chart.png", new MemoryStream(chartBytes));
+            try
+            {
+                var chartBytes = await getChartTask;
+                
+                var msgBuilder = new DiscordMessageBuilder()
+                    .WithContent("Here is a chart of their rating history:")
+                    .AddFile("chart.png", new MemoryStream(chartBytes));
 
-            await msgBuilder.SendAsync(ctx.Channel);
+                await msgBuilder.SendAsync(ctx.Channel);
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("no rating history"))
+            {
+                await Context.ReplyAsync("This player has no rating history to display in a chart.");
+            }
+            catch (Exception)
+            {
+                await Context.ReplyAsync("Unable to generate rating chart due to an unexpected error.");
+            }
         }
 
         [Command("searchplayer")]

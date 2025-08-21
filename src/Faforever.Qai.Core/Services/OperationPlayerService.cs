@@ -91,6 +91,12 @@ namespace Faforever.Qai.Core.Services
             var ratingHistory = await GetRatingHistory(username, leaderboard);
             var title = $"{username} - {leaderboard} rating";
 
+            // Check if player has any rating history
+            if (ratingHistory.Length == 0)
+            {
+                throw new InvalidOperationException($"Player '{username}' has no rating history for {leaderboard} leaderboard.");
+            }
+
             // Group by week
             var groupedData = ratingHistory
                 .OrderBy(r => r.ScoreTime)
