@@ -75,15 +75,33 @@ namespace Faforever.Qai.Core.Services
                 _logger.LogInformation("Starting fuzzy matching for {UnresolvedCount} unresolved players: {Players}", 
                     unresolvedPlayers.Count, string.Join(", ", unresolvedPlayers.Select(p => p.Username)));
 
-                var guildMembers = await context.Guild.GetAllMembersAsync();
-                _logger.LogDebug("Retrieved {MemberCount} guild members for fuzzy matching", guildMembers.Count);
+                // Get the current voice channel from the command context user
+                var commandUser = await context.Guild.GetMemberAsync(context.User.Id);
+                var currentVoiceChannel = commandUser.VoiceState?.Channel;
+                
+                if (currentVoiceChannel == null)
+                {
+                    _logger.LogWarning("Command user is not in a voice channel, skipping fuzzy matching");
+                    return;
+                }
+
+                // Get members currently in the voice channel
+                var voiceChannelMembers = currentVoiceChannel.Guild.VoiceStates.Values
+                    .Where(vs => vs.Channel?.Id == currentVoiceChannel.Id)
+                    .Select(vs => vs.User)
+                    .Where(user => context.Guild.Members.TryGetValue(user.Id, out var member))
+                    .Select(user => context.Guild.Members[user.Id])
+                    .ToList();
+
+                _logger.LogDebug("Retrieved {MemberCount} members from voice channel '{ChannelName}' for fuzzy matching", 
+                    voiceChannelMembers.Count, currentVoiceChannel.Name);
 
                 foreach (var player in unresolvedPlayers)
                 {
                     _logger.LogDebug("Attempting fuzzy match for player {PlayerName}", player.Username);
 
                     // Use FuzzySharp for fuzzy matching
-                    var candidateMatches = guildMembers
+                    var candidateMatches = voiceChannelMembers
                         .Select(m => new { 
                             Member = m, 
                             DisplayNameScore = Fuzz.Ratio(player.Username.ToLower(), m.DisplayName.ToLower()),
