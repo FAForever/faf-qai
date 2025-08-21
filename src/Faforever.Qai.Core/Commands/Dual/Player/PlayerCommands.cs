@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
@@ -108,6 +109,17 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
             }
         }
 
+        [Command("playerstats")]
+        public async Task GetDetailedPlayerStatsAsync(string username)
+        {
+            var playerStats = await _playerService.FetchDetailedPlayerStats(username);
+
+            if (playerStats is null)
+                await Context.ReplyAsync("No such player found.");
+            else
+                await ReplyWithDetailedStatsAsync(playerStats);
+        }
+
         [Command("searchplayer")]
         public async Task FindPlayerAsync(string searchTerm)
         {
@@ -120,5 +132,139 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
                 await Context.ReplyAsync($"Found the following players: {players}");
             }
         }
+
+        private async Task ReplyWithDetailedStatsAsync(DetailedPlayerStatsResult data)
+        {
+            if (Context is DiscordCommandContext discordCtx)
+                await DiscordDetailedStatsReplyAsync(discordCtx, data);
+            else if (Context is IrcCommandContext ircCtx)
+                await IrcDetailedStatsReplyAsync(ircCtx, data);
+        }
+
+        private async Task IrcDetailedStatsReplyAsync(IrcCommandContext ctx, DetailedPlayerStatsResult data)
+        {
+            var response = $"=== DETAILED STATS FOR {data.Name.ToUpper()} (Last {data.GameCountDisplay} Games) ===\n" +
+                $"ID: {data.Id} | Last Seen: {data.LastSeen:yyyy-MM-dd HH:mm:ss}\n\n" +
+                
+                "== CURRENT RATINGS ==\n" +
+                $"Global: {data.GlobalStats?.Rating.ToString("F0") ?? "Unranked"} (Rank #{data.GlobalStats?.Ranking ?? 0}, {data.GlobalStats?.GamesPlayed ?? 0} games)\n" +
+                $"Ladder: {data.LadderStats?.Rating.ToString("F0") ?? "Unranked"} (Rank #{data.LadderStats?.Ranking ?? 0}, {data.LadderStats?.GamesPlayed ?? 0} games)\n\n" +
+
+                "== PERFORMANCE HIGHLIGHTS ==\n" +
+                $"Peak Global: {data.Performance.PeakGlobalRating:F0} ({data.Performance.PeakGlobalDate:yyyy-MM-dd})\n" +
+                $"Peak Ladder: {data.Performance.PeakLadderRating:F0} ({data.Performance.PeakLadderDate:yyyy-MM-dd})\n" +
+                $"Longest Win Streak: {data.Performance.LongestWinStreak} | Loss Streak: {data.Performance.LongestLossStreak}\n" +
+                $"Most Played Map: {data.Performance.MostPlayedMap} ({data.Performance.MostPlayedMapCount} times)\n\n" +
+
+                "== ACTIVITY OVERVIEW (Last {data.GameCountDisplay} Games) ==\n" +
+                $"Total Games: {data.Activity.TotalGamesPlayed} | W/L: {data.Activity.TotalWins}/{data.Activity.TotalLosses} ({data.Activity.OverallWinRate:F1}%)\n" +
+                $"Recent Activity: {data.Activity.GamesLast7Days} games (7d), {data.Activity.GamesLast30Days} games (30d)\n";
+
+            if (data.FactionStatistics.Any())
+            {
+                response += "\n== FACTION PERFORMANCE ==\n";
+                foreach (var faction in data.FactionStatistics.OrderByDescending(f => f.Value.GamesPlayed))
+                {
+                    var stats = faction.Value;
+                    response += $"{faction.Key}: {stats.GamesPlayed} games, {stats.WinRate:F1}% WR, Avg Rating: {stats.AverageRating:F0}\n";
+                }
+            }
+
+            if (data.MapStatistics.Any())
+            {
+                response += "\n== TOP MAPS ==\n";
+                foreach (var map in data.MapStatistics.OrderByDescending(m => m.Value.GamesPlayed).Take(10))
+                {
+                    var stats = map.Value;
+                    response += $"{map.Key}: {stats.GamesPlayed} games, {stats.WinRate:F1}% WR\n";
+                }
+            }
+
+            await Context.ReplyAsync(response);
+        }
+
+        private async Task DiscordDetailedStatsReplyAsync(DiscordCommandContext ctx, DetailedPlayerStatsResult data)
+        {
+            var embed = new DiscordEmbedBuilder()
+                .WithColor(Context.DostyaRed)
+                .WithTitle($"📊 Detailed Stats for {data.Name} (Last {data.GameCountDisplay} Games)")
+                .WithDescription($"**ID:** {data.Id} | **Last Seen:** {data.LastSeen:yyyy-MM-dd HH:mm}")
+                .WithTimestamp(DateTime.UtcNow);
+
+            // Basic ratings
+            if (data.GlobalStats.HasValue || data.LadderStats.HasValue)
+            {
+                var ratingsText = "";
+                if (data.GlobalStats.HasValue)
+                    ratingsText += $"🌍 **Global:** {data.GlobalStats.Value.Rating:F0} (#{data.GlobalStats.Value.Ranking}, {data.GlobalStats.Value.GamesPlayed} games)\n";
+                if (data.LadderStats.HasValue)
+                    ratingsText += $"🎯 **Ladder:** {data.LadderStats.Value.Rating:F0} (#{data.LadderStats.Value.Ranking}, {data.LadderStats.Value.GamesPlayed} games)";
+                
+                embed.AddField("Current Ratings", ratingsText);
+            }
+
+            // Performance highlights
+            var performanceText = $"🏆 **Peak Global:** {data.Performance.PeakGlobalRating:F0} ({data.Performance.PeakGlobalDate:MMM yyyy})\n" +
+                $"🎖️ **Peak Ladder:** {data.Performance.PeakLadderRating:F0} ({data.Performance.PeakLadderDate:MMM yyyy})\n" +
+                $"🔥 **Win Streak:** {data.Performance.LongestWinStreak} | 💀 **Loss Streak:** {data.Performance.LongestLossStreak}\n" +
+                $"🗺️ **Favorite Map:** {data.Performance.MostPlayedMap} ({data.Performance.MostPlayedMapCount}×)\n" +
+                $"⏱️ **Avg Game Time:** {data.Performance.AverageGameDuration:F0} min";
+            embed.AddField("Performance", performanceText);
+
+            // Activity overview
+            var activityText = $"🎮 **Total Games:** {data.Activity.TotalGamesPlayed}\n" +
+                $"📊 **W/L Ratio:** {data.Activity.TotalWins}/{data.Activity.TotalLosses} ({data.Activity.OverallWinRate:F1}%)\n" +
+                $"📅 **Recent:** {data.Activity.GamesLast7Days} (7d), {data.Activity.GamesLast30Days} (30d)";
+            embed.AddField("Activity", activityText);
+
+            // Faction statistics (top 3)
+            if (data.FactionStatistics.Any())
+            {
+                var topFactions = data.FactionStatistics.OrderByDescending(f => f.Value.GamesPlayed).Take(3);
+                var factionText = string.Join("\n", topFactions.Select(f => 
+                    $"**{f.Key}:** {f.Value.GamesPlayed} games ({f.Value.WinRate:F1}% WR)"));
+                embed.AddField("Top Factions", factionText, true);
+            }
+
+            // Recent games (last 5)
+            if (data.RecentGames.Any())
+            {
+                var recentText = string.Join("\n", data.RecentGames.Take(5).Select(g => 
+                    $"{GetResultEmoji(g.Result)} **{g.MapName}** ({g.RatingChange:+0;-0}) - {g.Date:MM/dd}"));
+                embed.AddField("Recent Games", recentText, true);
+            }
+
+            // Top maps (top 5)
+            if (data.MapStatistics.Any())
+            {
+                var topMaps = data.MapStatistics.OrderByDescending(m => m.Value.GamesPlayed).Take(5);
+                var mapsText = string.Join("\n", topMaps.Select(m => 
+                    $"**{m.Key}:** {m.Value.GamesPlayed} games ({m.Value.WinRate:F1}% WR)"));
+                embed.AddField("Top Maps", mapsText, true);
+            }
+
+            // Favorite opponents (top 3)
+            if (data.Activity.FavoriteOpponents.Any())
+            {
+                var opponentsText = string.Join("\n", data.Activity.FavoriteOpponents.Take(3));
+                embed.AddField("Frequent Opponents", opponentsText, true);
+            }
+
+            // Clan info
+            if (data.Clan != null)
+            {
+                embed.AddField("Clan", $"[{data.Clan.Tag}] {data.Clan.Name}", true);
+            }
+
+            await Context.ReplyAsync(embed.Build());
+        }
+
+        private string GetResultEmoji(string result) => result switch
+        {
+            "Victory" => "🏆",
+            "Defeat" => "💀", 
+            "Draw" => "⚖️",
+            _ => "❓"
+        };
     }
 }

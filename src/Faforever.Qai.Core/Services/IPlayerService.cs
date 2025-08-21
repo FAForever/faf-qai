@@ -8,6 +8,7 @@ namespace Faforever.Qai.Core.Services
     public interface IPlayerService
     {
         Task<FetchPlayerStatsResult?> FetchPlayerStats(string username);
+        Task<DetailedPlayerStatsResult?> FetchDetailedPlayerStats(string username);
         Task<FindPlayerResult> FindPlayer(string searchTerm);
         Task<byte[]> GenerateRatingChart(string username, FafLeaderboard leaderboard);
         Task<LeaderboardRatingJournal[]> GetRatingHistory(string username, FafLeaderboard leaderboard);
