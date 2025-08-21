@@ -9,6 +9,7 @@ namespace Faforever.Qai.Core.Commands.Discord
     public class DiscordPermissionTesting : DiscordCommandModule
     {
         [Command("testbotperms")]
+        [Description("Test if bot has webhook management permissions")]
         [RequireBotPermissions(DSharpPlus.Permissions.ManageWebhooks)]
         public async Task BotPermsCheck()
         {
@@ -16,6 +17,7 @@ namespace Faforever.Qai.Core.Commands.Discord
         }
 
         [Command("testuserperms")]
+        [Description("Test if user has administrator permissions")]
         [RequireUserPermissions(DSharpPlus.Permissions.Administrator)]
         public async Task UserPremsCheck()
         {
@@ -23,6 +25,7 @@ namespace Faforever.Qai.Core.Commands.Discord
         }
 
         [Command("testbothperms")]
+        [Description("Test if both user and bot have channel management permissions")]
         [RequirePermissions(DSharpPlus.Permissions.ManageChannels)]
         public async Task BothPermsCheck()
         {

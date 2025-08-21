@@ -22,6 +22,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
         }
 
         [Command("replay")]
+        [Description("Get replay information by game ID")]
         public async Task FetchReplayCommandAsync(long gameId)
         {
             var game = await _gameService.FetchGame(gameId);
@@ -30,6 +31,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
         }
 
         [Command("lastreplay")]
+        [Description("Get the last replay for a player")]
         public async Task FetchLastReplayCommandAsync(string username)
         {
             var data = await _gameService.FetchLastGame(username);
@@ -38,6 +40,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
         }
 
         [Command("topreplays")]
+        [Description("Get top rated replays, optionally filtered by map")]
         public async Task FetchTopReplaysAsync(string? mapName = null)
         {
             var games = await _gameService.FetchTopRatedGames(mapName, FafMod.Faf);
@@ -53,6 +56,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
         }
 
         [Command("top1v1replays")]
+        [Description("Get top rated 1v1 ladder replays, optionally filtered by map")]
         public async Task FetchTopLadderReplaysAsync(string? mapName = null)
         {
             var games = await _gameService.FetchTopRatedGames(mapName, FafMod.Ladder1v1);

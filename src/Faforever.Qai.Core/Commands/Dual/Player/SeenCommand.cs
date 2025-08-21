@@ -15,6 +15,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
         }
 
         [Command("seen")]
+        [Description("Check when a player was last seen online")]
         public async Task SeenPlayerAsync(string playerName)
         {
             var seen = await _playerService.LastSeenPlayer(playerName);

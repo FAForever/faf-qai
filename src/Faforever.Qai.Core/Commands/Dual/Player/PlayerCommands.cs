@@ -25,6 +25,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
         }
 
         [Command("player", "ratings")]
+        [Description("Get player ratings and statistics")]
         public async Task GetRatingsAsync(string username)
         {
             FetchPlayerStatsResult? playerStats = await _playerService.FetchPlayerStats(username);
@@ -110,6 +111,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
         }
 
         [Command("playerstats")]
+        [Description("Get detailed player statistics including faction performance and recent games")]
         public async Task GetDetailedPlayerStatsAsync(string username)
         {
             var playerStats = await _playerService.FetchDetailedPlayerStats(username);
@@ -121,6 +123,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
         }
 
         [Command("searchplayer")]
+        [Description("Search for players by name")]
         public async Task FindPlayerAsync(string searchTerm)
         {
             FindPlayerResult findPlayerResult = await _playerService.FindPlayer(searchTerm);

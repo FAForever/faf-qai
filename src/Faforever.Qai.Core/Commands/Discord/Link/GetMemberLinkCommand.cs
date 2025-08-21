@@ -22,6 +22,7 @@ namespace Faforever.Qai.Core.Commands.Discord.Link
         }
 
         [Command("links", "getlinks")]
+        [Description("Get the FAF account link for a Discord user")]
         [RequireFafStaff]
         public async Task GetMemberLinkCommandAsync(DiscordUser user)
         {

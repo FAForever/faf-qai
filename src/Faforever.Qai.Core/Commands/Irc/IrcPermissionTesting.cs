@@ -7,6 +7,7 @@ namespace Faforever.Qai.Core.Commands.Irc
     public class IrcPermissionTesting : IrcCommandModule
     {
         [Command("ircbotop")]
+        [Description("Test if bot has Aeolus moderator permissions")]
         [RequireBotPermissions(IrcPermissions.AeolusModerator)]
         public async Task BotOpCheck()
         {
@@ -14,6 +15,7 @@ namespace Faforever.Qai.Core.Commands.Irc
         }
 
         [Command("ircbotmod")]
+        [Description("Test if bot has channel moderator permissions")]
         [RequireBotPermissions(IrcPermissions.ChannelModerator)]
         public async Task BotModCheck()
         {
@@ -21,6 +23,7 @@ namespace Faforever.Qai.Core.Commands.Irc
         }
 
         [Command("ircmod")]
+        [Description("Test if user has channel moderator permissions")]
         [RequireUserPermissions(IrcPermissions.ChannelModerator)]
         public async Task UserModCheck()
         {
@@ -28,6 +31,7 @@ namespace Faforever.Qai.Core.Commands.Irc
         }
 
         [Command("ircop")]
+        [Description("Test if user has Aeolus moderator permissions")]
         [RequireUserPermissions(IrcPermissions.AeolusModerator)]
         public async Task UserOpCheck()
         {
@@ -35,6 +39,7 @@ namespace Faforever.Qai.Core.Commands.Irc
         }
 
         [Command("ircbothperms")]
+        [Description("Test if both user and bot have channel moderator permissions")]
         [RequirePermissions(IrcPermissions.ChannelModerator)]
         public async Task BothOpCheck()
         {
