@@ -217,13 +217,13 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
                 $"📅 **Recent:** {data.Activity.GamesLast7Days} (7d), {data.Activity.GamesLast30Days} (30d)";
             embed.AddField("Activity", activityText);
 
-            // Faction statistics (top 3)
+            // Faction statistics (all factions)
             if (data.FactionStatistics.Any())
             {
-                var topFactions = data.FactionStatistics.OrderByDescending(f => f.Value.GamesPlayed).Take(3);
+                var topFactions = data.FactionStatistics.OrderByDescending(f => f.Value.GamesPlayed);
                 var factionText = string.Join("\n", topFactions.Select(f => 
                     $"**{f.Key}:** {f.Value.GamesPlayed} games ({f.Value.WinRate:F1}% WR)"));
-                embed.AddField("Top Factions", factionText, true);
+                embed.AddField("Factions", factionText, true);
             }
 
             // Recent games (last 5)
