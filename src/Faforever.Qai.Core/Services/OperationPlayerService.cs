@@ -139,6 +139,44 @@ namespace Faforever.Qai.Core.Services
             return chartBytes;
         }
 
+        private async Task<List<Game>> FetchPlayerGamesWithPagination(string username, int maxGames = 1000)
+        {
+            var allGames = new List<Game>();
+            var pageSize = 100; // API limit per request
+            var currentPage = 1;
+            var totalFetched = 0;
+
+            while (totalFetched < maxGames)
+            {
+                var remainingGames = maxGames - totalFetched;
+                var currentPageSize = Math.Min(pageSize, remainingGames);
+
+                var gamesQuery = new ApiQuery<Game>()
+                    .Where("playerStats.player.login", username)
+                    .Where("validity", "VALID")
+                    .Include("playerStats.player,mapVersion.map,featuredMod")
+                    .Sort("-startTime")
+                    .Limit(currentPageSize)
+                    .Page(currentPage);
+
+                var pageGames = (await _api.GetAsync(gamesQuery)).ToList();
+                
+                if (pageGames.Count == 0)
+                    break; // No more games available
+
+                allGames.AddRange(pageGames);
+                totalFetched += pageGames.Count;
+
+                // If we got fewer games than requested, we've reached the end
+                if (pageGames.Count < currentPageSize)
+                    break;
+
+                currentPage++;
+            }
+
+            return allGames;
+        }
+
         public async Task<DetailedPlayerStatsResult?> FetchDetailedPlayerStats(string username)
         {
             // Get basic player info
@@ -153,20 +191,11 @@ namespace Faforever.Qai.Core.Services
             var playerData = (await _api.GetAsync(playerQuery)).FirstOrDefault();
             if (playerData == null) return null;
 
-            // Get recent games for detailed analysis (last 1000+ games)
-            var gamesQuery = new ApiQuery<Game>()
-                .Where("playerStats.player.login", username)
-                .Include("playerStats.player,mapVersion.map,featuredMod")
-                .Sort("-startTime")
-                .Limit(1001);
-            var gamesList = (await _api.GetAsync(gamesQuery)).ToList();
-            
-            // If we got exactly 1001 games, remove the last one and indicate 1000+
-            var hasMoreGames = gamesList.Count == 1001;
-            if (hasMoreGames)
-            {
-                gamesList.RemoveAt(gamesList.Count - 1);
-            }
+            var playerId = playerData.Id;
+
+            // Get recent games for detailed analysis (up to 1000 games with pagination)
+            var gamesList = await FetchPlayerGamesWithPagination(username, 1000);
+            var hasMoreGames = gamesList.Count == 1000;
             var games = gamesList.AsEnumerable();
 
             // Get rating history for both leaderboards
@@ -187,23 +216,22 @@ namespace Faforever.Qai.Core.Services
             };
 
             // Calculate detailed statistics
-            result.FactionStatistics = CalculateFactionStats(games, username);
-            result.MapStatistics = CalculateMapStats(games, username);
-            result.Performance = CalculatePerformanceStats(games, globalHistory, ladderHistory, username);
-            result.Activity = CalculateActivityStats(games, username);
-            result.RecentGames = GetRecentGameInfo(games.Take(10), username);
+            result.FactionStatistics = CalculateFactionStats(games, playerId);
+            result.MapStatistics = CalculateMapStats(games, playerId);
+            result.Performance = CalculatePerformanceStats(games, globalHistory, ladderHistory, playerId);
+            result.Activity = CalculateActivityStats(games, playerId);
+            result.RecentGames = GetRecentGameInfo(games.Take(10), playerId);
 
             return result;
         }
 
-        private Dictionary<string, FactionStats> CalculateFactionStats(IEnumerable<Game> games, string username)
+        private Dictionary<string, FactionStats> CalculateFactionStats(IEnumerable<Game> games, int playerId)
         {
             var factionStats = new Dictionary<string, FactionStats>();
 
             foreach (var game in games)
             {
-                var playerStats = game.PlayerStats.FirstOrDefault(ps => 
-                    ps.Player.Login.Equals(username, StringComparison.InvariantCultureIgnoreCase));
+                var playerStats = game.PlayerStats.FirstOrDefault(ps => ps.Player.Id == playerId);
                 if (playerStats == null) continue;
 
                 var factionName = playerStats.FactionName;
@@ -216,11 +244,14 @@ namespace Faforever.Qai.Core.Services
                 stats.GamesPlayed++;
                 stats.TotalPlayTime = stats.TotalPlayTime.Add(game.GameDuration);
 
-                // Determine win/loss (assuming positive score = win)
-                if (playerStats.Score > 0)
-                    stats.Wins++;
-                else
-                    stats.Losses++;
+                // Only count wins/losses for valid (rated) games
+                if (game.IsValid)
+                {
+                    if (playerStats.Score > 0)
+                        stats.Wins++;
+                    else
+                        stats.Losses++;
+                }
 
                 // Add to average rating calculation
                 if (playerStats.BeforeRating.HasValue)
@@ -232,14 +263,13 @@ namespace Faforever.Qai.Core.Services
             return factionStats;
         }
 
-        private Dictionary<string, MapStats> CalculateMapStats(IEnumerable<Game> games, string username)
+        private Dictionary<string, MapStats> CalculateMapStats(IEnumerable<Game> games, int playerId)
         {
             var mapStats = new Dictionary<string, MapStats>();
 
             foreach (var game in games)
             {
-                var playerStats = game.PlayerStats.FirstOrDefault(ps => 
-                    ps.Player.Login.Equals(username, StringComparison.InvariantCultureIgnoreCase));
+                var playerStats = game.PlayerStats.FirstOrDefault(ps => ps.Player.Id == playerId);
                 if (playerStats == null) continue;
 
                 var mapName = game.MapVersion?.Map?.DisplayName ?? "Unknown";
@@ -253,11 +283,14 @@ namespace Faforever.Qai.Core.Services
                 stats.TotalPlayTime = stats.TotalPlayTime.Add(game.GameDuration);
                 stats.LastPlayed = game.StartTime > stats.LastPlayed ? game.StartTime : stats.LastPlayed;
 
-                // Determine win/loss
-                if (playerStats.Score > 0)
-                    stats.Wins++;
-                else
-                    stats.Losses++;
+                // Only count wins/losses for valid (rated) games
+                if (game.IsValid)
+                {
+                    if (playerStats.Score > 0)
+                        stats.Wins++;
+                    else
+                        stats.Losses++;
+                }
 
                 // Add to average rating calculation
                 if (playerStats.BeforeRating.HasValue)
@@ -270,7 +303,7 @@ namespace Faforever.Qai.Core.Services
         }
 
         private PlayerPerformanceStats CalculatePerformanceStats(IEnumerable<Game> games, 
-            LeaderboardRatingJournal[] globalHistory, LeaderboardRatingJournal[] ladderHistory, string username)
+            LeaderboardRatingJournal[] globalHistory, LeaderboardRatingJournal[] ladderHistory, int playerId)
         {
             var performance = new PlayerPerformanceStats();
 
@@ -298,8 +331,7 @@ namespace Faforever.Qai.Core.Services
 
             foreach (var game in gamesList)
             {
-                var playerStats = game.PlayerStats.FirstOrDefault(ps => 
-                    ps.Player.Login.Equals(username, StringComparison.InvariantCultureIgnoreCase));
+                var playerStats = game.PlayerStats.FirstOrDefault(ps => ps.Player.Id == playerId);
                 if (playerStats == null) continue;
 
                 totalDuration = totalDuration.Add(game.GameDuration);
@@ -308,18 +340,21 @@ namespace Faforever.Qai.Core.Services
                 var mapName = game.MapVersion?.Map?.DisplayName ?? "Unknown";
                 mapCounts[mapName] = mapCounts.GetValueOrDefault(mapName, 0) + 1;
 
-                // Calculate streaks
-                if (playerStats.Score > 0) // Win
+                // Calculate streaks (only for valid games)
+                if (game.IsValid)
                 {
-                    currentWinStreak++;
-                    currentLossStreak = 0;
-                    maxWinStreak = Math.Max(maxWinStreak, currentWinStreak);
-                }
-                else // Loss
-                {
-                    currentLossStreak++;
-                    currentWinStreak = 0;
-                    maxLossStreak = Math.Max(maxLossStreak, currentLossStreak);
+                    if (playerStats.Score > 0) // Win
+                    {
+                        currentWinStreak++;
+                        currentLossStreak = 0;
+                        maxWinStreak = Math.Max(maxWinStreak, currentWinStreak);
+                    }
+                    else // Loss
+                    {
+                        currentLossStreak++;
+                        currentWinStreak = 0;
+                        maxLossStreak = Math.Max(maxLossStreak, currentLossStreak);
+                    }
                 }
             }
 
@@ -338,7 +373,7 @@ namespace Faforever.Qai.Core.Services
             return performance;
         }
 
-        private PlayerActivityStats CalculateActivityStats(IEnumerable<Game> games, string username)
+        private PlayerActivityStats CalculateActivityStats(IEnumerable<Game> games, int playerId)
         {
             var activity = new PlayerActivityStats();
             var now = DateTime.UtcNow;
@@ -347,17 +382,20 @@ namespace Faforever.Qai.Core.Services
 
             foreach (var game in games)
             {
-                var playerStats = game.PlayerStats.FirstOrDefault(ps => 
-                    ps.Player.Login.Equals(username, StringComparison.InvariantCultureIgnoreCase));
+                var playerStats = game.PlayerStats.FirstOrDefault(ps => ps.Player.Id == playerId);
                 if (playerStats == null) continue;
 
                 activity.TotalGamesPlayed++;
                 activity.TotalPlayTime = activity.TotalPlayTime.Add(game.GameDuration);
 
-                if (playerStats.Score > 0)
-                    activity.TotalWins++;
-                else
-                    activity.TotalLosses++;
+                // Only count wins/losses for valid (rated) games
+                if (game.IsValid)
+                {
+                    if (playerStats.Score > 0)
+                        activity.TotalWins++;
+                    else
+                        activity.TotalLosses++;
+                }
 
                 // Recent activity
                 var daysSince = (now - game.StartTime).TotalDays;
@@ -369,7 +407,7 @@ namespace Faforever.Qai.Core.Services
                 gamesByHour[hour] = gamesByHour.GetValueOrDefault(hour, 0) + 1;
 
                 // Track opponents
-                foreach (var opponent in game.PlayerStats.Where(ps => ps.Player.Login != username))
+                foreach (var opponent in game.PlayerStats.Where(ps => ps.Player.Id != playerId))
                 {
                     opponentCounts[opponent.Player.Login] = opponentCounts.GetValueOrDefault(opponent.Player.Login, 0) + 1;
                 }
@@ -382,14 +420,13 @@ namespace Faforever.Qai.Core.Services
             return activity;
         }
 
-        private List<RecentGameInfo> GetRecentGameInfo(IEnumerable<Game> games, string username)
+        private List<RecentGameInfo> GetRecentGameInfo(IEnumerable<Game> games, int playerId)
         {
             var recentGames = new List<RecentGameInfo>();
 
             foreach (var game in games)
             {
-                var playerStats = game.PlayerStats.FirstOrDefault(ps => 
-                    ps.Player.Login.Equals(username, StringComparison.InvariantCultureIgnoreCase));
+                var playerStats = game.PlayerStats.FirstOrDefault(ps => ps.Player.Id == playerId);
                 if (playerStats == null) continue;
 
                 var gameInfo = new RecentGameInfo

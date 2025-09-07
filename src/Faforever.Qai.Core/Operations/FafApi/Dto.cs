@@ -138,6 +138,7 @@ namespace Faforever.Qai.Core.Operations.FafApi
         public List<PlayerStats> PlayerStats { get; set; }
         public TimeSpan GameDuration => TimeSpan.FromSeconds((ReplayTicks ?? 0) / 10d);
         public TimeSpan? RealDuration => EndTime != null ? EndTime - StartTime : null;
+        public bool IsValid => Validity == "VALID";
 
         private double? _averageRating;
         public double AverageRating()
