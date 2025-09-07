@@ -114,12 +114,35 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
         [Description("Get detailed player statistics including faction performance and recent games")]
         public async Task GetDetailedPlayerStatsAsync(string username)
         {
-            var playerStats = await _playerService.FetchDetailedPlayerStats(username);
-
-            if (playerStats is null)
-                await Context.ReplyAsync("No such player found.");
+            // Send immediate loading response based on platform
+            object loadingMessage;
+            if (Context is DiscordCommandContext discordCtx)
+            {
+                loadingMessage = await discordCtx.Channel.SendMessageAsync($"Fetching detailed stats for **{username}**... This may take a few seconds.");
+            }
             else
-                await ReplyWithDetailedStatsAsync(playerStats);
+            {
+                loadingMessage = null; // IRC doesn't support message editing
+                await Context.ReplyAsync($"Fetching detailed stats for {username}... This may take a few seconds.");
+            }
+
+            try
+            {
+                var playerStats = await _playerService.FetchDetailedPlayerStats(username);
+
+                if (playerStats is null)
+                {
+                    await EditResponseAsync(loadingMessage, "No such player found.");
+                }
+                else
+                {
+                    await EditResponseWithDetailedStatsAsync(loadingMessage, playerStats);
+                }
+            }
+            catch (Exception ex)
+            {
+                await EditResponseAsync(loadingMessage, $"Error fetching player stats: {ex.Message}");
+            }
         }
 
         [Command("searchplayer")]
@@ -269,5 +292,119 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
             "Draw" => "⚖️",
             _ => "❓"
         };
+
+        private async Task EditResponseAsync(object originalMessage, string newContent)
+        {
+            if (Context is DiscordCommandContext discordCtx)
+            {
+                if (originalMessage is DiscordMessage discordMessage)
+                {
+                    await discordMessage.ModifyAsync(newContent);
+                }
+            }
+            else if (Context is IrcCommandContext ircCtx)
+            {
+                // IRC doesn't support message editing, so send a new message
+                await Context.ReplyAsync(newContent);
+            }
+        }
+
+        private async Task EditResponseWithDetailedStatsAsync(object originalMessage, DetailedPlayerStatsResult data)
+        {
+            if (Context is DiscordCommandContext discordCtx)
+            {
+                if (originalMessage is DiscordMessage discordMessage)
+                {
+                    // Create the detailed Discord embed
+                    var embed = await BuildDetailedStatsEmbed(data);
+                    await discordMessage.ModifyAsync(msg => 
+                    {
+                        msg.Content = "";
+                        msg.Embed = embed;
+                    });
+                }
+            }
+            else if (Context is IrcCommandContext ircCtx)
+            {
+                // IRC doesn't support message editing, so send the detailed response
+                await IrcDetailedStatsReplyAsync(ircCtx, data);
+            }
+        }
+
+        private async Task<DiscordEmbed> BuildDetailedStatsEmbed(DetailedPlayerStatsResult data)
+        {
+            var embed = new DiscordEmbedBuilder()
+                .WithColor(Context.DostyaRed)
+                .WithTitle($"📊 Detailed Stats for {data.Name} (Last {data.GameCountDisplay} Games)")
+                .WithDescription($"**ID:** {data.Id} | **Last Seen:** {data.LastSeen:yyyy-MM-dd HH:mm}")
+                .WithTimestamp(DateTime.UtcNow);
+
+            // Basic ratings
+            if (data.GlobalStats.HasValue || data.LadderStats.HasValue)
+            {
+                var ratingsText = "";
+                if (data.GlobalStats.HasValue)
+                    ratingsText += $"🌍 **Global:** {data.GlobalStats.Value.Rating:F0} (#{data.GlobalStats.Value.Ranking}, {data.GlobalStats.Value.GamesPlayed} games)\n";
+                if (data.LadderStats.HasValue)
+                    ratingsText += $"🎯 **Ladder:** {data.LadderStats.Value.Rating:F0} (#{data.LadderStats.Value.Ranking}, {data.LadderStats.Value.GamesPlayed} games)";
+                
+                embed.AddField("Current Ratings", ratingsText);
+            }
+
+            // Performance highlights
+            var performanceText = $"🏆 **Peak Global:** {data.Performance.PeakGlobalRating:F0} ({data.Performance.PeakGlobalDate:MMM yyyy})\n" +
+                $"🎖️ **Peak Ladder:** {data.Performance.PeakLadderRating:F0} ({data.Performance.PeakLadderDate:MMM yyyy})\n" +
+                $"🔥 **Win Streak:** {data.Performance.LongestWinStreak} | 💀 **Loss Streak:** {data.Performance.LongestLossStreak}\n" +
+                $"🗺️ **Favorite Map:** {data.Performance.MostPlayedMap} ({data.Performance.MostPlayedMapCount}×)\n" +
+                $"⏱️ **Avg Game Time:** {data.Performance.AverageGameDuration:F0} min";
+            embed.AddField("Performance", performanceText);
+
+            // Activity overview
+            var activityText = $"🎮 **Total Games:** {data.Activity.TotalGamesPlayed}\n" +
+                $"📊 **W/L Ratio:** {data.Activity.TotalWins}/{data.Activity.TotalLosses} ({data.Activity.OverallWinRate:F1}%)\n" +
+                $"📅 **Recent:** {data.Activity.GamesLast7Days} (7d), {data.Activity.GamesLast30Days} (30d)";
+            embed.AddField("Activity", activityText);
+
+            // Faction statistics (all factions)
+            if (data.FactionStatistics.Any())
+            {
+                var topFactions = data.FactionStatistics.OrderByDescending(f => f.Value.GamesPlayed);
+                var factionText = string.Join("\n", topFactions.Select(f => 
+                    $"**{f.Key}:** {f.Value.GamesPlayed} games ({f.Value.WinRate:F1}% WR)"));
+                embed.AddField("Factions", factionText, true);
+            }
+
+            // Recent games (last 5)
+            if (data.RecentGames.Any())
+            {
+                var recentText = string.Join("\n", data.RecentGames.Take(5).Select(g => 
+                    $"{GetResultEmoji(g.Result)} **{g.MapName}** ({g.RatingChange:+0;-0}) - {g.Date:MM/dd}"));
+                embed.AddField("Recent Games", recentText, true);
+            }
+
+            // Top maps (top 5)
+            if (data.MapStatistics.Any())
+            {
+                var topMaps = data.MapStatistics.OrderByDescending(m => m.Value.GamesPlayed).Take(5);
+                var mapsText = string.Join("\n", topMaps.Select(m => 
+                    $"**{m.Key}:** {m.Value.GamesPlayed} games ({m.Value.WinRate:F1}% WR)"));
+                embed.AddField("Top Maps", mapsText, true);
+            }
+
+            // Favorite opponents (top 3)
+            if (data.Activity.FavoriteOpponents.Any())
+            {
+                var opponentsText = string.Join("\n", data.Activity.FavoriteOpponents.Take(3));
+                embed.AddField("Frequent Opponents", opponentsText, true);
+            }
+
+            // Clan info
+            if (data.Clan != null)
+            {
+                embed.AddField("Clan", $"[{data.Clan.Tag}] {data.Clan.Name}", true);
+            }
+
+            return embed.Build();
+        }
     }
 }
