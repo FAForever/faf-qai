@@ -53,6 +53,7 @@ namespace Faforever.Qai.Core.Tests.Operations
                 .AddTransient<IFindPlayerOperation, ApiFindPlayerOperation>()
                 .AddTransient<ISearchUnitDatabaseOperation, UnitDbSearchUnitDatabaseOpeartion>()
                 .AddTransient<IPlayerService, OperationPlayerService>()
+                .AddTransient<PlayerStatsCalculator>()
                 .AddTransient<GameService>()
                 .AddTransient<ISearchMapOperation, ApiSearchMapOperation>()
                 .AddTransient<IFetchLadderPoolOperation, ApiFetchLadderPoolOperation>()
