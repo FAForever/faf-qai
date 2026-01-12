@@ -20,6 +20,7 @@ using NUnit.Framework;
 
 namespace Faforever.Qai.Core.Tests.Operations
 {
+    [Category("Integration")]
     public abstract class OperationTestBase
     {
 #pragma warning disable NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method
