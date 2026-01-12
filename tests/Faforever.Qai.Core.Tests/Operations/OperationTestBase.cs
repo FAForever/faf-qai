@@ -34,7 +34,7 @@ namespace Faforever.Qai.Core.Tests.Operations
             services.AddSingleton<IConfiguration>((x) =>
             {
                 return new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetParent(AppContext.BaseDirectory).FullName)
+                    .SetBasePath(AppContext.BaseDirectory)
 #if DEBUG
                         .AddJsonFile("appsettings.Development.json", false)
 #else
