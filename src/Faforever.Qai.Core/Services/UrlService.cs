@@ -24,23 +24,16 @@ namespace Faforever.Qai.Core.Services
         public string Url { get; set; } = default!;
     }
 
-    public class UrlService : IUrlService
+    public class UrlService(UrlConfiguration wikiConfig) : IUrlService
     {
-        private UrlConfiguration _urlConfig;
-
-        public UrlService(UrlConfiguration wikiConfig)
-        {
-            this._urlConfig = wikiConfig;
-        }
-
         public UrlEntry? FindUrl(string search)
         {
-            return FindUrlEntry(_urlConfig.Urls, search);
+            return FindUrlEntry(wikiConfig.Urls, search);
         }
 
         public UrlEntry? FindWikiUrl(string search)
         {
-            return FindUrlEntry(_urlConfig.WikiUrls, search);
+            return FindUrlEntry(wikiConfig.WikiUrls, search);
         }
 
         private static UrlEntry? FindUrlEntry(IDictionary<string, UrlEntry> urls, string search)

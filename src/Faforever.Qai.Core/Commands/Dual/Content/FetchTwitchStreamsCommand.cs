@@ -11,20 +11,13 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Content
 {
-    public class FetchTwitchStreamsCommand : DualCommandModule<TwitchStreamsResult>
+    public class FetchTwitchStreamsCommand(IFetchTwitchStreamsOperation twitch) : DualCommandModule<TwitchStreamsResult>
     {
-        private readonly IFetchTwitchStreamsOperation _twitch;
-
-        public FetchTwitchStreamsCommand(IFetchTwitchStreamsOperation twitch)
-        {
-            _twitch = twitch;
-        }
-
         [Command("streams", "stream")]
         [Description("Get's twitch streams for Supcom with the highest views")]
         public async Task GetStreamsCommandAsync()
         {
-            var data = await _twitch.GetTwitchStreamsAsync();
+            var data = await twitch.GetTwitchStreamsAsync();
 
             if (data is null || data.Streams.Count <= 0)
             {

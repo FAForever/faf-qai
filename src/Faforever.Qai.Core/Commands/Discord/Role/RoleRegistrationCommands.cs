@@ -19,7 +19,7 @@ namespace Faforever.Qai.Core.Commands.Discord.Role
         [RequirePermissions(DSharpPlus.Permissions.ManageRoles)]
         public async Task RegisterRoleCommandAsync(DiscordRole role)
         {
-            var db = _services.GetRequiredService<QAIDatabaseModel>();
+            var db = services.GetRequiredService<QAIDatabaseModel>();
             var guild = await db.FindAsync<DiscordGuildConfiguration>(Context.Guild.Id);
 
             if (guild is null)
@@ -57,7 +57,7 @@ namespace Faforever.Qai.Core.Commands.Discord.Role
         [RequirePermissions(DSharpPlus.Permissions.ManageRoles)]
         public async Task UnRegisterRoleCommandAsync(DiscordRole role)
         {
-            var db = _services.GetRequiredService<QAIDatabaseModel>();
+            var db = services.GetRequiredService<QAIDatabaseModel>();
             var guild = await db.FindAsync<DiscordGuildConfiguration>(Context.Guild.Id);
 
             if (guild is null)

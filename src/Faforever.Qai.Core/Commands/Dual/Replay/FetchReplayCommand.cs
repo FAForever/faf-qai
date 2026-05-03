@@ -12,20 +12,13 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Replay
 {
-    public class FetchReplayCommand : DualCommandModule
+    public class FetchReplayCommand(GameService gameService) : DualCommandModule
     {
-        private readonly GameService _gameService;
-
-        public FetchReplayCommand(GameService gameService)
-        {
-            _gameService = gameService;
-        }
-
         [Command("replay")]
         [Description("Get replay information by game ID")]
         public async Task FetchReplayCommandAsync(long gameId)
         {
-            var game = await _gameService.FetchGame(gameId);
+            var game = await gameService.FetchGame(gameId);
 
             await RespondToUser(game);
         }
@@ -34,7 +27,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
         [Description("Get the last replay for a player")]
         public async Task FetchLastReplayCommandAsync(string username)
         {
-            var data = await _gameService.FetchLastGame(username);
+            var data = await gameService.FetchLastGame(username);
 
             await RespondToUser(data);
         }
@@ -43,7 +36,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
         [Description("Get top rated replays, optionally filtered by map")]
         public async Task FetchTopReplaysAsync(string? mapName = null)
         {
-            var games = await _gameService.FetchTopRatedGames(mapName, FafMod.Faf);
+            var games = await gameService.FetchTopRatedGames(mapName, FafMod.Faf);
             if (games is null || !games.Any())
             {
                 await ReplyAsync("No replays found!");
@@ -59,7 +52,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Replay
         [Description("Get top rated 1v1 ladder replays, optionally filtered by map")]
         public async Task FetchTopLadderReplaysAsync(string? mapName = null)
         {
-            var games = await _gameService.FetchTopRatedGames(mapName, FafMod.Ladder1v1);
+            var games = await gameService.FetchTopRatedGames(mapName, FafMod.Ladder1v1);
             if (games is null || !games.Any())
             {
                 await ReplyAsync("No replays found!");

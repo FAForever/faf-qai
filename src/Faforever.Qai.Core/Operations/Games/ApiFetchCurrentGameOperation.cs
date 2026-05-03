@@ -6,15 +6,8 @@ using Faforever.Qai.Core.Operations.FafApi;
 
 namespace Faforever.Qai.Core.Operations.Games
 {
-    public class ApiFetchCurrentGameOperation : IFetchCurrentGameOperation
+    public class ApiFetchCurrentGameOperation(FafApiClient api) : IFetchCurrentGameOperation
     {
-        private readonly FafApiClient _api;
-
-        public ApiFetchCurrentGameOperation(FafApiClient api)
-        {
-            _api = api;
-        }
-
         public async Task<CurrentGameResult?> FetchCurrentGame(string fafUsername)
         {
             var query = new ApiQuery<FafApi.Game>()
@@ -23,7 +16,7 @@ namespace Faforever.Qai.Core.Operations.Games
                 .Include("host,playerStats.player")
                 .Limit(1);
 
-            var games = await _api.GetAsync(query);
+            var games = await api.GetAsync(query);
             var game = games.FirstOrDefault();
 
             if (game is null || game.EndTime.HasValue)
@@ -40,7 +33,7 @@ namespace Faforever.Qai.Core.Operations.Games
                 .Include("host,playerStats.player")
                 .Limit(1);
 
-            var games = await _api.GetAsync(query);
+            var games = await api.GetAsync(query);
             var game = games.FirstOrDefault();
 
             if (game is null || game.EndTime.HasValue)

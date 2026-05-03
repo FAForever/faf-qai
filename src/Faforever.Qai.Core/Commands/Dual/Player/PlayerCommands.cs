@@ -15,20 +15,13 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Player
 {
-    public class PlayerCommands : DualCommandModule<FetchPlayerStatsResult>
+    public class PlayerCommands(IPlayerService playerService) : DualCommandModule<FetchPlayerStatsResult>
     {
-        private readonly IPlayerService _playerService;
-
-        public PlayerCommands(IPlayerService playerService)
-        {
-            _playerService = playerService;
-        }
-
         [Command("player", "ratings")]
         [Description("Get player ratings and statistics")]
         public async Task GetRatingsAsync(string username)
         {
-            FetchPlayerStatsResult? playerStats = await _playerService.FetchPlayerStats(username);
+            FetchPlayerStatsResult? playerStats = await playerService.FetchPlayerStats(username);
 
             if (playerStats is null)
                 await Context.ReplyAsync("No such player found.");
@@ -45,7 +38,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
 
         public override async Task DiscordReplyAsync(DiscordCommandContext ctx, FetchPlayerStatsResult data)
         {
-            var getChartTask = _playerService.GenerateRatingChart(data.Name, FafLeaderboard.Global);
+            var getChartTask = playerService.GenerateRatingChart(data.Name, FafLeaderboard.Global);
 
             List<string> toJoin;
 
@@ -126,7 +119,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
                 $"Fetching detailed stats for **{username}**... This may take a few seconds.");
             try
             {
-                var playerStats = await _playerService.FetchDetailedPlayerStats(username);
+                var playerStats = await playerService.FetchDetailedPlayerStats(username);
                 if (playerStats is null)
                 {
                     await loading.ModifyAsync("No such player found.");
@@ -150,7 +143,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
             await Context.ReplyAsync($"Fetching detailed stats for {username}... This may take a few seconds.");
             try
             {
-                var playerStats = await _playerService.FetchDetailedPlayerStats(username);
+                var playerStats = await playerService.FetchDetailedPlayerStats(username);
                 if (playerStats is null)
                     await Context.ReplyAsync("No such player found.");
                 else
@@ -166,7 +159,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
         [Description("Search for players by name")]
         public async Task FindPlayerAsync(string searchTerm)
         {
-            FindPlayerResult findPlayerResult = await _playerService.FindPlayer(searchTerm);
+            FindPlayerResult findPlayerResult = await playerService.FindPlayer(searchTerm);
             if (findPlayerResult.Usernames.Count == 0)
                 await Context.ReplyAsync($"Found no players when searching for '{searchTerm}'");
             else

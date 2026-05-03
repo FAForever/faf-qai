@@ -6,19 +6,12 @@ using Faforever.Qai.Core.Models;
 
 namespace Faforever.Qai.Core.Operations.Player
 {
-    public class ApiFindPlayerOperation : IFindPlayerOperation
+    public class ApiFindPlayerOperation(ApiHttpClient api) : IFindPlayerOperation
     {
-        private readonly ApiHttpClient _api;
-
-        public ApiFindPlayerOperation(ApiHttpClient api)
-        {
-            this._api = api;
-        }
-
         public async Task<FindPlayerResult> FindPlayer(string searchTerm)
         {
             using Stream? stream =
-                await this._api.Client.GetStreamAsync(
+                await api.Client.GetStreamAsync(
                     $"/data/player?include=names&filter=login==*{searchTerm}*");
             using JsonDocument json = await JsonDocument.ParseAsync(stream);
             JsonElement dataElement = json.RootElement.GetProperty("data");

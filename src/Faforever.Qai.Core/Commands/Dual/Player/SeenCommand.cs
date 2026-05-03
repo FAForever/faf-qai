@@ -5,20 +5,13 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Player
 {
-    public class SeenCommand : DualCommandModule
+    public class SeenCommand(IPlayerService playerService) : DualCommandModule
     {
-        private IPlayerService _playerService;
-
-        public SeenCommand(IPlayerService playerService)
-        {
-            this._playerService = playerService;
-        }
-
         [Command("seen")]
         [Description("Check when a player was last seen online")]
         public async Task SeenPlayerAsync(string playerName)
         {
-            var seen = await _playerService.LastSeenPlayer(playerName);
+            var seen = await playerService.LastSeenPlayer(playerName);
 
             if (seen == null)
             {

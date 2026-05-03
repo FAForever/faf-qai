@@ -13,20 +13,13 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Map
 {
-    public class FetchLadderPoolCommand : DualCommandModule<MapPool>
+    public class FetchLadderPoolCommand(IFetchLadderPoolOperation ladder) : DualCommandModule<MapPool>
     {
-        private readonly IFetchLadderPoolOperation _ladder;
-
-        public FetchLadderPoolCommand(IFetchLadderPoolOperation ladder)
-        {
-            _ladder = ladder;
-        }
-
         [Command("pool", "ladder", "ladderpool")]
         [Description("Display the current ladder pool.")]
         public async Task FetchLadderPoolCommandAsync(string poolId)
         {
-            var pools = await _ladder.FetchLadderPoolAsync() ?? new List<MapPool>();
+            var pools = await ladder.FetchLadderPoolAsync() ?? new List<MapPool>();
             var pool = pools.FirstOrDefault(p => p.Id.ToString() == poolId);
 
             if (pool == null)

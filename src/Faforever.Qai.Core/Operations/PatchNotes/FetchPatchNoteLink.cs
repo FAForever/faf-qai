@@ -10,16 +10,10 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Faforever.Qai.Core.Operations.PatchNotes
 {
-    public class FetchPatchNotesLinkOperation : IFetchPatchNotesLinkOperation, IAutocompleteProvider
+    public class FetchPatchNotesLinkOperation(IMemoryCache cache) : IFetchPatchNotesLinkOperation, IAutocompleteProvider
     {
         private const string CacheKey = "PatchNotesLinks";
         private const string PatchNotesJsonUrl = "https://patchnotes.faforever.com/assets/data/patches.json";
-        private readonly IMemoryCache _cache;
-
-        public FetchPatchNotesLinkOperation(IMemoryCache cache)
-        {
-            _cache = cache;
-        }
 
         public async Task<PatchNoteLink?> GetPatchNotesLinkAsync(string? version = null)
         {
@@ -36,7 +30,7 @@ namespace Faforever.Qai.Core.Operations.PatchNotes
 
         private async Task<List<PatchNoteLink>> GetLinks()
         {
-            return await _cache.GetOrCreateAsync(CacheKey, async entry =>
+            return await cache.GetOrCreateAsync(CacheKey, async entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromHours(1);
                 using var httpClient = new HttpClient();

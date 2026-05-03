@@ -19,36 +19,23 @@ namespace Faforever.Qai.Core.Services
     // Test Webhook URL
     // https://discord.com/api/webhooks/773214715328725012/Kj0P_CMUooloZTyfIOP37QD1GLuXp_LVRS3ax2FqxT5mP2dOvLoP_xMZiJ8L6Sf0jYgq
 
-    public sealed class RelayService
+    public sealed class RelayService(QAIDatabaseModel db, ILogger<RelayService> logger, DiscordRestClient rest)
     {
         public delegate Task RelayDiscordMessage(string ircChannel, string author, string message);
         public event RelayDiscordMessage? DiscordMessageReceived;
 
-        private readonly ILogger _logger;
-        private readonly DiscordRestClient _rest;
-        private readonly QAIDatabaseModel _db;
-        private bool initialized;
+        private readonly ILogger _logger = logger;
+        private bool initialized = false;
 
-        private ConcurrentDictionary<string, HashSet<(ulong, string)>> IRCToWebhookRelations { get; set; }
-        private ConcurrentDictionary<ulong, string> DiscordToIRCWebhookRelations { get; set; }
-
-        public RelayService(QAIDatabaseModel db, ILogger<RelayService> logger, DiscordRestClient rest)
-        {
-            this._db = db;
-            this.initialized = false;
-            this._logger = logger;
-            this._rest = rest;
-
-            IRCToWebhookRelations = new();
-            DiscordToIRCWebhookRelations = new();
-        }
+        private ConcurrentDictionary<string, HashSet<(ulong, string)>> IRCToWebhookRelations { get; set; } = new();
+        private ConcurrentDictionary<ulong, string> DiscordToIRCWebhookRelations { get; set; } = new();
 
         public async Task InitializeAsync()
         {
             if (initialized)
                 return;
 
-            var relays = _db.RelayConfigurations.AsNoTracking().ToList();
+            var relays = db.RelayConfigurations.AsNoTracking().ToList();
 
             foreach (var r in relays)
             {
@@ -59,7 +46,7 @@ namespace Faforever.Qai.Core.Services
 
                 foreach (var links in r.DiscordToIRCLinks)
                 {
-                    var live = await _rest.GetWebhookAsync(links.Key);
+                    var live = await rest.GetWebhookAsync(links.Key);
                     DiscordToIRCWebhookRelations[live.ChannelId] = links.Value;
                 }
             }
@@ -84,11 +71,11 @@ namespace Faforever.Qai.Core.Services
                 DiscordToIRCWebhookRelations[hook.ChannelId] = ircChannel;
 
                 // This method should not be passed values that dont have a configuration value created for them.
-                var cfg = await _db.FindAsync<RelayConfiguration>(discordGuild);
+                var cfg = await db.FindAsync<RelayConfiguration>(discordGuild);
                 if (cfg is null)
                     throw new Exception("Failed to get valid relay configuration.");
 
-                _db.Update(cfg);
+                db.Update(cfg);
 
                 var hookData = new DiscordWebhookData()
                 {
@@ -99,7 +86,7 @@ namespace Faforever.Qai.Core.Services
                 cfg.Webhooks[ircChannel] = hookData;
                 cfg.DiscordToIRCLinks[hook.Id] = ircChannel;
 
-                await _db.SaveChangesAsync();
+                await db.SaveChangesAsync();
 
                 return true;
             }
@@ -115,7 +102,7 @@ namespace Faforever.Qai.Core.Services
             try
             {
                 // This method should not be passed values that dont have a configuration vlaue created for them.
-                var cfg = await _db.FindAsync<RelayConfiguration>(discordGuild);
+                var cfg = await db.FindAsync<RelayConfiguration>(discordGuild);
 
                 if (cfg is null)
                     throw new Exception("Failed to get valid relay configuration.");
@@ -124,13 +111,13 @@ namespace Faforever.Qai.Core.Services
                 if (cfg.DiscordToIRCLinks.TryRemove(webhookId, out string? ircChannel))
                 {
                     // At least one thing changed, so tell the database to save changes.
-                    _db.Update(cfg);
+                    db.Update(cfg);
 
                     if (cfg.Webhooks.TryRemove(ircChannel, out hook))
                     {
                         IRCToWebhookRelations[ircChannel]?.Remove((hook.Id, hook.Token));
 
-                        var realHook = await _rest.GetWebhookWithTokenAsync(hook.Id, hook.Token);
+                        var realHook = await rest.GetWebhookWithTokenAsync(hook.Id, hook.Token);
 
                         _ = DiscordToIRCWebhookRelations.TryRemove(realHook.ChannelId, out _);
 
@@ -138,7 +125,7 @@ namespace Faforever.Qai.Core.Services
                     }
                 }
 
-                await _db.SaveChangesAsync();
+                await db.SaveChangesAsync();
 
                 return true;
             }
@@ -187,7 +174,7 @@ namespace Faforever.Qai.Core.Services
 
                 if (channelToIgnore != 0)
                 {
-                    var hook = await _rest.GetWebhookWithTokenAsync(h.Item1, h.Item2);
+                    var hook = await rest.GetWebhookWithTokenAsync(h.Item1, h.Item2);
 
                     if (hook.ChannelId == channelToIgnore)
                         continue;
@@ -196,7 +183,7 @@ namespace Faforever.Qai.Core.Services
                 }
                 else
                 {
-                    await _rest.ExecuteWebhookAsync(h.Item1, h.Item2, msg);
+                    await rest.ExecuteWebhookAsync(h.Item1, h.Item2, msg);
                 }
             }
         }

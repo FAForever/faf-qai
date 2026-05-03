@@ -15,17 +15,12 @@ namespace Faforever.Qai.Discord.Commands
     /// <summary>
     /// This is currently the same as the DefaultHelpFormatter from DSharpPlus. Modify this class to edit your help formatting.
     /// </summary>
-    public class HelpFormatter : BaseHelpFormatter
+    public class HelpFormatter(CommandContext ctx) : BaseHelpFormatter(ctx)
     {
-        public DiscordEmbedBuilder EmbedBuilder { get; }
-        private Command? Command { get; set; }
-
-        public HelpFormatter(CommandContext ctx) : base(ctx)
-        {
-            EmbedBuilder = new DiscordEmbedBuilder()
+        public DiscordEmbedBuilder EmbedBuilder { get; } = new DiscordEmbedBuilder()
                 .WithTitle("Help")
                 .WithColor(0x00ff95);
-        }
+        private Command? Command { get; set; }
 
         public override CommandHelpMessage Build()
         {

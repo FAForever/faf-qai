@@ -10,14 +10,9 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Clan
 {
-    public class FetchClanCommand : DualCommandModule<FetchClanResult>
+    public class FetchClanCommand(IFetchClanOperation clan) : DualCommandModule<FetchClanResult>
     {
-        private readonly IFetchClanOperation _clan;
-
-        public FetchClanCommand(IFetchClanOperation clan)
-        {
-            _clan = clan;
-        }
+        private readonly IFetchClanOperation _clan = clan;
 
         [Command("clan")]
         [Description("Get details about a clan.")]

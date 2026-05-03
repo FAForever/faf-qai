@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Faforever.Qai.Core.Services
 {
-    public class AccountLinkService
+    public class AccountLinkService(QAIDatabaseModel database)
     {
         public delegate Task LinkCompletedDelegate(LinkCompleteEventArgs args);
         public event LinkCompletedDelegate? LinkComplete;
@@ -25,20 +25,11 @@ namespace Faforever.Qai.Core.Services
             Invalid
         }
 
-        public ConcurrentDictionary<string, LinkState> LinkingController { get; init; }
-
-        private readonly QAIDatabaseModel _database;
-
-        public AccountLinkService(QAIDatabaseModel database)
-        {
-            _database = database;
-
-            LinkingController = new();
-        }
+        public ConcurrentDictionary<string, LinkState> LinkingController { get; init; } = new();
 
         public async Task<string> StartAsync(ulong guildId, ulong discordId, string discordUsername)
         {
-            if (await _database.FindAsync<AccountLink>(discordId) is not null)
+            if (await database.FindAsync<AccountLink>(discordId) is not null)
                 throw new DiscordIdAlreadyLinkedException($"The ID {discordId} is already linked.");
 
             var token = Guid.NewGuid().ToString();
@@ -64,7 +55,7 @@ namespace Faforever.Qai.Core.Services
 
         public bool BindFafUser(string token, int fafId, string fafUsername)
         {
-            if (_database.AccountLinks.AsNoTracking().FirstOrDefault(x => x.FafId == fafId) is not null)
+            if (database.AccountLinks.AsNoTracking().FirstOrDefault(x => x.FafId == fafId) is not null)
                 throw new FafIdAlreadyLinkedException($"The ID {fafId} for the account {fafUsername} is already linked.");
 
             if (LinkingController.TryGetValue(token, out var old))
@@ -133,8 +124,8 @@ namespace Faforever.Qai.Core.Services
                     FafId = state.FafId ?? throw new Exception("Failed to find a valid FAF ID to save.")
                 };
 
-                await _database.AddAsync(link);
-                await _database.SaveChangesAsync();
+                await database.AddAsync(link);
+                await database.SaveChangesAsync();
 
                 await disp;
 

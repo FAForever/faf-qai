@@ -3,10 +3,10 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Faforever.Qai.Core.Structures.Webhooks
 {
-    public class DiscordWebhookData : IEquatable<DiscordWebhookData>
+    public class DiscordWebhookData(ulong id, string token) : IEquatable<DiscordWebhookData>
     {
-        public ulong Id { get; set; }
-        public string Token { get; set; }
+        public ulong Id { get; set; } = id;
+        public string Token { get; set; } = token;
 
         public string WebhookUrl
         {
@@ -18,12 +18,6 @@ namespace Faforever.Qai.Core.Structures.Webhooks
 
         public DiscordWebhookData()
             : this(0, "") { }
-
-        public DiscordWebhookData(ulong id, string token)
-        {
-            this.Id = id;
-            this.Token = token;
-        }
 
         public bool Equals([AllowNull] DiscordWebhookData other)
         {

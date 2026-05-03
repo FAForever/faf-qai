@@ -5,16 +5,9 @@ using Newtonsoft.Json.Linq;
 
 namespace Faforever.Qai.Core.Clients
 {
-    public class TwitchClient
+    public class TwitchClient(HttpClient client, TwitchClientConfig config)
     {
-        private readonly HttpClient _client;
-        private readonly TwitchClientConfig _cfg;
         private string? BearerToken { get; set; }
-        public TwitchClient(HttpClient client, TwitchClientConfig config)
-        {
-            _client = client;
-            _cfg = config;
-        }
 
         public async Task<string?> GetCurrentStreams(int gameId, bool isRepeat = false)
         {
@@ -30,9 +23,9 @@ namespace Faforever.Qai.Core.Clients
             };
 
             msg.Headers.Authorization = new("Bearer", BearerToken);
-            msg.Headers.Add("Client-Id", _cfg.ClientId);
+            msg.Headers.Add("Client-Id", config.ClientId);
 
-            var request = await _client.SendAsync(msg);
+            var request = await client.SendAsync(msg);
 
             if (request.IsSuccessStatusCode)
                 return await request.Content.ReadAsStringAsync();
@@ -50,7 +43,7 @@ namespace Faforever.Qai.Core.Clients
         private async Task RefreshBearerToken()
         {
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            var res = await _client.PostAsync($"https://id.twitch.tv/oauth2/token?client_id={_cfg.ClientId}&client_secret={_cfg.ClientSecret}&grant_type=client_credentials", null);
+            var res = await client.PostAsync($"https://id.twitch.tv/oauth2/token?client_id={config.ClientId}&client_secret={config.ClientSecret}&grant_type=client_credentials", null);
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
             if (res.IsSuccessStatusCode)

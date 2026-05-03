@@ -6,17 +6,11 @@ using Newtonsoft.Json;
 
 namespace Faforever.Qai.Core.Operations.Units
 {
-    public class UnitDbSearchUnitDatabaseOpeartion : ISearchUnitDatabaseOperation
+    public class UnitDbSearchUnitDatabaseOpeartion(UnitClient units) : ISearchUnitDatabaseOperation
     {
-        private readonly UnitClient _units;
-        public UnitDbSearchUnitDatabaseOpeartion(UnitClient units)
-        {
-            this._units = units;
-        }
-
         public async Task<UnitDatabaseSerachResult?> SearchUnitDatabase(string serach)
         {
-            string? json = await this._units.Client
+            string? json = await units.Client
                 .GetStringAsync($"?searchunit={serach}");
 
             var result = JsonConvert.DeserializeObject<UnitDatabaseSerachResult>(json);

@@ -13,15 +13,8 @@ namespace Faforever.Qai.Core.Commands.Dual.Info
 
     }
 
-    public class PatchNotesCommand : DualCommandModule
+    public class PatchNotesCommand(IFetchPatchNotesLinkOperation operation) : DualCommandModule
     {
-        private IFetchPatchNotesLinkOperation operation;
-
-        public PatchNotesCommand(IFetchPatchNotesLinkOperation operation)
-        {
-            this.operation = operation;
-        }
-
         [Command("patchnotes")]
         [Description("Get a link to the latest patch notes")]
         public async Task PatchNotesCommandAsync([Remainder] string? version = null)

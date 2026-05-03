@@ -10,14 +10,8 @@ namespace Faforever.Qai.Api
 {
     [Route("api/link")]
     [ApiController]
-    public class DiscordFafLinkApiController : ControllerBase
+    public class DiscordFafLinkApiController(AccountLinkService linkService) : ControllerBase
     {
-        private readonly AccountLinkService _linkService;
-
-        public DiscordFafLinkApiController(AccountLinkService linkService)
-        {
-            _linkService = linkService;
-        }
 
         /// <summary>
         /// Entry and endpoint for the Account Link process.
@@ -29,12 +23,12 @@ namespace Faforever.Qai.Api
         {
             // Use the proivded token from the URL to check against the status of that tokens link
             var t = HttpUtility.HtmlDecode(token);
-            switch (_linkService.GetLinkStatus(t))
+            switch (linkService.GetLinkStatus(t))
             {
                 case AccountLinkService.LinkStatus.Ready:
                     // If it is ready (discord and faf account sign in completed)
                     // then save the link, and tell the user.
-                    _ = Task.Run(async () => await _linkService.FinalizeLink(token));
+                    _ = Task.Run(async () => await linkService.FinalizeLink(token));
 
                     return Ok("Accounts linked successfully.");
 
@@ -66,7 +60,7 @@ namespace Faforever.Qai.Api
             {
                 if (Request.Cookies.TryGetValue("token", out var token))
                 { // If the token exsists, abort the link.
-                    await _linkService.AbortLinkAsync(token);
+                    await linkService.AbortLinkAsync(token);
                 }
 
                 Response.Cookies.Delete("token");
@@ -89,7 +83,7 @@ namespace Faforever.Qai.Api
             {
                 if (Request.Cookies.TryGetValue("error", out var error))
                 { // ... if there s an error, abort the link, and clear the cookies.
-                    await _linkService.AbortLinkAsync(token);
+                    await linkService.AbortLinkAsync(token);
 
                     Response.Cookies.Delete("token");
                     Response.Cookies.Delete("error");

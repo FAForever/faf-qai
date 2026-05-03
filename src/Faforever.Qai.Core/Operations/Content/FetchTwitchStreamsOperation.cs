@@ -6,19 +6,13 @@ using Newtonsoft.Json;
 
 namespace Faforever.Qai.Core.Operations.Content
 {
-    public class FetchTwitchStreamsOperation : IFetchTwitchStreamsOperation
+    public class FetchTwitchStreamsOperation(TwitchClient client) : IFetchTwitchStreamsOperation
     {
-        private readonly TwitchClient _client;
         public const int GameId = 16553;
-
-        public FetchTwitchStreamsOperation(TwitchClient client)
-        {
-            _client = client;
-        }
 
         public async Task<TwitchStreamsResult?> GetTwitchStreamsAsync()
         {
-            var resJson = await _client.GetCurrentStreams(GameId);
+            var resJson = await client.GetCurrentStreams(GameId);
 
             if (resJson is null) return null;
 

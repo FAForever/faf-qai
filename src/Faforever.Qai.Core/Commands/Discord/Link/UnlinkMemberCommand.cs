@@ -12,21 +12,14 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Discord.Link
 {
-    public class UnlinkMemberCommand : DiscordCommandModule
+    public class UnlinkMemberCommand(IServiceProvider services) : DiscordCommandModule
     {
-        private readonly IServiceProvider _services;
-
-        public UnlinkMemberCommand(IServiceProvider services)
-        {
-            _services = services;
-        }
-
         [Command("unlink")]
         [Description("Force unlink a member and their FAF account.")]
         [RequireFafStaff]
         public async Task UnlinkMemberLinkCommandAsync(DiscordUser user)
         {
-            var db = _services.GetRequiredService<QAIDatabaseModel>();
+            var db = services.GetRequiredService<QAIDatabaseModel>();
             var link = await db.FindAsync<AccountLink>(user.Id);
 
             if (link is null)

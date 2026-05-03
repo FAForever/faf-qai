@@ -13,17 +13,8 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Moderation.Relay
 {
-    public class RegisterRelayCommand : DiscordCommandModule
+    public class RegisterRelayCommand(RelayService relay, QAIDatabaseModel database) : DiscordCommandModule
     {
-        private readonly RelayService _relay;
-        private readonly QAIDatabaseModel _database;
-
-        public RegisterRelayCommand(RelayService relay, QAIDatabaseModel database)
-        {
-            this._relay = relay;
-            this._database = database;
-        }
-
         [Command("registerrelay", "rrelay")]
         [Description("Registers a link between an IRC channel and a Discord channel.")]
         [RequireUserPermissions(Permissions.ManageChannels)]
@@ -43,7 +34,7 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
                 return;
             }
 
-            var cfg = _database.Find<RelayConfiguration>(Context.Channel.GuildId);
+            var cfg = database.Find<RelayConfiguration>(Context.Channel.GuildId);
             if (cfg is null)
             {
                 cfg = new RelayConfiguration()
@@ -51,8 +42,8 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
                     DiscordServer = Context.Channel.GuildId.Value
                 };
 
-                await _database.AddAsync(cfg);
-                await _database.SaveChangesAsync();
+                await database.AddAsync(cfg);
+                await database.SaveChangesAsync();
             }
 
             // TODO: Some check to see if the IRC channel is available.
@@ -71,12 +62,12 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
                 }
                 else
                 {
-                    _database.Update(cfg);
+                    database.Update(cfg);
 
                     var discordHook = await Context.Client.GetWebhookAsync(hook.Id);
                     await discordHook.ModifyAsync(channelId: discordChannel.Id);
 
-                    await _database.SaveChangesAsync();
+                    await database.SaveChangesAsync();
 
                     await RespondBasicSuccess($"Moved the relay for IRC channel `{ircChannel}` to {discordChannel.Name}");
                 }
@@ -86,7 +77,7 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
 
             var newHook = await discordChannel.CreateWebhookAsync($"Dostya-{ircChannel}", reason: "Dostya Relay Creation");
 
-            if (await _relay.AddRelayAsync(Context.Channel.GuildId.Value, newHook, ircChannel))
+            if (await relay.AddRelayAsync(Context.Channel.GuildId.Value, newHook, ircChannel))
             {
                 await RespondBasicSuccess($"Relay bridge added ({discordChannel.Name} <-> {ircChannel})");
             }

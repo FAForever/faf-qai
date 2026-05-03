@@ -8,15 +8,8 @@ using Newtonsoft.Json.Linq;
 
 namespace Faforever.Qai.Core.Operations.Clan
 {
-    public class ApiFetchClanOperation : IFetchClanOperation
+    public class ApiFetchClanOperation(FafApiClient api) : IFetchClanOperation
     {
-        private readonly FafApiClient _api;
-
-        public ApiFetchClanOperation(FafApiClient api)
-        {
-            _api = api;
-        }
-
         public async Task<FetchClanResult?> FetchClanAsync(string clanName)
         {
             var orFilter = new Dictionary<string, string>()
@@ -30,7 +23,7 @@ namespace Faforever.Qai.Core.Operations.Clan
                 .Include("founder,leader,memberships.player,memberships.clan,memberships.player");
 
             var s = query.ToString();
-            var clans = await _api.GetAsync(query);
+            var clans = await api.GetAsync(query);
             var clan = clans?.FirstOrDefault();
             if (clan is null)
                 return null;

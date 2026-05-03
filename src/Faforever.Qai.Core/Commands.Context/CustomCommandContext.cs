@@ -14,14 +14,13 @@ namespace Faforever.Qai.Core.Commands.Context
         InPrivate
     }
 
-    public abstract class CustomCommandContext : CommandContext
+    public abstract class CustomCommandContext(IServiceProvider services) : CommandContext(services)
     {
         /// <summary>
         /// The prefix used to trigger this command.
         /// </summary>
         public string Prefix { get; protected set; } = default!;
         public readonly DiscordColor DostyaRed = new DiscordColor(0xff0000);
-        protected CustomCommandContext(IServiceProvider services) : base(services) { }
 
         protected abstract bool isPrivate { get; }
 

@@ -10,15 +10,9 @@ using System.Threading.Tasks;
 
 namespace Faforever.Qai.Discord.Commands.AutoComplete
 {
-    public class MapPoolAutocomplete : IAutocompleteProvider
+    public class MapPoolAutocomplete(IFetchLadderPoolOperation ladderOp) : IAutocompleteProvider
     {
         private static readonly Debouncer<Tuple<ulong, ulong>> _debouncer = new Debouncer<Tuple<ulong, ulong>>(TimeSpan.FromMilliseconds(200));
-        private IFetchLadderPoolOperation _ladderOp;
-
-        public MapPoolAutocomplete(IFetchLadderPoolOperation ladderOp)
-        {
-            this._ladderOp = ladderOp;
-        }
 
         public async Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext ctx)
         {
@@ -33,7 +27,7 @@ namespace Faforever.Qai.Discord.Commands.AutoComplete
 
         private async Task<IEnumerable<DiscordAutoCompleteChoice>> FetchLadderPoolChoices(string? searchTerm)
         {
-            var data = await _ladderOp.FetchLadderPoolAsync();
+            var data = await ladderOp.FetchLadderPoolAsync();
 
             if (data == null || !data.Any())
                 return Array.Empty<DiscordAutoCompleteChoice>();

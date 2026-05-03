@@ -16,29 +16,11 @@ namespace Faforever.Qai.Core.Http
         public string TokenEndpoint { get; set; } = "https://hydra.faforever.xyz/oauth2/token";
     }
 
-    public class OAuthHandler : DelegatingHandler
+    public class OAuthHandler(OAuthHandlerSettings settings) : DelegatingHandler
     {
         private string accessToken = "";
         private DateTime tokenExpiry;
-        private OAuthHandlerSettings settings;
         private readonly SemaphoreSlim semaphore = new(1, 1);
-
-
-        public OAuthHandler(OAuthHandlerSettings settings)
-        {
-            /*
-            if (string.IsNullOrEmpty(settings.ClientId))
-                throw new ArgumentException("Client ID is required", nameof(settings.ClientId));
-
-            if (string.IsNullOrEmpty(settings.ClientSecret))
-                throw new ArgumentException("Client Secret is required", nameof(settings.ClientSecret));
-
-            if (string.IsNullOrEmpty(settings.TokenEndpoint))
-                throw new ArgumentException("Token Endpoint is required", nameof(settings.TokenEndpoint));
-            */
-
-            this.settings = settings;
-        }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {

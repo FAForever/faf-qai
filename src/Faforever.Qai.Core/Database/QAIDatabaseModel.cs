@@ -6,16 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Faforever.Qai.Core.Database
 {
-    public class QAIDatabaseModel : DbContext
+    public class QAIDatabaseModel(DbContextOptions<QAIDatabaseModel> options) : DbContext(options)
     {
         public DbSet<DiscordGuildConfiguration> DiscordConfigs => Set<DiscordGuildConfiguration>();
         public DbSet<RelayConfiguration> RelayConfigurations => Set<RelayConfiguration>();
         public DbSet<AccountLink> AccountLinks => Set<AccountLink>();
-
-        public QAIDatabaseModel(DbContextOptions<QAIDatabaseModel> options) : base(options)
-        {
-
-        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

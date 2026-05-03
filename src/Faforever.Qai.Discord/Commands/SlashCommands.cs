@@ -12,15 +12,8 @@ using System.Threading.Tasks;
 
 namespace Faforever.Qai.Discord.Commands
 {
-    public class SlashCommands : ApplicationCommandModule
+    public class SlashCommands(DiscordBot bot) : ApplicationCommandModule
     {
-        private readonly DiscordBot bot;
-
-        public SlashCommands(DiscordBot bot)
-        {
-            this.bot = bot;
-        }
-
         [SlashCommand("ping", "Ping!")]
         public async Task PingCommand(InteractionContext ctx) { }
 

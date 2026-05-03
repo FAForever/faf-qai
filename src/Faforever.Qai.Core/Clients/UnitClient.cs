@@ -2,13 +2,8 @@ using System.Net.Http;
 
 namespace Faforever.Qai.Core.Clients
 {
-    public class UnitClient
+    public class UnitClient(HttpClient client)
     {
-        public HttpClient Client { get; init; }
-
-        public UnitClient(HttpClient client)
-        {
-            Client = client;
-        }
+        public HttpClient Client { get; init; } = client;
     }
 }

@@ -10,15 +10,9 @@ using System.Threading.Tasks;
 
 namespace Faforever.Qai.Discord.Commands.AutoComplete
 {
-    public class PlayerAutocomplete : IAutocompleteProvider
+    public class PlayerAutocomplete(FafApiClient api) : IAutocompleteProvider
     {
         private readonly Debouncer<Tuple<ulong, ulong>> _debouncer = new Debouncer<Tuple<ulong, ulong>>(TimeSpan.FromMilliseconds(300));
-        private FafApiClient _api;
-
-        public PlayerAutocomplete(FafApiClient api)
-        {
-            this._api = api;
-        }
 
         public async Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext ctx)
         {
@@ -47,7 +41,7 @@ namespace Faforever.Qai.Discord.Commands.AutoComplete
                 .Where("login", $"{searchTerm}*")
                 .Limit(limit);
 
-            var players = await _api.GetAsync(query);
+            var players = await api.GetAsync(query);
 
             return players;
         }

@@ -6,36 +6,26 @@ using DSharpPlus.Entities;
 
 namespace Faforever.Qai.Core.Database.Entities
 {
-    public class DiscordGuildConfiguration
+    public class DiscordGuildConfiguration(ulong guildId, string prefix)
     {
         [Key]
-        public ulong GuildId { get; set; }
-        public string Prefix { get; set; }
+        public ulong GuildId { get; set; } = guildId;
+        public string Prefix { get; set; } = prefix;
 
         public ulong? RoleWhenLinked { get; set; }
 
         // Ignore the value for UserBlacklist, we dont need it.
-        public HashSet<ulong> UserBlacklist { get; set; }
+        public HashSet<ulong> UserBlacklist { get; set; } = new();
 
-        public ConcurrentDictionary<ulong, string> FafLinks { get; set; }
-        public ConcurrentDictionary<string, string> Records { get; set; }
+        public ConcurrentDictionary<ulong, string> FafLinks { get; set; } = new();
+        public ConcurrentDictionary<string, string> Records { get; set; } = new();
 
         /// <summary>
         /// Roles that are registered to be able to be subscribed to.
         /// </summary>
-        private HashSet<ulong> RegisteredRoles { get; set; }
+        private HashSet<ulong> RegisteredRoles { get; set; } = new();
 
         public DiscordGuildConfiguration() : this(0, "") { } // used by EFcore or simillar processes or creating blank templates.
-
-        public DiscordGuildConfiguration(ulong guildId, string prefix)
-        {
-            this.GuildId = guildId;
-            this.Prefix = prefix;
-            this.UserBlacklist = new();
-            this.FafLinks = new();
-            this.Records = new();
-            this.RegisteredRoles = new();
-        }
         #region Registered Roles
         public bool IsRoleSubscribable(DiscordRole role)
             => IsRoleSubscribable(role.Id);

@@ -8,15 +8,8 @@ using Qmmands;
 namespace Faforever.Qai.Core.Commands.Dual.Fun
 {
 
-    public class TauntCommand : DualCommandModule
+    public class TauntCommand(IBotFunService botFun) : DualCommandModule
     {
-        private readonly IBotFunService _botFun;
-
-        public TauntCommand(IBotFunService botFun)
-        {
-            _botFun = botFun;
-        }
-
         [Command("taunt")]
         [Description("Taunt a user")]
         public async Task TauntCommandAsync(IBotUserCapsule? user = null)
@@ -34,7 +27,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Fun
                 prefix = ircUser.User.UserName;
             }
 
-            var taunt = _botFun.GetRandomTaunt();
+            var taunt = botFun.GetRandomTaunt();
             if (!string.IsNullOrEmpty(prefix))
                 taunt = $"{prefix}: {taunt}";
 

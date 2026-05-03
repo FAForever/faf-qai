@@ -12,22 +12,15 @@ namespace Faforever.Qai.Core.Services
         Ladder1v1 = 6
     }
 
-    public class GameService
+    public class GameService(FafApiClient api)
     {
-        private readonly FafApiClient _api;
-
-        public GameService(FafApiClient api)
-        {
-            this._api = api;
-        }
-
         public async Task<Game?> FetchGame(long gameId)
         {
             var query = new ApiQuery<Game>()
                 .Where("id", gameId)
                 .Limit(1);
 
-            var games = await _api.GetAsync(query);
+            var games = await api.GetAsync(query);
 
             return games.FirstOrDefault();
         }
@@ -39,7 +32,7 @@ namespace Faforever.Qai.Core.Services
                 .Sort("-startTime")
                 .Limit(1);
 
-            var games = await _api.GetAsync(query);
+            var games = await api.GetAsync(query);
 
             return games.FirstOrDefault();
         }
@@ -69,7 +62,7 @@ namespace Faforever.Qai.Core.Services
                 query.Where("featuredMod.id", (int)mod);
 
             
-            IEnumerable<Game> games = await _api.GetAsync(query);
+            IEnumerable<Game> games = await api.GetAsync(query);
 
             return games.Where(g => g.PlayerStats.Count > 1).OrderByDescending(g => g.AverageRating()).Take(3).ToList();
         }

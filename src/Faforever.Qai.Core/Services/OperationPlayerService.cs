@@ -16,43 +16,26 @@ using Faforever.Qai.Core.Operations.Player;
 namespace Faforever.Qai.Core.Services
 {
     [ExcludeFromCodeCoverage]
-    public class OperationPlayerService : IPlayerService
+    public class OperationPlayerService(FafApiClient api, GameService gameService, IFetchPlayerStatsOperation playerStatsOperation, IFindPlayerOperation findPlayerOperation, QuickChartClient qcClient, PlayerStatsCalculator statsCalculator) : IPlayerService
     {
-        private readonly FafApiClient _api;
-        private readonly GameService _gameService;
-        private readonly IFetchPlayerStatsOperation _playerStatsOperation;
-        private readonly IFindPlayerOperation _findPlayerOperation;
-        private readonly QuickChartClient _qcClient;
-        private readonly PlayerStatsCalculator _statsCalculator;
-
-        public OperationPlayerService(FafApiClient api, GameService gameService, IFetchPlayerStatsOperation playerStatsOperation, IFindPlayerOperation findPlayerOperation, QuickChartClient qcClient, PlayerStatsCalculator statsCalculator)
-        {
-            _api = api;
-            _gameService = gameService;
-            _playerStatsOperation = playerStatsOperation;
-            _findPlayerOperation = findPlayerOperation;
-            _qcClient = qcClient;
-            _statsCalculator = statsCalculator;
-        }
-
         public Task<FetchPlayerStatsResult?> FetchPlayerStats(string username)
         {
-            return _playerStatsOperation.FetchPlayer(username);
+            return playerStatsOperation.FetchPlayer(username);
         }
 
         public Task<FindPlayerResult> FindPlayer(string searchTerm)
         {
-            return _findPlayerOperation.FindPlayer(searchTerm);
+            return findPlayerOperation.FindPlayer(searchTerm);
         }
 
         public Task<LeaderboardRatingJournal[]> GetRatingHistory(string username, FafLeaderboard leaderboard)
         {
-            return _playerStatsOperation.FetchRatingHistory(username, leaderboard);
+            return playerStatsOperation.FetchRatingHistory(username, leaderboard);
         }
 
         public async Task<LastSeenPlayerResult?> LastSeenPlayer(string username)
         {
-            var lastGame = await _gameService.FetchLastGame(username);
+            var lastGame = await gameService.FetchLastGame(username);
 
             // If no last game was found we need to query the player directly
             Player? player = null;
@@ -83,7 +66,7 @@ namespace Faforever.Qai.Core.Services
                 .Where("login", username)
                 .Limit(1);
 
-            var players = await _api.GetAsync(query);
+            var players = await api.GetAsync(query);
 
             return players.FirstOrDefault();
         }
@@ -136,7 +119,7 @@ namespace Faforever.Qai.Core.Services
             if (req.Chart.Options?.Scales?.Volume is not null)
                 req.Chart.Options.Scales.Volume.Max = maxGamesPlayed * 7;
 
-            var chartBytes = await _qcClient.GetChartAsync(req);
+            var chartBytes = await qcClient.GetChartAsync(req);
 
             return chartBytes;
         }
@@ -161,7 +144,7 @@ namespace Faforever.Qai.Core.Services
                     .Limit(currentPageSize)
                     .Page(currentPage);
 
-                var pageGames = (await _api.GetAsync(gamesQuery)).ToList();
+                var pageGames = (await api.GetAsync(gamesQuery)).ToList();
                 
                 if (pageGames.Count == 0)
                     break; // No more games available
@@ -190,7 +173,7 @@ namespace Faforever.Qai.Core.Services
                 .Where("login", username)
                 .Include("names")
                 .Limit(1);
-            var playerData = (await _api.GetAsync(playerQuery)).FirstOrDefault();
+            var playerData = (await api.GetAsync(playerQuery)).FirstOrDefault();
             if (playerData == null) return null;
 
             var playerId = playerData.Id;
@@ -219,7 +202,7 @@ namespace Faforever.Qai.Core.Services
 
             // Calculate all detailed statistics using the dedicated calculator
             var (factionStats, mapStats, performance, activity, recentGames) = 
-                _statsCalculator.CalculateDetailedStats(games, globalHistory, ladderHistory, playerId);
+                statsCalculator.CalculateDetailedStats(games, globalHistory, ladderHistory, playerId);
             
             result.FactionStatistics = factionStats;
             result.MapStatistics = mapStats;

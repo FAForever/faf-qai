@@ -2,42 +2,26 @@ using System.Text.Json.Serialization;
 
 namespace Faforever.Qai.Core.Structures.Link
 {
-    public class FafUser
+    [method: JsonConstructor]
+    public class FafUser(FafUserData data)
     {
         [JsonPropertyName("data")]
-        public FafUserData Data { get; internal set; }
-
-        [JsonConstructor]
-        public FafUser(FafUserData data)
-        {
-            Data = data;
-        }
+        public FafUserData Data { get; internal set; } = data;
     }
 
-    public class FafUserData
+    [method: JsonConstructor]
+    public class FafUserData(FafUserAttributes attributes)
     {
         [JsonPropertyName("attributes")]
-        public FafUserAttributes Attributes { get; internal set; }
-
-        [JsonConstructor]
-        public FafUserData(FafUserAttributes attributes)
-        {
-            Attributes = attributes;
-        }
+        public FafUserAttributes Attributes { get; internal set; } = attributes;
     }
 
-    public class FafUserAttributes
+    [method: JsonConstructor]
+    public class FafUserAttributes(int userId, string username)
     {
         [JsonPropertyName("userId")]
-        public int UserId { get; internal set; }
+        public int UserId { get; internal set; } = userId;
         [JsonPropertyName("userName")]
-        public string UserName { get; internal set; }
-
-        [JsonConstructor]
-        public FafUserAttributes(int userId, string username)
-        {
-            UserId = userId;
-            UserName = username;
-        }
+        public string UserName { get; internal set; } = username;
     }
 }

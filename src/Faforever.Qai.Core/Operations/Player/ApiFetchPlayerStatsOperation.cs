@@ -12,15 +12,8 @@ using Faforever.Qai.Core.Operations.FafApi;
 namespace Faforever.Qai.Core.Operations.Player
 {
     [ExcludeFromCodeCoverage]
-    public class ApiFetchPlayerStatsOperation : IFetchPlayerStatsOperation
+    public class ApiFetchPlayerStatsOperation(FafApiClient api) : IFetchPlayerStatsOperation
     {
-        private readonly FafApiClient _api;
-
-        public ApiFetchPlayerStatsOperation(FafApiClient api)
-        {
-            this._api = api;
-        }
-
         public async Task<FetchPlayerStatsResult?> FetchPlayer(string username)
         {
             var query = new ApiQuery<LeaderboardRating>()
@@ -28,7 +21,7 @@ namespace Faforever.Qai.Core.Operations.Player
                 .Include("leaderboard,player,player.clanMembership.clan,player.names,player,player.avatarAssignments.avatar");
                 
 
-            var playerRatings = await this._api.GetAsync(query);
+            var playerRatings = await api.GetAsync(query);
             if (!playerRatings.Any())
                 return null;
 
@@ -60,7 +53,7 @@ namespace Faforever.Qai.Core.Operations.Player
                .Where("gamePlayerStats.player.login", username)
                .Sort("-createTime");
 
-            var ratingHistory = await this._api.GetAsync(query);
+            var ratingHistory = await api.GetAsync(query);
             var first = ratingHistory.FirstOrDefault();
             if (first is null)
                 return Array.Empty<LeaderboardRatingJournal>();

@@ -10,20 +10,13 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Info
 {
-    public class UnitCommand : DualCommandModule<UnitDatabaseSerachResult>
+    public class UnitCommand(ISearchUnitDatabaseOperation unitSearch) : DualCommandModule<UnitDatabaseSerachResult>
     {
-        private readonly ISearchUnitDatabaseOperation _unitSearch;
-
-        public UnitCommand(ISearchUnitDatabaseOperation unitSearch)
-        {
-            this._unitSearch = unitSearch;
-        }
-
         [Command("unit", "searchunit")]
         [Description("Search the Unit Database for a unit.")]
         public async Task UnitCommandAsync([Remainder] string search)
         {
-            var result = await this._unitSearch.SearchUnitDatabase(search);
+            var result = await unitSearch.SearchUnitDatabase(search);
 
             if (result is null)
                 await Context.ReplyAsync("No unit found.");

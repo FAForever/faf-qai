@@ -7,14 +7,9 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Map
 {
-    public class GetMapCommand : DualCommandModule<Operations.FafApi.Map>
+    public class GetMapCommand(ISearchMapOperation map) : DualCommandModule<Operations.FafApi.Map>
     {
-        private readonly ISearchMapOperation _map;
-
-        public GetMapCommand(ISearchMapOperation map)
-        {
-            _map = map;
-        }
+        private readonly ISearchMapOperation _map = map;
 
         [Command("map")]
         [Description("Get a map from the map database.")]

@@ -12,17 +12,8 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Moderation.Relay
 {
-    public class RemoveRelayCommand : DiscordCommandModule
+    public class RemoveRelayCommand(RelayService relay, QAIDatabaseModel database) : DiscordCommandModule
     {
-        private readonly RelayService _relay;
-        private readonly QAIDatabaseModel _database;
-
-        public RemoveRelayCommand(RelayService relay, QAIDatabaseModel database)
-        {
-            this._relay = relay;
-            this._database = database;
-        }
-
         [Command("removerelay", "delrelay")]
         [Description("Removes a registered relay from your server.")]
         [RequirePermissions(Permissions.ManageChannels)]
@@ -32,7 +23,7 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
         {
             ircChannel = GetIrcChannelName(ircChannel);
 
-            var cfg = await _database.FindAsync<RelayConfiguration>(Context.Channel.GuildId);
+            var cfg = await database.FindAsync<RelayConfiguration>(Context.Channel.GuildId);
             if (cfg is null || !cfg.Webhooks.TryGetValue(ircChannel, out var hook))
             {
                 await RespondBasicError("No relays found.");
@@ -50,7 +41,7 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
             [Description("Discord Channel to remove relay for.")]
             DiscordChannel discordChannel)
         {
-            var cfg = await _database.FindAsync<RelayConfiguration>(Context.Channel.GuildId);
+            var cfg = await database.FindAsync<RelayConfiguration>(Context.Channel.GuildId);
             if (cfg is null)
             {
                 await RespondBasicError("No relays found.");
@@ -79,7 +70,7 @@ namespace Faforever.Qai.Core.Commands.Moderation.Relay
             if (Context.Channel.GuildId == null)
                 return;
 
-            var res = await _relay.RemoveRelayAsync(Context.Channel.GuildId.Value, webhookId);
+            var res = await relay.RemoveRelayAsync(Context.Channel.GuildId.Value, webhookId);
 
             if (!res)
             {

@@ -33,7 +33,7 @@ namespace Faforever.Qai.Core.Commands.Discord.Role
                 return;
             }
 
-            var db = _services.GetRequiredService<QAIDatabaseModel>();
+            var db = services.GetRequiredService<QAIDatabaseModel>();
             var guild = await db.FindAsync<DiscordGuildConfiguration>(Context.Guild.Id);
 
             if (guild is not null && guild.IsRoleSubscribable(role))
@@ -71,7 +71,7 @@ namespace Faforever.Qai.Core.Commands.Discord.Role
                 return;
             }
 
-            var db = _services.GetRequiredService<QAIDatabaseModel>();
+            var db = services.GetRequiredService<QAIDatabaseModel>();
             var guild = await db.FindAsync<DiscordGuildConfiguration>(Context.Guild.Id);
 
             if (guild is not null && guild.IsRoleSubscribable(role))

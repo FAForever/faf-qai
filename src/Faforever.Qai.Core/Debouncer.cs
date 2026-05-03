@@ -5,16 +5,10 @@ using System.Threading.Tasks;
 
 namespace Faforever.Qai.Core
 {
-    public class Debouncer<TKey> where TKey : notnull
+    public class Debouncer<TKey>(TimeSpan delay) where TKey : notnull
     {
         private readonly Dictionary<TKey, CancellationTokenSource> _dictionary
             = new Dictionary<TKey, CancellationTokenSource>();
-        private readonly TimeSpan _delay;
-
-        public Debouncer(TimeSpan delay)
-        {
-            _delay = delay;
-        }
 
         public async Task<T?> Debounce<T>(TKey key, Func<Task<T>> action)
         {
@@ -31,7 +25,7 @@ namespace Faforever.Qai.Core
 
             try
             {
-                var task = Task.Delay(_delay, cts.Token);
+                var task = Task.Delay(delay, cts.Token);
                 await task;
                 if (!task.IsCanceled)
                     result = await action();

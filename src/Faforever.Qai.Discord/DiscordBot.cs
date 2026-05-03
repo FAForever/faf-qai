@@ -22,7 +22,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Faforever.Qai.Discord
 {
-    public sealed class DiscordBot : IDisposable, IAsyncDisposable
+    public sealed class DiscordBot(IServiceProvider services, DiscordBotConfiguration configuration,
+        DiscordShardedClient client, DiscordRestClient rest,
+        QCommandsHandler commands, DiscordEventHandler eventHandler) : IDisposable, IAsyncDisposable
     {
         #region Event Ids
         // 127### - designates a Discord Bot event.
@@ -35,38 +37,17 @@ namespace Faforever.Qai.Discord
         /// <summary>
         /// The Discord Sharded Client of this Discord Bot.
         /// </summary>
-        public DiscordShardedClient Client { get; private set; }
+        public DiscordShardedClient Client { get; private set; } = client;
         /// <summary>
         /// The Rest client for the Discord Bot
         /// </summary>
-        public DiscordRestClient Rest { get; private set; }
+        public DiscordRestClient Rest { get; private set; } = rest;
         /// <summary>
         /// The list of commands that the Bot will respond to.
         /// </summary>
-        public IReadOnlyDictionary<string, Command> Commands { get; private set; }
+        public IReadOnlyDictionary<string, Command> Commands { get; private set; } = new Dictionary<string, Command>();
+
         #endregion
-
-        #region Private Variables
-        private DiscordBotConfiguration Config { get; set; }
-
-        private readonly IServiceProvider _services;
-        private readonly QCommandsHandler _commands;
-        private readonly DiscordEventHandler _eventHandler;
-        #endregion
-
-
-        public DiscordBot(IServiceProvider services, DiscordBotConfiguration configuration,
-            DiscordShardedClient client, DiscordRestClient rest,
-            QCommandsHandler commands, DiscordEventHandler eventHandler)
-        {
-            Commands = new Dictionary<string, Command>();
-            Config = configuration;
-            Client = client;
-            Rest = rest;
-            this._services = services;
-            this._commands = commands;
-            this._eventHandler = eventHandler;
-        }
 
         #region Confgiurations
         /// <summary>
@@ -89,13 +70,13 @@ namespace Faforever.Qai.Discord
         public async Task InitializeAsync()
         {
             // Register necissary configurations
-            if (Config.Token == "")
+            if (configuration.Token == "")
                 await RegisterBotConfigurationAsync();
 
             // Create the Clients
-            var slash = await Client.UseSlashCommandsAsync(new SlashCommandsConfiguration { Services = _services });
+            var slash = await Client.UseSlashCommandsAsync(new SlashCommandsConfiguration { Services = services });
 
-            if (Config.EnableSlashCommands)
+            if (configuration.EnableSlashCommands)
             {
                 slash.RegisterCommands<SlashCommands>();
                 Client.InteractionCreated += InteractionCreated;
@@ -129,7 +110,7 @@ namespace Faforever.Qai.Discord
             }
 
             // Register any additional Client events
-            _eventHandler.Initalize();
+            eventHandler.Initalize();
 
             // Register the event needed to send data to the CommandHandler
             Client.MessageCreated += QMmands_MessageCreated;
@@ -150,8 +131,8 @@ namespace Faforever.Qai.Discord
                 IgnoreExtraArguments = true,
                 //PrefixResolver = PrefixResolver, - This can be used for custom prefixes per server, commands to change prefixes
                 // along with custom checking of messages before they are passed to the command handler.
-                StringPrefixes = new string[] { Config.Prefix },
-                Services = _services,
+                StringPrefixes = new string[] { configuration.Prefix },
+                Services = services,
                 UseDefaultCommandHandler = false
             };
 
@@ -177,9 +158,9 @@ namespace Faforever.Qai.Discord
                         cmd += $" {option.Value}";
                 }
 
-                var ctx = new DiscordCommandContext(sender, args.Interaction, Config, _services);
+                var ctx = new DiscordCommandContext(sender, args.Interaction, configuration, services);
 
-                await _commands.MessageRecivedAsync(ctx, cmd);
+                await commands.MessageRecivedAsync(ctx, cmd);
             });
 
             return Task.CompletedTask;
@@ -191,9 +172,9 @@ namespace Faforever.Qai.Discord
 
             _ = Task.Run(async () =>
             {
-                var ctx = new DiscordCommandContext(sender, e, Config, _services);
+                var ctx = new DiscordCommandContext(sender, e, configuration, services);
 
-                await _commands.MessageRecivedAsync(ctx, e.Message.Content);
+                await commands.MessageRecivedAsync(ctx, e.Message.Content);
             });
 
             return Task.CompletedTask;
@@ -209,7 +190,7 @@ namespace Faforever.Qai.Discord
         {
             // Start the Clients!
             await Client.StartAsync();
-            var relay = _services.GetRequiredService<RelayService>();
+            var relay = services.GetRequiredService<RelayService>();
             await relay.InitializeAsync();
         }
         #endregion

@@ -12,21 +12,14 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Discord.Link
 {
-    public class GetMemberLinkCommand : DiscordCommandModule
+    public class GetMemberLinkCommand(IServiceProvider services) : DiscordCommandModule
     {
-        private readonly IServiceProvider _services;
-
-        public GetMemberLinkCommand(IServiceProvider services)
-        {
-            _services = services;
-        }
-
         [Command("links", "getlinks")]
         [Description("Get the FAF account link for a Discord user")]
         [RequireFafStaff]
         public async Task GetMemberLinkCommandAsync(DiscordUser user)
         {
-            var db = _services.GetRequiredService<QAIDatabaseModel>();
+            var db = services.GetRequiredService<QAIDatabaseModel>();
             var link = await db.FindAsync<AccountLink>(user.Id);
 
             if (link is null)

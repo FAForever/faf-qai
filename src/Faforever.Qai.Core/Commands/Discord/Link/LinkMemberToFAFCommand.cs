@@ -15,20 +15,9 @@ using static Faforever.Qai.Core.Services.AccountLinkService;
 
 namespace Faforever.Qai.Core.Commands.Discord.Link
 {
-    public class LinkMemberToFAFCommand : DiscordCommandModule
+    public class LinkMemberToFAFCommand(AccountLinkService link,
+        IConfiguration configuration, IServiceProvider services) : DiscordCommandModule
     {
-        private readonly AccountLinkService _link;
-        private readonly IConfiguration _configuration;
-        private readonly IServiceProvider _services;
-
-        public LinkMemberToFAFCommand(AccountLinkService link,
-            IConfiguration configuration, IServiceProvider services)
-        {
-            _link = link;
-            _configuration = configuration;
-            _services = services;
-        }
-
         [Command("link")]
         [Description("Link your Discord account to your FAF account. If you are already linked, use this command to get your role.")]
         public async Task LinkMemberToFafCommandAsync()
@@ -37,13 +26,13 @@ namespace Faforever.Qai.Core.Commands.Discord.Link
 
             try
             {
-                var token = await _link.StartAsync(Context.Guild.Id, Context.User.Id, Context.User.Username);
+                var token = await link.StartAsync(Context.Guild.Id, Context.User.Id, Context.User.Username);
 
-                await member.SendMessageAsync($"https://{_configuration["Config:Host"]}/api/link/token/{HttpUtility.HtmlEncode(token)}");
+                await member.SendMessageAsync($"https://{configuration["Config:Host"]}/api/link/token/{HttpUtility.HtmlEncode(token)}");
             }
             catch (DiscordIdAlreadyLinkedException)
             {
-                var db = _services.GetRequiredService<QAIDatabaseModel>();
+                var db = services.GetRequiredService<QAIDatabaseModel>();
                 var guild = await db.FindAsync<DiscordGuildConfiguration>(Context.Guild.Id);
 
                 if (guild is not null

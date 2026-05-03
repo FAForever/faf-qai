@@ -10,22 +10,11 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Discord.Games
 {
-    public class TeamupCommand : DiscordCommandModule
+    public class TeamupCommand(
+        IFetchCurrentGameOperation fetchCurrentGameOperation,
+        IChatGroupService chatGroupService,
+        QAIDatabaseModel database) : DiscordCommandModule
     {
-        private readonly IFetchCurrentGameOperation _fetchCurrentGameOperation;
-        private readonly IChatGroupService _chatGroupService;
-        private readonly QAIDatabaseModel _database;
-
-        public TeamupCommand(
-            IFetchCurrentGameOperation fetchCurrentGameOperation,
-            IChatGroupService chatGroupService,
-            QAIDatabaseModel database)
-        {
-            _fetchCurrentGameOperation = fetchCurrentGameOperation;
-            _chatGroupService = chatGroupService;
-            _database = database;
-        }
-
         [Command("teamup", "sort")]
         [Description("Create voice channels for your current FAF game teams")]
         public async Task TeamupAsync(DiscordUser? targetUser = null)
@@ -53,7 +42,7 @@ namespace Faforever.Qai.Core.Commands.Discord.Games
             }
 
             // Get FAF username from account link
-            var accountLink = await _database.FindAsync<AccountLink>(targetDiscordId);
+            var accountLink = await database.FindAsync<AccountLink>(targetDiscordId);
             if (accountLink == null)
             {
                 var message = targetUser != null 
@@ -65,7 +54,7 @@ namespace Faforever.Qai.Core.Commands.Discord.Games
             }
 
             // Fetch current game
-            var currentGame = await _fetchCurrentGameOperation.FetchCurrentGameById(accountLink.FafId);
+            var currentGame = await fetchCurrentGameOperation.FetchCurrentGameById(accountLink.FafId);
             if (currentGame == null)
             {
                 var playerName = targetUser?.Username ?? "you";
@@ -81,7 +70,7 @@ namespace Faforever.Qai.Core.Commands.Discord.Games
             }
 
             // Create chat groups
-            var result = await _chatGroupService.CreateGameChatGroups(currentGame, Context);
+            var result = await chatGroupService.CreateGameChatGroups(currentGame, Context);
             
             if (!result.Success)
             {

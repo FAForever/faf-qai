@@ -13,21 +13,14 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Discord.Link
 {
-    public class SetRoleForCompletedLinkCommand : DiscordCommandModule
+    public class SetRoleForCompletedLinkCommand(IServiceProvider services) : DiscordCommandModule
     {
-        private readonly IServiceProvider _services;
-
-        public SetRoleForCompletedLinkCommand(IServiceProvider services)
-        {
-            _services = services;
-        }
-
         [Command("linkrole", "roleforlinks")]
         [Description("The role to give a user after they have linked their account. Leave the role blank to disable this feature.")]
         [RequirePermissions(DSharpPlus.Permissions.ManageRoles)]
         public async Task SetRoleForCompletedLinkCommandAsync(DiscordRole? role = null)
         {
-            var db = _services.GetRequiredService<QAIDatabaseModel>();
+            var db = services.GetRequiredService<QAIDatabaseModel>();
             var guild = await db.FindAsync<DiscordGuildConfiguration>(Context.Guild.Id);
 
             if (guild is null)

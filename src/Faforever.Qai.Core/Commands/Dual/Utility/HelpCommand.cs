@@ -10,15 +10,8 @@ using Qmmands;
 
 namespace Faforever.Qai.Core.Commands.Dual.Utility
 {
-    public class HelpCommand : DualCommandModule<List<CommandCategory>>
+    public class HelpCommand(ICommandDiscoveryService commandDiscovery) : DualCommandModule<List<CommandCategory>>
     {
-        private readonly ICommandDiscoveryService _commandDiscovery;
-
-        public HelpCommand(ICommandDiscoveryService commandDiscovery)
-        {
-            _commandDiscovery = commandDiscovery;
-        }
-
         [Command("help", "commands")]
         [Description("Shows available commands or help for a specific command/category.")]
         public async Task HelpCommandAsync([Remainder] string? query = null)
@@ -26,13 +19,13 @@ namespace Faforever.Qai.Core.Commands.Dual.Utility
             if (string.IsNullOrWhiteSpace(query))
             {
                 // Show all commands grouped by category
-                var allCommands = _commandDiscovery.GetAvailableCommands(Context);
+                var allCommands = commandDiscovery.GetAvailableCommands(Context);
                 await ReplyAsync(allCommands);
             }
             else
             {
                 // Try to find specific command first
-                var specificCommand = _commandDiscovery.GetCommand(query);
+                var specificCommand = commandDiscovery.GetCommand(query);
                 if (specificCommand != null)
                 {
                     await ReplySpecificCommand(specificCommand);
@@ -40,7 +33,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Utility
                 }
 
                 // Try to find category
-                var categoryCommands = _commandDiscovery.GetCommandsByCategory(query);
+                var categoryCommands = commandDiscovery.GetCommandsByCategory(query);
                 if (categoryCommands.Any())
                 {
                     var category = new CommandCategory 
