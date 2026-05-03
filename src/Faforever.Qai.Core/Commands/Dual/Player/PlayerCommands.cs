@@ -188,7 +188,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
                 $"Total Games: {data.Activity.TotalGamesPlayed} | W/L: {data.Activity.TotalWins}/{data.Activity.TotalLosses} ({data.Activity.OverallWinRate:F1}%)\n" +
                 $"Recent Activity: {data.Activity.GamesLast7Days} games (7d), {data.Activity.GamesLast30Days} games (30d)\n";
 
-            if (data.FactionStatistics.Any())
+            if (data.FactionStatistics.Count != 0)
             {
                 response += "\n== FACTION PERFORMANCE ==\n";
                 foreach (var faction in data.FactionStatistics.OrderByDescending(f => f.Value.GamesPlayed))
@@ -198,7 +198,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
                 }
             }
 
-            if (data.MapStatistics.Any())
+            if (data.MapStatistics.Count != 0)
             {
                 response += "\n== TOP MAPS ==\n";
                 foreach (var map in data.MapStatistics.OrderByDescending(m => m.Value.GamesPlayed).Take(10))
@@ -246,7 +246,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
             embed.AddField("Activity", activityText);
 
             // Faction statistics (all factions)
-            if (data.FactionStatistics.Any())
+            if (data.FactionStatistics.Count != 0)
             {
                 var topFactions = data.FactionStatistics.OrderByDescending(f => f.Value.GamesPlayed);
                 var factionText = string.Join("\n", topFactions.Select(f => 
@@ -255,7 +255,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
             }
 
             // Recent games (last 5)
-            if (data.RecentGames.Any())
+            if (data.RecentGames.Count != 0)
             {
                 var recentText = string.Join("\n", data.RecentGames.Take(5).Select(g => 
                     $"{GetResultEmoji(g.Result)} **{g.MapName}** ({g.RatingChange:+0;-0}) - {g.Date:MM/dd}"));
@@ -263,7 +263,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
             }
 
             // Top maps (top 5)
-            if (data.MapStatistics.Any())
+            if (data.MapStatistics.Count != 0)
             {
                 var topMaps = data.MapStatistics.OrderByDescending(m => m.Value.GamesPlayed).Take(5);
                 var mapsText = string.Join("\n", topMaps.Select(m => 
@@ -272,7 +272,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
             }
 
             // Favorite opponents (top 3)
-            if (data.Activity.FavoriteOpponents.Any())
+            if (data.Activity.FavoriteOpponents.Count != 0)
             {
                 var opponentsText = string.Join("\n", data.Activity.FavoriteOpponents.Take(3));
                 embed.AddField("Frequent Opponents", opponentsText, true);
@@ -330,7 +330,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
             embed.AddField("Activity", activityText);
 
             // Faction statistics (all factions)
-            if (data.FactionStatistics.Any())
+            if (data.FactionStatistics.Count != 0)
             {
                 var topFactions = data.FactionStatistics.OrderByDescending(f => f.Value.GamesPlayed);
                 var factionText = string.Join("\n", topFactions.Select(f => 
@@ -339,7 +339,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
             }
 
             // Recent games (last 5)
-            if (data.RecentGames.Any())
+            if (data.RecentGames.Count != 0)
             {
                 var recentText = string.Join("\n", data.RecentGames.Take(5).Select(g => 
                     $"{GetResultEmoji(g.Result)} **{g.MapName}** ({g.RatingChange:+0;-0}) - {g.Date:MM/dd}"));
@@ -347,7 +347,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
             }
 
             // Top maps (top 5)
-            if (data.MapStatistics.Any())
+            if (data.MapStatistics.Count != 0)
             {
                 var topMaps = data.MapStatistics.OrderByDescending(m => m.Value.GamesPlayed).Take(5);
                 var mapsText = string.Join("\n", topMaps.Select(m => 
@@ -356,7 +356,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
             }
 
             // Favorite opponents (top 3)
-            if (data.Activity.FavoriteOpponents.Any())
+            if (data.Activity.FavoriteOpponents.Count != 0)
             {
                 var opponentsText = string.Join("\n", data.Activity.FavoriteOpponents.Take(3));
                 embed.AddField("Frequent Opponents", opponentsText, true);
