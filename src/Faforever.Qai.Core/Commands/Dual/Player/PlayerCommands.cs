@@ -114,34 +114,51 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
         [Description("Get detailed player statistics including faction performance and recent games")]
         public async Task GetDetailedPlayerStatsAsync(string username)
         {
-            // Send immediate loading response based on platform
-            object loadingMessage;
             if (Context is DiscordCommandContext discordCtx)
-            {
-                loadingMessage = await discordCtx.Channel.SendMessageAsync($"Fetching detailed stats for **{username}**... This may take a few seconds.");
-            }
+                await GetDetailedPlayerStatsDiscordAsync(discordCtx, username);
             else
-            {
-                loadingMessage = null; // IRC doesn't support message editing
-                await Context.ReplyAsync($"Fetching detailed stats for {username}... This may take a few seconds.");
-            }
+                await GetDetailedPlayerStatsIrcAsync(username);
+        }
 
+        private async Task GetDetailedPlayerStatsDiscordAsync(DiscordCommandContext ctx, string username)
+        {
+            var loading = await ctx.Channel.SendMessageAsync(
+                $"Fetching detailed stats for **{username}**... This may take a few seconds.");
             try
             {
                 var playerStats = await _playerService.FetchDetailedPlayerStats(username);
-
                 if (playerStats is null)
                 {
-                    await EditResponseAsync(loadingMessage, "No such player found.");
+                    await loading.ModifyAsync("No such player found.");
+                    return;
                 }
-                else
+                var embed = await BuildDetailedStatsEmbed(playerStats);
+                await loading.ModifyAsync(msg =>
                 {
-                    await EditResponseWithDetailedStatsAsync(loadingMessage, playerStats);
-                }
+                    msg.Content = "";
+                    msg.Embed = embed;
+                });
             }
             catch (Exception ex)
             {
-                await EditResponseAsync(loadingMessage, $"Error fetching player stats: {ex.Message}");
+                await loading.ModifyAsync($"Error fetching player stats: {ex.Message}");
+            }
+        }
+
+        private async Task GetDetailedPlayerStatsIrcAsync(string username)
+        {
+            await Context.ReplyAsync($"Fetching detailed stats for {username}... This may take a few seconds.");
+            try
+            {
+                var playerStats = await _playerService.FetchDetailedPlayerStats(username);
+                if (playerStats is null)
+                    await Context.ReplyAsync("No such player found.");
+                else
+                    await IrcDetailedStatsReplyAsync((IrcCommandContext)Context, playerStats);
+            }
+            catch (Exception ex)
+            {
+                await Context.ReplyAsync($"Error fetching player stats: {ex.Message}");
             }
         }
 
@@ -292,44 +309,6 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
             "Draw" => "⚖️",
             _ => "❓"
         };
-
-        private async Task EditResponseAsync(object originalMessage, string newContent)
-        {
-            if (Context is DiscordCommandContext discordCtx)
-            {
-                if (originalMessage is DiscordMessage discordMessage)
-                {
-                    await discordMessage.ModifyAsync(newContent);
-                }
-            }
-            else if (Context is IrcCommandContext ircCtx)
-            {
-                // IRC doesn't support message editing, so send a new message
-                await Context.ReplyAsync(newContent);
-            }
-        }
-
-        private async Task EditResponseWithDetailedStatsAsync(object originalMessage, DetailedPlayerStatsResult data)
-        {
-            if (Context is DiscordCommandContext discordCtx)
-            {
-                if (originalMessage is DiscordMessage discordMessage)
-                {
-                    // Create the detailed Discord embed
-                    var embed = await BuildDetailedStatsEmbed(data);
-                    await discordMessage.ModifyAsync(msg => 
-                    {
-                        msg.Content = "";
-                        msg.Embed = embed;
-                    });
-                }
-            }
-            else if (Context is IrcCommandContext ircCtx)
-            {
-                // IRC doesn't support message editing, so send the detailed response
-                await IrcDetailedStatsReplyAsync(ircCtx, data);
-            }
-        }
 
         private async Task<DiscordEmbed> BuildDetailedStatsEmbed(DetailedPlayerStatsResult data)
         {
