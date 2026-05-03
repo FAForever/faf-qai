@@ -99,9 +99,9 @@ namespace Faforever.Qai.Core.Operations.PatchNotes
                     var anchor = listItem?.QuerySelector("a.preview-title");
                     var dateSpan = listItem?.QuerySelector("span");
 
-                    if (anchor != null && !string.IsNullOrEmpty(anchor.GetAttribute("href")))
+                    var href = anchor?.GetAttribute("href");
+                    if (anchor != null && !string.IsNullOrEmpty(href))
                     {
-                        var href = anchor.GetAttribute("href");
                         var version = ExtractVersionFromHref(href) ?? anchor.TextContent?.Trim();
                         var dateText = dateSpan?.TextContent?.Trim('(', ')') ?? "";
 
