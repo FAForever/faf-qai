@@ -1,7 +1,6 @@
 using Faforever.Qai.Core.Operations.Maps;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
-using NUnit.Framework.Legacy;
 using System.Threading.Tasks;
 
 namespace Faforever.Qai.Core.Tests.Operations

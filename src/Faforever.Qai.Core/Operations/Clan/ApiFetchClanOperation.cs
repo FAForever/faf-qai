@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Faforever.Qai.Core.Models;
 using Faforever.Qai.Core.Operations.FafApi;
-using Newtonsoft.Json.Linq;
 
 namespace Faforever.Qai.Core.Operations.Clan
 {

@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using Faforever.Qai.Core.Clients;
 using Faforever.Qai.Core.Clients.QuickChart;
 using Faforever.Qai.Core.Http;

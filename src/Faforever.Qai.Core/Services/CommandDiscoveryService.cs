@@ -8,7 +8,6 @@ using Faforever.Qai.Core.Commands.Authorization;
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Models;
 using Qmmands;
-using DSharpPlus;
 
 namespace Faforever.Qai.Core.Services;
 

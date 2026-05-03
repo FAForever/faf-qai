@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Database;
-using Faforever.Qai.Core.Database.Entities;
 using Faforever.Qai.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

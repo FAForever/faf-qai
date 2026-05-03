@@ -1,6 +1,4 @@
 using Faforever.Qai.Core.Operations.PatchNotes;
-using Faforever.Qai.Core.Operations.Replays;
-using Faforever.Qai.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using System.Threading.Tasks;

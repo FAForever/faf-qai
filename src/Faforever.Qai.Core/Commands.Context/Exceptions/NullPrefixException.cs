@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.Serialization;
 
 namespace Faforever.Qai.Core.Commands.Context.Exceptions
 {

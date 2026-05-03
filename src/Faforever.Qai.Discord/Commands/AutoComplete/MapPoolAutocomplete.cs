@@ -5,7 +5,6 @@ using Faforever.Qai.Core.Operations.Maps;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Faforever.Qai.Discord.Commands.AutoComplete

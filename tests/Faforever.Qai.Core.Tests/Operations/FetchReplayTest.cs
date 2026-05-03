@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Faforever.Qai.Core.Operations.Replays;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
-using NUnit.Framework.Legacy;
 
 namespace Faforever.Qai.Core.Tests.Operations
 {

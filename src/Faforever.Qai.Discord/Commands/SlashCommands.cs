@@ -2,17 +2,14 @@
 #pragma warning disable CA1822 // Mark members as static
 #pragma warning disable IDE0060 // Remove unused parameter
 
-using DSharpPlus;
-using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Faforever.Qai.Core.Operations.PatchNotes;
-using Faforever.Qai.Core.Services;
 using Faforever.Qai.Discord.Commands.AutoComplete;
 using System.Threading.Tasks;
 
 namespace Faforever.Qai.Discord.Commands
 {
-    public class SlashCommands(DiscordBot bot) : ApplicationCommandModule
+    public class SlashCommands : ApplicationCommandModule
     {
         [SlashCommand("ping", "Ping!")]
         public async Task PingCommand(InteractionContext ctx) { }

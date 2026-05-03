@@ -3,9 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
 using Faforever.Qai.Core.Commands.Context;
-using Faforever.Qai.Core.Models;
 using Faforever.Qai.Core.Operations.FafApi;
 using Faforever.Qai.Core.Operations.Maps;
 

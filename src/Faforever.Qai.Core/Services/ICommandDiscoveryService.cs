@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Faforever.Qai.Core.Commands.Context;
 using Faforever.Qai.Core.Models;
 

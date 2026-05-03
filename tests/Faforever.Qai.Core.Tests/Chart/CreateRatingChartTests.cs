@@ -1,8 +1,3 @@
-using System.IO;
-using System.Threading.Tasks;
-using Faforever.Qai.Core.Clients.QuickChart;
-using NUnit.Framework;
-
 namespace Faforever.Qai.Core.Tests.Chart
 {
     public class CreateRatingChartTests

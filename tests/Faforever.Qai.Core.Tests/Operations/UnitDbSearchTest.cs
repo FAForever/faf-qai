@@ -5,7 +5,6 @@ using Faforever.Qai.Core.Operations.Units;
 using Microsoft.Extensions.DependencyInjection;
 
 using NUnit.Framework;
-using NUnit.Framework.Legacy;
 
 namespace Faforever.Qai.Core.Tests.Operations
 {
