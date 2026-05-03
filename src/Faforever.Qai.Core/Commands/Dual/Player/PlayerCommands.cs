@@ -61,21 +61,21 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
             if (toJoin.Count != 0)
                 embed.AddField("Aliases", string.Join("\n", toJoin));
 
-            if (!(data.LadderStats is null))
+            if (data.LadderStats is not null)
                 embed.AddField("Ladder:", "```http\n" +
                     $"Rating  :: {data.LadderStats?.Rating.ToString("F0") ?? "0"}\n" +
                     $"Ranking :: {data.LadderStats?.Ranking ?? 0}\n" +
                     $"Games   :: {data.LadderStats?.GamesPlayed ?? 0}\n" +
                     "```");
 
-            if (!(data.GlobalStats is null))
+            if (data.GlobalStats is not null)
                 embed.AddField("Global:", "```http\n" +
                     $"Rating  :: {data.GlobalStats?.Rating.ToString("F0") ?? "0"}\n" +
                     $"Ranking :: {data.GlobalStats?.Ranking ?? 0}\n" +
                     $"Games   :: {data.GlobalStats?.GamesPlayed ?? 0}\n" +
                     "```");
 
-            if (!(data.Clan is null))
+            if (data.Clan is not null)
                 embed.AddField($"Clan: {data.Clan?.Name}", "```http\n" +
                     $"Clan Size :: {0}\n" +
                     $"URL       :: {data.Clan?.WebsiteUrl ?? "n/a"}\n" +
@@ -147,7 +147,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
                 if (playerStats is null)
                     await Context.ReplyAsync("No such player found.");
                 else
-                    await IrcDetailedStatsReplyAsync((IrcCommandContext)Context, playerStats);
+                    await IrcDetailedStatsReplyAsync(playerStats);
             }
             catch (Exception ex)
             {
@@ -169,15 +169,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
             }
         }
 
-        private async Task ReplyWithDetailedStatsAsync(DetailedPlayerStatsResult data)
-        {
-            if (Context is DiscordCommandContext discordCtx)
-                await DiscordDetailedStatsReplyAsync(discordCtx, data);
-            else if (Context is IrcCommandContext ircCtx)
-                await IrcDetailedStatsReplyAsync(ircCtx, data);
-        }
-
-        private async Task IrcDetailedStatsReplyAsync(IrcCommandContext ctx, DetailedPlayerStatsResult data)
+        private async Task IrcDetailedStatsReplyAsync(DetailedPlayerStatsResult data)
         {
             var response = $"=== DETAILED STATS FOR {data.Name.ToUpper()} (Last {data.GameCountDisplay} Games) ===\n" +
                 $"ID: {data.Id} | Last Seen: {data.LastSeen:yyyy-MM-dd HH:mm:ss}\n\n" +
@@ -219,7 +211,7 @@ namespace Faforever.Qai.Core.Commands.Dual.Player
             await Context.ReplyAsync(response);
         }
 
-        private async Task DiscordDetailedStatsReplyAsync(DiscordCommandContext ctx, DetailedPlayerStatsResult data)
+        private async Task DiscordDetailedStatsReplyAsync(DetailedPlayerStatsResult data)
         {
             var embed = new DiscordEmbedBuilder()
                 .WithColor(Context.DostyaRed)
