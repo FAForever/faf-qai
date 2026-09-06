@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 
 using Faforever.Qai.Core.Structures.Configurations;
 using Faforever.Qai.Core.Structures.ReplayReview;
@@ -38,6 +39,7 @@ namespace Faforever.Qai.Core.Services
     {
         private IConnection? _connection;
         private IChannel? _channel;
+        private string? _consumerTag;
 
         public async Task InitializeAsync(CancellationToken cancellationToken = default)
         {
@@ -89,7 +91,7 @@ namespace Faforever.Qai.Core.Services
             var consumer = new AsyncEventingBasicConsumer(_channel);
             consumer.ReceivedAsync += OnMessageAsync;
 
-            await _channel.BasicConsumeAsync(
+            _consumerTag = await _channel.BasicConsumeAsync(
                 queue: configuration.QueueName,
                 autoAck: false,
                 consumer: consumer,
@@ -131,11 +133,26 @@ namespace Faforever.Qai.Core.Services
             {
                 await PostAsync(request);
             }
+            catch (Exception ex) when (IsMisconfiguration(ex))
+            {
+                // The channel is wrong, gone, or closed to the bot. Retrying
+                // cannot fix any of those, and retrying immediately would spin
+                // against Discord's API for as long as the mistake stands. So
+                // the request goes back on the queue and this consumer stops:
+                // nothing is lost, someone fixes the configuration, and a
+                // restart drains the backlog.
+                logger.LogError(
+                    ex,
+                    "Cannot post to channel {ChannelId}; returning the request to the queue and stopping the consumer.",
+                    configuration.ForumChannelId);
+                await RejectAsync(args, requeue: true);
+                await StopConsumingAsync();
+                return;
+            }
             catch (Exception ex)
             {
-                // Requeue: a failure here is almost always Discord being
-                // unavailable or the bot missing a permission, and both are
-                // fixed without the player having to ask again.
+                // Requeue: what is left is Discord being briefly unavailable,
+                // which is fixed without the player having to ask again.
                 logger.LogError(
                     ex,
                     "Failed to post replay review request from player {PlayerId}; requeueing.",
@@ -147,9 +164,25 @@ namespace Faforever.Qai.Core.Services
             await _channel.BasicAckAsync(args.DeliveryTag, multiple: false);
         }
 
+        /// <summary>
+        /// Whether this failure is a configuration mistake rather than a blip.
+        /// </summary>
+        private static bool IsMisconfiguration(Exception ex) =>
+            ex is InvalidOperationException
+                or NotFoundException
+                or UnauthorizedException;
+
         private async Task PostAsync(ReplayReviewRequest request)
         {
-            var channel = await rest.GetChannelAsync(configuration.ForumChannelId);
+            // `CreateForumPostAsync` lives on the forum subtype, so the cast is
+            // also the check that the configured channel is a forum at all.
+            if (await rest.GetChannelAsync(configuration.ForumChannelId)
+                is not DiscordForumChannel channel)
+            {
+                throw new InvalidOperationException(
+                    $"Channel {configuration.ForumChannelId} is not a forum channel.");
+            }
+
             var post = ReplayReviewPostFormatter.Format(request);
 
             var message = new DiscordMessageBuilder()
@@ -169,6 +202,15 @@ namespace Faforever.Qai.Core.Services
                 request.ReplayId);
         }
 
+        private async Task StopConsumingAsync()
+        {
+            if (_channel is null || _consumerTag is null)
+                return;
+
+            await _channel.BasicCancelAsync(_consumerTag);
+            _consumerTag = null;
+        }
+
         private async Task RejectAsync(BasicDeliverEventArgs args, bool requeue)
         {
             if (_channel is null)
@@ -181,6 +223,7 @@ namespace Faforever.Qai.Core.Services
         {
             if (_channel is not null)
             {
+                _consumerTag = null;
                 await _channel.CloseAsync();
                 await _channel.DisposeAsync();
                 _channel = null;
