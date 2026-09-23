@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Net.WebSockets;
 using System.Threading;
@@ -25,8 +25,18 @@ namespace IrcDotNet
 
         private const int receiveBufferSize = 0xFFFF;
 
-        // Queue of pending messages and their tokens to be sent when ready.
-        private readonly Queue<Tuple<string, object>> messageSendQueue = new();
+        // Give up on a handshake that never completes, so that a server which accepts the connection
+        // but never upgrades it doesn't leave us connecting forever.
+        private static readonly TimeSpan connectTimeout = TimeSpan.FromSeconds(30);
+
+        // Drop the connection when the server stops answering the WebSocket keep-alive pings. Without
+        // this the socket keeps looking open on a network path that silently went away.
+        private static readonly TimeSpan keepAliveTimeout = TimeSpan.FromSeconds(20);
+
+        // Queue of pending messages and their tokens to be sent when ready. Messages are enqueued from
+        // whichever thread sends them (including the receive loop, which answers PING and CAP) while the
+        // send timer dequeues them, so this has to be thread-safe.
+        private readonly ConcurrentQueue<Tuple<string, object>> messageSendQueue = new();
 
         private readonly SemaphoreSlim sendLock = new(1, 1);
 
@@ -129,6 +139,18 @@ namespace IrcDotNet
             // Stop sending messages immediately.
             sendTimer?.Change(Timeout.Infinite, Timeout.Infinite);
 
+            // Make sure the transport is really gone. The receive loop may have died on its own, for
+            // instance on a line the parser chokes on, and a socket left open would keep IsConnected
+            // true so that nothing ever reconnects.
+            try
+            {
+                webSocket?.Abort();
+            }
+            catch (ObjectDisposedException)
+            {
+                // Ignore.
+            }
+
             // Set that client has disconnected.
             disconnectedEvent.Set();
 
@@ -166,29 +188,38 @@ namespace IrcDotNet
 
         private async Task ConnectAsync(Uri url, IrcRegistrationInfo registrationInfo)
         {
+            var cancellation = new CancellationTokenSource();
+            cancellationTokenSource = cancellation;
+
+            using var connectCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);
+            connectCancellation.CancelAfter(connectTimeout);
+
             try
             {
-                cancellationTokenSource = new CancellationTokenSource();
-                webSocket = new ClientWebSocket();
-                webSocket.Options.AddSubProtocol(TextSubProtocol);
+                var socket = new ClientWebSocket();
+                socket.Options.AddSubProtocol(TextSubProtocol);
+                socket.Options.KeepAliveTimeout = keepAliveTimeout;
+                webSocket = socket;
 
-                await webSocket.ConnectAsync(url, cancellationTokenSource.Token);
+                await socket.ConnectAsync(url, connectCancellation.Token);
 
                 DebugUtilities.WriteEvent("Connected to server at '{0}'.", url);
 
                 // Start sending and receiving data to/from server.
                 sendTimer.Change(0, Timeout.Infinite);
-                _ = Task.Run(() => ReceiveAsync(webSocket, cancellationTokenSource.Token));
+                _ = Task.Run(() => ReceiveAsync(socket, cancellation.Token), CancellationToken.None);
 
                 HandleClientConnectedNew(registrationInfo);
             }
-            catch (OperationCanceledException)
-            {
-                // Ignore.
-            }
             catch (Exception ex)
             {
-                OnConnectFailed(new IrcErrorEventArgs(ex));
+                // The client was disposed or disconnected while connecting; nothing to report.
+                if (cancellation.IsCancellationRequested)
+                    return;
+
+                OnConnectFailed(new IrcErrorEventArgs(connectCancellation.IsCancellationRequested
+                    ? new TimeoutException($"Timed out connecting to '{url}'.")
+                    : ex));
             }
         }
 
@@ -259,7 +290,7 @@ namespace IrcDotNet
                 // Send pending messages in queue until flood preventer indicates to stop.
                 long sendDelay = 0;
 
-                while (messageSendQueue.Count > 0)
+                while (!messageSendQueue.IsEmpty)
                 {
                     // Check that flood preventer currently permits sending of messages.
                     if (FloodPreventer != null)
@@ -270,8 +301,10 @@ namespace IrcDotNet
                     }
 
                     // Send next message in queue.
-                    var (line, token) = messageSendQueue.Dequeue();
-                    _ = SendAsync(line, token);
+                    if (!messageSendQueue.TryDequeue(out var message))
+                        break;
+
+                    _ = SendAsync(message.Item1, message.Item2);
 
                     // Tell flood preventer mechanism that message has just been sent.
                     FloodPreventer?.HandleMessageSent();
