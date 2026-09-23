@@ -1,5 +1,4 @@
 using System;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,21 +15,25 @@ namespace Faforever.Qai.Irc
 {
     public sealed class QaIrc : IDisposable
     {
-        private readonly string _hostname;
+        private readonly string _connection;
+        private readonly Uri _webSocketUri;
+        private readonly string _serverName;
         private readonly IrcRegistrationInfo _userInfo;
         private readonly ILogger _logger;
         private readonly QCommandsHandler _commandHandler;
         private readonly RelayService _relay;
         private readonly IServiceProvider _services;
         private readonly string[] _channels;
-        private StandardIrcClient _client;
+        private IrcClient _client;
         private Thread _heartbeatThread;
         private DateTime? nextConnectAttempt = null;
 
         public QaIrc(IrcConfiguration config, IrcRegistrationInfo userInfo, ILogger<QaIrc> logger,
             QCommandsHandler commandHandler, RelayService relay, IServiceProvider services)
         {
-            _hostname = config.Connection;
+            _connection = config.Connection;
+            _webSocketUri = ParseWebSocketUri(_connection);
+            _serverName = _webSocketUri?.Host ?? _connection;
             _userInfo = userInfo;
             _logger = logger;
             _commandHandler = commandHandler;
@@ -45,13 +48,10 @@ namespace Faforever.Qai.Irc
         public void Run()
         {
             connecting = true;
-            var hostEntry = Dns.GetHostEntry(_hostname);
-            var address = hostEntry.AddressList[0];
-            var port = 6667;
-            _logger.LogInformation("Connecting to IRC server {0} ({1}), port {2}", _hostname, address, port);
+            _logger.LogInformation("Connecting to IRC server {connection}", _connection);
             try
             {
-                _client.Connect(_hostname, false, _userInfo);
+                ConnectClient();
                 _logger.LogInformation("Starting heartbeat thread...");
                 _heartbeatThread = new Thread(HeartbeatThread);
                 _heartbeatThread.Start();
@@ -86,9 +86,35 @@ namespace Faforever.Qai.Irc
             _client = null;
         }
 
+        /// <summary>
+        ///     Returns the WebSocket URI to connect to, or <c>null</c> if the configured connection is a plain
+        ///     host name and the legacy TCP transport should be used.
+        /// </summary>
+        private static Uri ParseWebSocketUri(string connection)
+        {
+            if (!Uri.TryCreate(connection, UriKind.Absolute, out var uri))
+                return null;
+
+            return uri.Scheme is "ws" or "wss" ? uri : null;
+        }
+
+        private void ConnectClient()
+        {
+            switch (_client)
+            {
+                case WebSocketIrcClient webSocketClient:
+                    webSocketClient.Connect(_webSocketUri, _userInfo);
+                    break;
+                case StandardIrcClient standardClient:
+                    standardClient.Connect(_connection, false, _userInfo);
+                    break;
+            }
+        }
+
         private void InitializeClient()
         {
-            _client = new StandardIrcClient { FloodPreventer = new IrcStandardFloodPreventer(4, 2000) };
+            _client = _webSocketUri is null ? new StandardIrcClient() : new WebSocketIrcClient();
+            _client.FloodPreventer = new IrcStandardFloodPreventer(4, 2000);
             _client.ErrorMessageReceived += OnClientErrorMessageReceived;
             _client.Connected += OnClientConnected;
             _client.ConnectFailed += OnClientConnectFailed;
@@ -237,7 +263,7 @@ namespace Faforever.Qai.Irc
 
             DisposeClient();
             InitializeClient();
-            _client.Connect(_hostname, false, _userInfo);
+            ConnectClient();
         }
 
         private void HeartbeatThread()
@@ -266,8 +292,8 @@ namespace Faforever.Qai.Irc
                     {
                         if (nextPing < DateTime.Now)
                         {
-                            _logger.LogInformation("Pinging {_hostname}", _hostname);
-                            _client.Ping(_hostname);
+                            _logger.LogInformation("Pinging {serverName}", _serverName);
+                            _client.Ping(_serverName);
 
                             nextPing = DateTime.Now.AddSeconds(PING_INTERVAL);
                         }
