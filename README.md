@@ -149,7 +149,7 @@ services:
       - Config__Host=yourdomain.com
       
       # Optional: IRC Configuration
-      - Config__Irc__Connection=irc.faforever.com
+      - Config__Irc__Connection=wss://chat.faforever.com
       - Config__Irc__User=your_bot_name
       - Config__Irc__Channels=aeolus,newbie
       
@@ -181,7 +181,7 @@ services:
 | `Config__Faf__ClientId`         | Account Linking | FAF OAuth2 client ID (for account linking)               |
 | `FAF_CLIENT_SECRET`             | Account Linking | FAF OAuth2 client secret (for account linking)           |
 | `Config__Host`                  | Account Linking | Public domain for OAuth2 callbacks                       |
-| `Config__Irc__Connection`       | Optional        | IRC server (default: `irc.faforever.com`)                |
+| `Config__Irc__Connection`       | Optional        | IRC server: a `ws://`/`wss://` URL, or a host name for plain TCP (default: `wss://chat.faforever.com`) |
 | `Config__Irc__User`             | Optional        | IRC bot username                                         |
 | `Config__Irc__Channels`         | Optional        | IRC channels to join (default: `aeolus,newbie`)          |
 | `Config__Faf__Api`              | Optional        | FAF API base URL (default: `https://api.faforever.com`)  |
