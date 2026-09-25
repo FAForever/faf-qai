@@ -10,6 +10,7 @@ namespace Faforever.Qai
         public FafSettings Faf { get; set; } = new FafSettings();
         public FafApiSettings FafApi { get; set; } = new FafApiSettings();
         public DiscordSettings Discord { get; set; } = new DiscordSettings();
+        public ReplayReviewSettings ReplayReview { get; set; } = new ReplayReviewSettings();
         
         public string BotPrefix { get; set; } = "!";
         public string Host { get; set; }
@@ -49,6 +50,24 @@ namespace Faforever.Qai
             public string TokenEndpoint { get; set; }
             public string Token { get; set; }
             public RolesSettings Roles { get; set; }
+        }
+
+        /// <summary>
+        /// Replay review requests, consumed from the lobby server's exchange.
+        /// Leaving Broker or ForumChannelId unset keeps the consumer dormant,
+        /// which is what every deployment does until it is switched on.
+        /// </summary>
+        public class ReplayReviewSettings
+        {
+            public string Broker { get; set; }
+            public int BrokerPort { get; set; } = 5672;
+            public string User { get; set; }
+            public string Password { get; set; }
+            public string VirtualHost { get; set; } = "/faf-core";
+            public string Exchange { get; set; } = "faf-rabbitmq";
+            public string RoutingKey { get; set; } = "request.replay_review.create";
+            public string QueueName { get; set; } = "faf-rabbitmq.qai.replay_review.create";
+            public ulong ForumChannelId { get; set; }
         }
 
         public class RolesSettings

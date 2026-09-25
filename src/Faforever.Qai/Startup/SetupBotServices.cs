@@ -66,6 +66,7 @@ namespace Faforever.Qai.Startup
 
             var (botFunConfig, urlConfig) = GetJsonConfig();
             var twitchConfig = GetTwitchConfig(botConfig);
+            var replayReviewConfig = GetReplayReviewConfig(botConfig);
 
             services.AddDbContext<QAIDatabaseModel>(options =>
             {
@@ -100,6 +101,8 @@ namespace Faforever.Qai.Startup
                 .AddSingleton<IUrlService>(new UrlService(urlConfig))
                 .AddSingleton<DiscordEventHandler>()
                 .AddSingleton<AccountLinkService>()
+                .AddSingleton(replayReviewConfig)
+                .AddSingleton<ReplayReviewQueueService>()
                 .AddSingleton<ICommandDiscoveryService, CommandDiscoveryService>()
                 .AddTransient<IFetchPlayerStatsOperation, ApiFetchPlayerStatsOperation>()
                 .AddTransient<IFindPlayerOperation, ApiFindPlayerOperation>()
@@ -186,6 +189,24 @@ namespace Faforever.Qai.Startup
             var urlConfig = JsonConvert.DeserializeObject<UrlConfiguration>(json);
 
             return (botFunConfig, urlConfig);
+        }
+
+        private static ReplayReviewConfiguration GetReplayReviewConfig(BotConfig config)
+        {
+            var settings = config.ReplayReview ?? new BotConfig.ReplayReviewSettings();
+
+            return new()
+            {
+                BrokerHost = settings.Broker,
+                BrokerPort = settings.BrokerPort,
+                BrokerUser = settings.User,
+                BrokerPassword = settings.Password,
+                BrokerVirtualHost = settings.VirtualHost,
+                Exchange = settings.Exchange,
+                RoutingKey = settings.RoutingKey,
+                QueueName = settings.QueueName,
+                ForumChannelId = settings.ForumChannelId
+            };
         }
 
         private static TwitchClientConfig GetTwitchConfig(BotConfig config)

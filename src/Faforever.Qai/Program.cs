@@ -1,4 +1,5 @@
 using Faforever.Qai.Core.Database;
+using Faforever.Qai.Core.Services;
 using Faforever.Qai.Discord;
 using Faforever.Qai.Irc;
 using Faforever.Qai.Startup;
@@ -56,5 +57,10 @@ ircBot.Run();
 var discordBot = app.Services.GetRequiredService<DiscordBot>();
 await discordBot.InitializeAsync();
 await discordBot.StartAsync();
+
+// Consumes replay review requests from the lobby server's exchange. Does
+// nothing at all unless a broker and a forum channel are configured.
+var replayReviews = app.Services.GetRequiredService<ReplayReviewQueueService>();
+await replayReviews.InitializeAsync();
 
 app.Run();
